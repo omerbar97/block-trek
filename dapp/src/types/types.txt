@@ -1,0 +1,7 @@
+The type folder will hold all the types and interfaces avialabile in the 
+application, each type will be catagorized by section, for example
+
+if there is a few types that corrospond to Users, then will create folder
+types/Users
+
+under so we will create the data types/interfaces

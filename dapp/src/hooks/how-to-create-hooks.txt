@@ -1,0 +1,12 @@
+Here will create the custom hooks for the app. some key notes.
+    1. each hook will have a seperate file
+    2. the file name will corospond to the hook name
+    3. break the hook to many other function to keep the 'single responsabilty'
+
+    
+    
+    
+lets say we create hook for fetching data:
+hook name -> useFetch
+file name -> hooks/useFetch.tsx
+

@@ -1,0 +1,7 @@
+The utils folder will have all the shared logic accross the app, for example 
+if one component uses the same logic as other component maybe we should catgorized
+it under the same name and folder. lets say:
+Function that retrive the name from the request:
+    creating file call request.ts, inside it appling the logic of the function.
+
+dont forget to module.export the function from the module.

@@ -1,0 +1,10 @@
+Creating a basic component will include the following:
+    1. each component will have a seperate folder.
+    2. all the components will be under the folder components
+    3. if it shared component (like a button) under the folder
+     shared/<component_name>/<component_name>.tsx
+    otherwise under the folder components/<component_name>/<component_name>.tsx
+
+for example
+Button component -> creating folder components/shared/regularBtn.tsx
+Dashboard compononent -> creating folder components/Dashboard.tsx
