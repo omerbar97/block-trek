@@ -1,17 +1,22 @@
 'use client';
 import React, { useState } from "react";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
+import { usePathname } from "next/navigation";
 import dashboardMenu from "@/constants/dashboardMenu";
 import AppLogo from "../assets/logo"
 import Link from "next/link";
 
+
 const Sidebar = () => {
     const [nav, setNav] = useState(false);
+    const pathname = usePathname();
 
     const logo = (outline: string, bold: string) => {
         return (
             <div className="flex">
-                <AppLogo size={42} className='ml-5 mr-5' />{outline} <span className="font-bold">{bold}</span>
+                <Link href='/dashboard' className="flex">
+                    <AppLogo size={42} className='ml-5 mr-5' />{outline} <span className="font-bold">{bold}</span>
+                </Link>
             </div>
         );
     };
@@ -59,8 +64,11 @@ const Sidebar = () => {
                                 return (
                                     <div key={index} className=" py-4">
                                         <Link href={link}>
-                                            <li className="text-xl flex cursor-pointer  w-[100%] rounded-full mx-auto p-2 hover:text-white hover:bg-black">
-                                                {icon} {title}
+                                            <li className={`text-xl flex cursor-pointer  w-[100%] rounded-full mx-auto p-2 ${pathname === link
+                                                ? 'text-white bg-black'
+                                                : 'hover:text-white hover:bg-black'
+                                                }`}>
+                                                {icon} <span className="ml-3">{title}</span>
                                             </li>
                                         </Link>
                                     </div>
@@ -70,11 +78,16 @@ const Sidebar = () => {
                     </nav>
                 </> : <>
                     <ul className="hidden sm:flex flex-col text-gray-800 border border-gray-300 bg-gray-100 rounded-md">
-                        {dashboardMenu.map(({ icon, title, link }, index) => {
+                        {dashboardMenu.map(({ icon, link }, index) => {
                             return (
                                 <div key={index} className="py-4">
                                     <Link href={link}>
-                                        <li className="cursor-pointer  w-[80%] rounded-full mx-auto ml-2 pl-1 hover:text-white hover:bg-black">
+                                        <li
+                                            className={`cursor-pointer w-[80%] rounded-full mx-auto ml-2 pl-1 ${pathname === link
+                                                ? 'text-white bg-black'
+                                                : 'hover:text-white hover:bg-black'
+                                                }`}
+                                        >
                                             {icon}
                                         </li>
                                     </Link>

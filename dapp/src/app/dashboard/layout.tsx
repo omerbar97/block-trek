@@ -1,5 +1,4 @@
 import Sidebar from "@/components/sidebar.component";
-import { useRouter } from "next/router";
  
 export default function Layout({ children }: { children: React.ReactNode }) {
 
