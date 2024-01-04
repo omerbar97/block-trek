@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import dashboardMenu from "@/constants/dashboardMenu";
 import AppLogo from "../assets/logo"
 import Link from "next/link";
+import CustomBtn from "./shared/customBtn.component";
 
 
 const Sidebar = () => {
@@ -22,15 +23,16 @@ const Sidebar = () => {
     };
 
     return (
-        <div className="max-w-[1640px] mx-auto flex justify-between items-center p-4 shadow-sm">
+        <div className="w-full mx-auto flex justify-between p-4 shadow-sm">
             {/* Left side */}
             <div className="flex items-center">
                 <div onClick={() => setNav(!nav)} className="cursor-pointer">
                     <AiOutlineMenu size={30} />
                 </div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl">
+                <h1 className="text-3xl lg:text-4xl">
                     {logo("Block", "Trek")}
                 </h1>
+                <CustomBtn className="ml-5" content="Connect Wallet" onclick={() => {console.log("connecting wallet")}}/>
             </div>
 
             {/* Overlay */}
@@ -83,7 +85,7 @@ const Sidebar = () => {
                                 <div key={index} className="py-4">
                                     <Link href={link}>
                                         <li
-                                            className={`cursor-pointer w-[80%] rounded-full mx-auto ml-2 pl-1 ${pathname === link
+                                            className={`cursor-pointer w-[80%] rounded-lg mx-auto pl-1 ${pathname === link
                                                 ? 'text-white bg-black'
                                                 : 'hover:text-white hover:bg-black'
                                                 }`}
