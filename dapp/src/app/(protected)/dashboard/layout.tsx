@@ -25,7 +25,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
   } else {
     return (
       <div className="flex h-screen flex-col bg-gray-50">
-        <div className="w-full flex-none">
+        <div className="w-full flex-none p-6">
           <Sidebar />
         </div>
         <div className="flex-grow md:overflow-y-auto ml-16 mt-4">{children}</div>

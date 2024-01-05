@@ -6,6 +6,7 @@ import dashboardMenu from "@/constants/dashboardMenu";
 import AppLogo from "../assets/logo"
 import Link from "next/link";
 import CustomBtn from "./shared/customBtn.component";
+import Auth from "./shared/auth.component";
 
 
 const Sidebar = () => {
@@ -81,7 +82,7 @@ const Sidebar = () => {
     }
 
     return (
-        <div className="w-full mx-auto flex justify-between p-4 shadow-sm">
+        <div className="bg-gradient-to-r from-gray-50 to-gray-300 bg-base-100 border-gray-500 w-full mx-auto flex justify-between p-4 shadow-lg rounded-full">
             {/* Left side */}
             <div className="flex items-center">
                 <div onClick={() => setNav(!nav)} className="cursor-pointer">
@@ -90,7 +91,13 @@ const Sidebar = () => {
                 <h1 className="text-3xl lg:text-4xl">
                     {logo("Block", "Trek")}
                 </h1>
+            </div>
+
+            <div className="flex items-center">
                 <CustomBtn className="ml-5" content="Connect Wallet" onclick={() => { console.log("connecting wallet") }} />
+                <div className=""> {/* Center the content horizontally */}
+                    <Auth />
+                </div>
             </div>
 
             {/* Overlay */}
