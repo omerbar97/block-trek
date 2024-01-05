@@ -3,19 +3,27 @@ import { NextAuthOptions } from "next-auth";
 import GoogleProvider from 'next-auth/providers/google'
 import prisma from "@/lib/prisma";
 
+// Google provider
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
+
+
+// Next configure
+const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET
+
 
 export const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt",
     },
     providers: [
-        GoogleProvider({ // not this
+        GoogleProvider({ 
             clientId: `${GOOGLE_CLIENT_ID}`,
             clientSecret: `${GOOGLE_CLIENT_SECRET}`,
         }),
     ],
+    secret: `${NEXTAUTH_SECRET}`,
+    debug:true,
     callbacks: {
         async signIn({account, profile}) {
             if(!profile?.email) {

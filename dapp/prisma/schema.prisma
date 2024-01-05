@@ -5,15 +5,18 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Use the PostgreSQL provider instead of MongoDB
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// Use the appropriate data types for PostgreSQL
 model User {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  id        Int   @id @default(autoincrement())
   email     String   @unique
   name      String?
   avatar    String?
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @db.Timestamp(6) // Adjust the precision based on your needs
 }
+
