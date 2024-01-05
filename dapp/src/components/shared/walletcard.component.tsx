@@ -2,15 +2,19 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useSession } from 'next-auth/react';
-import AppLogo from '@/assets/logo'
+import Vec from '@/assets/VeChain.svg'
+import { SiBlockchaindotcom } from "react-icons/si";
+import { getCurrentExchange } from '@/utils/exchange';
+
 
 const WalletCard = () => {
 
     const { data: session } = useSession()
 
     const [errorMessage, setErrorMessage] = useState("");
-    const [defaultAccount, setDefaultAccount] = useState(null);
-    const [userBalance, setUserBalance] = useState("");
+    const [defaultAccount, setDefaultAccount] = useState("Connect an account");
+    const [userBalance, setUserBalance] = useState("0.0");
+    const [currentValUsd, setCurrentValUsd] = useState("0.0");
     const [provider, setProvider] = useState(null);
 
     useEffect(() => {
@@ -22,7 +26,7 @@ const WalletCard = () => {
                 if (accounts.length > 0) {
                     accountChangedHandler(newProvider.getSigner());
                 } else {
-                    setDefaultAccount(null);
+                    setDefaultAccount("Connect an account");
                     setUserBalance("");
                 }
             });
@@ -41,9 +45,13 @@ const WalletCard = () => {
 
     const accountChangedHandler = async (newAccount) => {
         const address = await newAccount.getAddress();
-        setDefaultAccount(address);
+        setDefaultAccount(address as string);
         const balance = await newAccount.getBalance();
         setUserBalance(ethers.utils.formatEther(balance));
+        const res = await getCurrentExchange('ETH', 'USD')
+        if (res) {
+            console.log(res)
+        }
     }
 
     const card = () => {
@@ -55,24 +63,21 @@ const WalletCard = () => {
                             <p className="font-light">Name</p>
                             <p className="font-medium tracking-widest">{session?.user?.name}</p>
                         </div>
-                        <img
-                            className="h-14 w-14 object-contain"
-                            src={AppLogo}
-                        />
+                        <SiBlockchaindotcom className='h-14 w-14 object-contain text-black'/>
                     </div>
                     <div className="pt-1">
                         <p className="font-light">Account Number</p>
-                        <p className="tracking-more-wider font-medium">Wallet number</p>
+                        <p className="tracking-more-wider font-medium">{defaultAccount}</p>
                     </div>
                     <div className="pt-4 pr-6 sm:pt-6">
                         <div className="flex justify-between">
                             <div className="">
-                                <p className="text-xs font-light">Etheruim</p>
+                                <p className="text-xs font-light">ETHERUIM</p>
                                 <p className="text-base font-medium tracking-widest">{userBalance}</p>
                             </div>
                             <div className="">
-                                <p className="text-xs font-light">Usd</p>
-                                <p className="text-base font-medium tracking-widest">03/25</p>
+                                <p className="text-xs font-light">USD</p>
+                                <p className="text-base font-medium tracking-widest">{currentValUsd}</p>
                             </div>
                         </div>
                     </div>
