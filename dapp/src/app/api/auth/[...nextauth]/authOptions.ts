@@ -23,7 +23,6 @@ export const authOptions: NextAuthOptions = {
         }),
     ],
     secret: `${NEXTAUTH_SECRET}`,
-    debug:true,
     callbacks: {
         async signIn({account, profile}) {
             if(!profile?.email) {
