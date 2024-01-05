@@ -22,6 +22,64 @@ const Sidebar = () => {
         );
     };
 
+    const smallLeftMenu = () => {
+        // Returning the small menu on the left
+        return (
+            <ul className="hidden sm:flex flex-col text-gray-800 border border-gray-400 bg-gray-100 rounded-md">
+                {dashboardMenu.map(({ icon, link }, index) => {
+                    return (
+                        <div key={index} className="py-3">
+                            <Link href={link}>
+                                <li
+                                    className={`cursor-pointer w-[80%] rounded-lg mx-auto pl-1 ${pathname === link
+                                        ? 'text-white bg-gray-600'
+                                        : 'hover:text-white hover:bg-black'
+                                        }`}
+                                >
+                                    {icon}
+                                </li>
+                            </Link>
+                        </div>
+                    );
+                })}
+            </ul>
+        )
+    }
+
+    const bigLeftMenu = () => {
+        return (
+            <>
+                <AiOutlineClose
+                    onClick={() => setNav(!nav)}
+                    size={30}
+                    className="absolute right-4 top-4 cursor-pointer"
+                />
+                <h2 className="text-2xl p-4">
+                    {logo("Block", "Trek")}
+                </h2>
+                <nav>
+                    <ul className="flex flex-col pl-4 pr-4 text-gray-800 border border-gray-300 bg-gray-100">
+
+                        {dashboardMenu.map(({ title, icon, link }, index) => {
+                            return (
+                                <div key={index} className="py-2">
+                                    <Link href={link}>
+                                        <li className={`text-xl flex cursor-pointer  w-[100%] rounded-full mx-auto p-2 ${pathname === link
+                                            ? 'text-white bg-gray-600'
+                                            : 'hover:text-white hover:bg-black'
+                                            }`}>
+                                            {icon} <span className="ml-3">{title}</span>
+                                        </li>
+                                    </Link>
+                                </div>
+                            );
+                        })}
+                    </ul>
+                </nav>
+            </>
+        )
+    }
+
     return (
         <div className="w-full mx-auto flex justify-between p-4 shadow-sm">
             {/* Left side */}
@@ -32,7 +90,7 @@ const Sidebar = () => {
                 <h1 className="text-3xl lg:text-4xl">
                     {logo("Block", "Trek")}
                 </h1>
-                <CustomBtn className="ml-5" content="Connect Wallet" onclick={() => {console.log("connecting wallet")}}/>
+                <CustomBtn className="ml-5" content="Connect Wallet" onclick={() => { console.log("connecting wallet") }} />
             </div>
 
             {/* Overlay */}
@@ -51,52 +109,9 @@ const Sidebar = () => {
                 }
             >
                 {nav ? <>
-                    <AiOutlineClose
-                        onClick={() => setNav(!nav)}
-                        size={30}
-                        className="absolute right-4 top-4 cursor-pointer"
-                    />
-                    <h2 className="text-2xl p-4">
-                        {logo("Block", "Trek")}
-                    </h2>
-                    <nav>
-                        <ul className="flex flex-col p-4 text-gray-800 border border-gray-300 bg-gray-100">
-
-                            {dashboardMenu.map(({ title, icon, link }, index) => {
-                                return (
-                                    <div key={index} className=" py-4">
-                                        <Link href={link}>
-                                            <li className={`text-xl flex cursor-pointer  w-[100%] rounded-full mx-auto p-2 ${pathname === link
-                                                ? 'text-white bg-black'
-                                                : 'hover:text-white hover:bg-black'
-                                                }`}>
-                                                {icon} <span className="ml-3">{title}</span>
-                                            </li>
-                                        </Link>
-                                    </div>
-                                );
-                            })}
-                        </ul>
-                    </nav>
+                    {bigLeftMenu()}
                 </> : <>
-                    <ul className="hidden sm:flex flex-col text-gray-800 border border-gray-300 bg-gray-100 rounded-md">
-                        {dashboardMenu.map(({ icon, link }, index) => {
-                            return (
-                                <div key={index} className="py-4">
-                                    <Link href={link}>
-                                        <li
-                                            className={`cursor-pointer w-[80%] rounded-lg mx-auto pl-1 ${pathname === link
-                                                ? 'text-white bg-black'
-                                                : 'hover:text-white hover:bg-black'
-                                                }`}
-                                        >
-                                            {icon}
-                                        </li>
-                                    </Link>
-                                </div>
-                            );
-                        })}
-                    </ul>
+                    {smallLeftMenu()}
                 </>
                 }
             </div>
