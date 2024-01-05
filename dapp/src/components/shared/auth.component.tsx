@@ -70,10 +70,11 @@ const Auth = () => {
     }
 
     return (
-        <div className="flex gap-2 mr-5">
-            {status === 'authenticated' ? <>
-                {authenticated()}
-            </> :
+        <div className="flex mr-4">
+            {status === 'authenticated' ?
+                <>
+                    {authenticated()}
+                </> :
                 <>
                     {unAuthenticated()}
                 </>}

@@ -6,22 +6,13 @@ import dashboardMenu from "@/constants/dashboardMenu";
 import AppLogo from "../assets/logo"
 import Link from "next/link";
 import CustomBtn from "./shared/customBtn.component";
-import Auth from "./shared/auth.component";
+import Logo from "./shared/Logo.component";
 
 
 const Sidebar = () => {
     const [nav, setNav] = useState(false);
     const pathname = usePathname();
 
-    const logo = (outline: string, bold: string) => {
-        return (
-            <div className="flex">
-                <Link href='/dashboard' className="flex">
-                    <AppLogo size={42} className='ml-5 mr-5' />{outline} <span className="font-bold">{bold}</span>
-                </Link>
-            </div>
-        );
-    };
 
     const smallLeftMenu = () => {
         // Returning the small menu on the left
@@ -34,7 +25,7 @@ const Sidebar = () => {
                                 <li
                                     className={`cursor-pointer w-[80%] rounded-lg mx-auto pl-1 ${pathname === link
                                         ? 'text-white bg-gray-600'
-                                        : 'hover:text-white hover:bg-black'
+                                        : 'hover:text-white hover:bg-gray-800'
                                         }`}
                                 >
                                     {icon}
@@ -55,8 +46,8 @@ const Sidebar = () => {
                     size={30}
                     className="absolute right-4 top-4 cursor-pointer"
                 />
-                <h2 className="text-2xl p-4">
-                    {logo("Block", "Trek")}
+                <h2 className="text-3xl p-4">
+                    <Logo href="/dashboard" />
                 </h2>
                 <nav>
                     <ul className="flex flex-col pl-4 pr-4 text-gray-800 border border-gray-300 bg-gray-100">
@@ -67,7 +58,7 @@ const Sidebar = () => {
                                     <Link href={link}>
                                         <li className={`text-xl flex cursor-pointer  w-[100%] rounded-full mx-auto p-2 ${pathname === link
                                             ? 'text-white bg-gray-600'
-                                            : 'hover:text-white hover:bg-black'
+                                            : 'hover:text-white hover:bg-gray-800'
                                             }`}>
                                             {icon} <span className="ml-3">{title}</span>
                                         </li>
@@ -89,15 +80,12 @@ const Sidebar = () => {
                     <AiOutlineMenu size={30} />
                 </div>
                 <h1 className="text-3xl lg:text-4xl">
-                    {logo("Block", "Trek")}
+                    <Logo href="/dashboard" />
                 </h1>
             </div>
 
             <div className="flex items-center">
                 <CustomBtn className="ml-5" content="Connect Wallet" onclick={() => { console.log("connecting wallet") }} />
-                <div className=""> {/* Center the content horizontally */}
-                    <Auth />
-                </div>
             </div>
 
             {/* Overlay */}
