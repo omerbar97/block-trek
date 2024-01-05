@@ -10,9 +10,17 @@ const SigninBtn = () => {
     if (session && session.user) {
         return (
             <>
-                <div className='flex gap-4 ml-auto'>
-                    <p className='text-sky-600'>{session.user.name}</p>
-                    <CustomBtn onclick={() => signOut()} content="Sign Out" />
+                <div className='flex gap-4 items-center ml-auto'>
+                    <h4 className='text-gray-800 text-center font-bold font-sans'>Welcome! {session.user.name}</h4>
+                    {session.user.image ?
+                        <>
+                            <CustomBtn onclick={() => signOut()} content="Sign Out" image={session.user.image} />
+                        </>
+                        :
+                        <>
+                            <CustomBtn onclick={() => signOut()} content="Sign Out" />
+                        </>}
+
                 </div>
             </>
         )
