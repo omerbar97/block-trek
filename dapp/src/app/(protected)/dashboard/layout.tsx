@@ -24,11 +24,11 @@ export default async function Layout({ children }: { children: React.ReactNode }
 
   } else {
     return (
-      <div className="flex h-screen flex-col  bg-secondImg bg-cover">
-        <div className="w-full flex-none p-6">
+      <div className="flex h-screen flex-col bg-secondImg bg-cover">
+        <div className="w-full flex-none pl-6 pr-6 pt-3 pb-3">
           <Sidebar />
         </div>
-        <div className="flex-grow md:overflow-y-auto ml-16 mt-4 text-white">{children}</div>
+        <div className="flex-grow md:overflow-y-auto text-white bg-secondImg bg-repeat-y">{children}</div>
       </div>
     );
   }
