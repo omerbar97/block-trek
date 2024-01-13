@@ -51,7 +51,7 @@ const WalletCard = () => {
                     <div className="pt-4 pr-6 sm:pt-6">
                         <div className="flex justify-between">
                             <div className="">
-                                <p className="text-xs font-bold">ETHERUIM BALANCE</p>
+                                <p className="text-xs font-bold">ETHEREUM BALANCE</p>
                                 <p className="text-base font-light tracking-widest">{userBalance}</p>
                             </div>
                         </div>

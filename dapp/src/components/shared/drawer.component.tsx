@@ -9,7 +9,7 @@ type DrawerProps = {
 const Drawer: React.FC<DrawerProps> = ({ children, isOpen, onClose }) => {
     return (
         (isOpen ? <>
-            <div className='drawer drawer-end'>
+            <div className='drawer drawer-end z-20'>
                 <input
                     id="my-drawer-1"
                     type="checkbox"
