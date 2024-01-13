@@ -1,5 +1,4 @@
 import WalletCard from '@/components/crypto/walletcard.component'
-import { CarouselDashboard } from '@/components/dashboard/carousel.component'
 import StatisticDashboard from '@/components/dashboard/statistic.component'
 import React from 'react'
 
