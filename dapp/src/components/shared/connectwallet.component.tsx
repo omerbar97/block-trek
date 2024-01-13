@@ -1,48 +1,47 @@
 import React from 'react'
-import CustomBtn from './customBtn.component'
 import { useWallet } from '@/hooks/wallet.hook';
 import { ethers } from 'ethers';
+import CustomBtn from './customBtn.component';
+import { BrowserProvider } from 'ethers';
+import { Button } from '../ui/button';
 
 const ConnectWallet = () => {
 
     const { setWalletAddress, setEthValue, walletAddress } = useWallet()
 
     const handleConnect = async () => {
-        const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+        const provider = new BrowserProvider(window.ethereum, "any")
         let accounts = await provider.send("eth_requestAccounts", []);
-        let account = accounts[0];
-        provider.on('accountsChanged', async (accounts) => {
-            account = accounts[0]
-            console.log("user changed the account of the metamask", accounts)
-            handleSigner(provider)
-        })
-        provider.on('disconnect', (error) => {
-            console.log("wallet disconnected")
-        })
         handleSigner(provider)
     }
 
-    const handleSigner = async (provider: ethers.providers.Web3Provider) => {
+    const handleSigner = async (provider: BrowserProvider) => {
         const signer = provider.getSigner();
-        const address = await signer.getAddress();
+        const address = (await signer).address
         setWalletAddress(address)
         // Retrieve the balance
-        const balance = await provider.getBalance(address);
-        // Convert the balance to ETH (wei to ether)
-        const formattedBalance = ethers.utils.formatEther(balance);
-        setEthValue(formattedBalance)
-    }
 
+        const balance = await provider.getBalance(address);
+        if (balance !== undefined) {
+            // Convert the balance to ETH (wei to ether)
+            console.log(ethers)
+            const formattedBalance = ethers.formatEther(balance)
+            setEthValue(formattedBalance);
+        } else {
+            // Handle the case where balance is undefined
+            console.error('Balance is undefined');
+        }
+    }
 
     return (
         <>
             {walletAddress ? <>
                 <div>
-                    <CustomBtn className="ml-5" content="Connected" onclick={handleConnect} />
+                    <Button size='lg' variant='ghost' className='rounded-2xl' onClick={handleConnect}>Connected</Button>
                 </div>
             </> : <>
                 <div>
-                    <CustomBtn className="ml-5" content="Connect a Wallet" onclick={handleConnect} />
+                    <Button size='lg' variant='destructive' className='rounded-2xl' onClick={handleConnect}>Connect Wallet</Button>
                 </div>
             </>}
         </>

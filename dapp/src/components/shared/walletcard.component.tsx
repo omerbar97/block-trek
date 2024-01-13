@@ -2,19 +2,17 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { SiBlockchaindotcom } from "react-icons/si";
-import { WalletContext } from '@/context/wallet.context';
 import { useWallet } from '@/hooks/wallet.hook';
 
 const defaultAccountAddress = 'Connect an account'
-
+const defaultEthValue = "0.0"
 const WalletCard = () => {
 
     const { data: session } = useSession()
     const { walletAddress, ethValue } = useWallet();
 
-    const [errorMessage, setErrorMessage] = useState("");
     const [defaultAccount, setDefaultAccount] = useState(walletAddress ? walletAddress : defaultAccountAddress);
-    const [userBalance, setUserBalance] = useState(ethValue ? ethValue : "0.0");
+    const [userBalance, setUserBalance] = useState(ethValue ? ethValue : defaultEthValue);
 
 
     useEffect(() => {
@@ -28,7 +26,7 @@ const WalletCard = () => {
         }
 
         if (!ethValue) {
-            setUserBalance("0.0")
+            setUserBalance(defaultEthValue)
         } else {
             setUserBalance(ethValue)
         }
