@@ -89,7 +89,7 @@ const Sidebar = () => {
 
             {/* Overlay */}
             {nav ? (
-                <div className="bg-black/80 fixed w-full h-screen z-10 top-0 left-0"></div>
+                <div className="bg-black/80 fixed w-full h-screen z-20 top-0 left-0"></div>
             ) : (
                 ""
             )}
@@ -98,8 +98,8 @@ const Sidebar = () => {
             <div
                 className={
                     nav
-                        ? "fixed top-0 left-0 w-[300px] h-screen bg-gray-100 z-10 duration-200"
-                        : "fixed top-1/4 left-2  w-[45px] h-fit bg-transparent z-10 duration-200"
+                        ? "fixed top-0 left-0 w-[300px] h-screen bg-gray-100 z-20 duration-200"
+                        : "fixed top-1/4 left-2  w-[45px] h-fit bg-transparent z-20 duration-200"
                 }
             >
                 {nav ? <>

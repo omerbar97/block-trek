@@ -35,7 +35,7 @@ const WalletCard = () => {
 
     return (
         <div className="WalletCard">
-            <div className="relative m-2 h-48 w-80 rounded-xl bg-gradient-to-r from-gray-500 to-gray-400 text-white shadow-2xl transition-transform sm:h-56 sm:w-96 sm:hover:scale-110">
+            <div className="relative m-2 h-48 w-80 rounded-xl bg-gradient-to-r from-gray-500 to-gray-400 text-white shadow-2xl transition-transform sm:h-56 sm:w-96 sm:hover:scale-105">
                 <div className="absolute top-4 w-full px-8 sm:top-8">
                     <div className="flex justify-between">
                         <div className="">

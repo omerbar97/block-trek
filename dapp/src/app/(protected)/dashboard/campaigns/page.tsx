@@ -22,7 +22,7 @@ const FundCampaignsPage = () => {
   return (
     <div className='mx-16'>
       {/* Your Page Content */}
-      <div className='flex justify-center bg-slate-900 p-5 rounded-2xl mb-2 z-10'>
+      <div className='sticky top-0 z-10 flex justify-center bg-slate-900 p-5 rounded-xl mb-2'>
         <Searchbar />
       </div>
       <div className='justify-center flex flex-wrap gap-4'>
