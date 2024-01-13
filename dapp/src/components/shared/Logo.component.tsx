@@ -11,7 +11,7 @@ const Logo: React.FC<LogoProps> = ({ href }) => {
     <div className="flex">
       <Link href={href}>
         <div className="flex btn-ghost rounded-full p-2">
-          <AppLogo size={42} className="ml-5 mr-5" />Block <span className="font-bold">Trek</span>
+          <AppLogo size={30} className="ml-1 mt-1 mr-2" />Block <span className="font-bold">Trek</span>
         </div>
       </Link>
     </div>

@@ -4,10 +4,8 @@ import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { usePathname } from "next/navigation";
 import dashboardMenu from "@/constants/dashboardMenu";
 import Link from "next/link";
-import CustomBtn from "./shared/customBtn.component";
 import Logo from "./shared/Logo.component";
-import { handleBtnConnect } from "@/utils/wallet";
-import ConnectWallet from "./shared/connectwallet.component";
+import ConnectWallet from "./crypto/connectwallet.component";
 
 
 const Sidebar = () => {
@@ -56,7 +54,7 @@ const Sidebar = () => {
                         {dashboardMenu.map(({ title, icon, link }, index) => {
                             return (
                                 <div key={index} className="py-2">
-                                    <Link href={link}>
+                                    <Link href={link} onClick={() => {setNav(false)}}>
                                         <li className={`text-xl flex cursor-pointer  w-[100%] rounded-full mx-auto p-2 ${pathname === link
                                             ? 'text-white bg-gray-600'
                                             : 'hover:text-white hover:bg-gray-800'
@@ -74,13 +72,13 @@ const Sidebar = () => {
     }
 
     return (
-        <div className="bg-gradient-to-r from-gray-50 to-gray-300 bg-base-100 border-gray-500 w-full mx-auto flex justify-between p-4 shadow-lg rounded-full">
+        <div className="bg-gradient-to-r from-gray-50 to-gray-300 bg-base-100 border-gray-500 w-full flex justify-between pt-1 pb-1 shadow-lg rounded-full pl-4 pr-4">
             {/* Left side */}
             <div className="flex items-center">
                 <div onClick={() => setNav(!nav)} className="cursor-pointer">
                     <AiOutlineMenu size={30} />
                 </div>
-                <h1 className="text-3xl lg:text-4xl">
+                <h1 className="flex-1 text-3xl">
                     <Logo href="/dashboard" />
                 </h1>
             </div>

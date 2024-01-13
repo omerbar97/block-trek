@@ -1,9 +1,11 @@
 'use client';
+import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import React from 'react'
+import { Button } from '../ui/button';
 
-const Auth = () => {
+const AuthUser = () => {
 
     const { data: session, status } = useSession()
 
@@ -11,21 +13,12 @@ const Auth = () => {
 
         const imageHandle = () => {
             return (
-                <>
-                    {
-                        session?.user?.image ?
-                            <>
-                                <div className="w-10 rounded-full">
-                                    <img alt="Tailwind CSS Navbar component" src={session?.user?.image} />
-                                </div>
-                            </> :
-                            <>
-                                <div className="w-10 rounded-full">
-                                    <img alt="Tailwind CSS Navbar component" src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeRfV9n69zxuV4DQX7sYF7ql8ajx47wLioPeP-m4qFbHLkD9UNwfQSneRtkQEDnx-QxFs' />
-                                </div>
-                            </>
-                    }
-                </>
+                <div className='w-10 rounded-full'>
+                    <Avatar>
+                        <AvatarImage src={session?.user?.image ? session?.user?.image : undefined} />
+                        <AvatarFallback>BT</AvatarFallback>
+                    </Avatar>
+                </div>
             )
         }
 
@@ -48,7 +41,7 @@ const Auth = () => {
         return (
             <>
                 <div className='text-black font-mono'>
-                    Welcome! <span className='badge'>{session?.user?.name}</span>
+                    {/* Welcome! <span className=''>{session?.user?.name}</span> */}
                 </div>
                 <div className="dropdown dropdown-end  items-center">
                     <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
@@ -63,8 +56,9 @@ const Auth = () => {
     const unAuthenticated = () => {
         return (
             <div className='rounded-full'>
-                <button className='btn btn-ghost rounded-full'
-                    onClick={() => signIn()}>Sign In</button>
+                <Button variant='default' className='rounded-full' onClick={() => signIn()}>
+                    Sign In
+                </Button>
             </div>
         )
     }
@@ -82,4 +76,4 @@ const Auth = () => {
     )
 }
 
-export default Auth
+export default AuthUser

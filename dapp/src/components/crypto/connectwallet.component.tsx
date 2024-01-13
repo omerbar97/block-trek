@@ -1,9 +1,15 @@
 import React from 'react'
 import { useWallet } from '@/hooks/wallet.hook';
 import { ethers } from 'ethers';
-import CustomBtn from './customBtn.component';
 import { BrowserProvider } from 'ethers';
 import { Button } from '../ui/button';
+
+// To remove the error causing by window.ethereum
+declare global {
+    interface Window {
+        ethereum:any;
+    }
+}
 
 const ConnectWallet = () => {
 
@@ -11,7 +17,7 @@ const ConnectWallet = () => {
 
     const handleConnect = async () => {
         const provider = new BrowserProvider(window.ethereum, "any")
-        let accounts = await provider.send("eth_requestAccounts", []);
+        await provider.send("eth_requestAccounts", []);
         handleSigner(provider)
     }
 
@@ -35,15 +41,15 @@ const ConnectWallet = () => {
 
     return (
         <>
-            {walletAddress ? <>
+            {walletAddress ?
                 <div>
                     <Button size='lg' variant='ghost' className='rounded-2xl' onClick={handleConnect}>Connected</Button>
                 </div>
-            </> : <>
+                :
                 <div>
                     <Button size='lg' variant='destructive' className='rounded-2xl' onClick={handleConnect}>Connect Wallet</Button>
                 </div>
-            </>}
+            }
         </>
 
     )

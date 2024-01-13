@@ -1,4 +1,4 @@
-import WalletCard from '@/components/shared/walletcard.component'
+import WalletCard from '@/components/crypto/walletcard.component'
 import React from 'react'
 
 const DashboardPage = () => {
