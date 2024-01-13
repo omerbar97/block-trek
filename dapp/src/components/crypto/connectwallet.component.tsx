@@ -43,11 +43,11 @@ const ConnectWallet = () => {
         <>
             {walletAddress ?
                 <div>
-                    <Button size='lg' variant='ghost' className='rounded-2xl' onClick={handleConnect}>Connected</Button>
+                    <Button size='sm' variant='connected' className='rounded-2xl' onClick={handleConnect}>Connected</Button>
                 </div>
                 :
                 <div>
-                    <Button size='lg' variant='destructive' className='rounded-2xl' onClick={handleConnect}>Connect Wallet</Button>
+                    <Button size='sm' variant='destructive' className='rounded-2xl' onClick={handleConnect}>Connect Wallet</Button>
                 </div>
             }
         </>

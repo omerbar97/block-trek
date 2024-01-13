@@ -20,35 +20,57 @@ const FundCampaignsPage = () => {
   };
 
   return (
-      <div className='mx-16'>
-        {/* Your Page Content */}
-        <div className='flex justify-center bg-slate-800 p-5 rounded-2xl z-10'>
-          <Searchbar />
-        </div>
-        <div className='justify-center flex flex-wrap gap-3'>
-          <Card onClick={handleCardClick} />
-          <Card onClick={handleCardClick} />
-          <Card onClick={handleCardClick} />
-          <Card onClick={handleCardClick} />
-          <Card onClick={handleCardClick} />
-          <Card onClick={handleCardClick} />
-          <Card onClick={handleCardClick} />
-          <Card onClick={handleCardClick} />
-          <Card onClick={handleCardClick} />
-          <Card onClick={handleCardClick} />
-          <Card onClick={handleCardClick} />
-          <Card onClick={handleCardClick} />
-          <Card onClick={handleCardClick} />
-          <Card onClick={handleCardClick} />
-          <Card onClick={handleCardClick} />
-        </div>
-        <Drawer isOpen={drawerOpen} onClose={handleDrawerClose}>
-          <LoadingCard>
-            <LoadingCard>
-            </LoadingCard>
-          </LoadingCard>
-        </Drawer>
+    <div className='mx-16'>
+      {/* Your Page Content */}
+      <div className='flex justify-center bg-slate-900 p-5 rounded-2xl mb-2 z-10'>
+        <Searchbar />
       </div>
+      <div className='justify-center flex flex-wrap gap-4'>
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+        <Card onClick={handleCardClick} />
+      </div>
+
+      <Drawer isOpen={drawerOpen} onClose={handleDrawerClose}>
+        <LoadingCard>
+          <LoadingCard>
+          </LoadingCard>
+        </LoadingCard>
+      </Drawer>
+    </div>
   );
 }
 

@@ -7,15 +7,12 @@ import TypewriterComponent from 'typewriter-effect';
 const Hero = () => {
 
     const { data: session } = useSession()
-
     // when users are logged in the Get Started button will redirect to the dashboard
     var url = session?.user?.email ? '/dashboard' : '/api/auth/signin'
-
     const welcomeSection = () => {
-
         return (
             <div className="text-white">
-                <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
+                <div className="mx-auto max-w-2xl py-32 sm:py-40 lg:py-56">
                     <div className="hidden sm:mb-8 sm:flex sm:justify-center">
                         <div className="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-50 ring-1 ring-gray-100/10 hover:ring-gray-200">
                             About our platfrom.{" "}
@@ -34,16 +31,16 @@ const Hero = () => {
                         <div className="mt-6 text-lg leading-8 text-gray-400">
                             <TypewriterComponent options={{
                                 strings: ["Explore and fund the future with Block-Trek. Your decentralized crowdfunding hub on the Ethereum blockchain. Empowering innovators, connecting backers, and driving change. Join us in shaping tomorrow's success stories.",
-                                           "So, What are you waiting for?",
-                                           "Why you are not in the dashboard?",
-                                           "With great power comes great responsability's...",
-                                           "I am just a cursor...",
-                                           "I am knew here as well...",
-                                            ],
+                                    "So, What are you waiting for?",
+                                    "Why you are not in the dashboard?",
+                                    "With great power comes great responsability's...",
+                                    "I am just a cursor...",
+                                    "I am knew here as well...",
+                                ],
                                 autoStart: true,
-                                loop: false,
+                                loop: true,
                                 delay: 50,
-                                deleteSpeed:4,
+                                deleteSpeed: 4,
                             }} />
                         </div>
                         <div className="mt-10 flex items-center justify-center gap-x-6">
@@ -64,11 +61,8 @@ const Hero = () => {
     }
 
     return (
-        <div className={`fixed left-0 top-0 hero min-h-screen bg-base-200 bg-secondImg bg-cover`}>
-            <div className="">
-                <img src="" className="" />
-                {welcomeSection()}
-            </div>
+        <div className={`fixed left-0 top-0 hero overflow-hidden`}>
+            {welcomeSection()}
         </div>
     )
 }
