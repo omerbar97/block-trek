@@ -13,10 +13,11 @@ datasource db {
 
 // Use the appropriate data types for PostgreSQL
 model User {
-  id        Int   @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  avatar    String?
-  createdAt DateTime @default(now()) @db.Timestamp(6) // Adjust the precision based on your needs
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  name       String?
+  avatar     String?
+  createdAt  DateTime @default(now()) @db.Timestamp(6) // Adjust the precision based on your needs
+  verifyed   Boolean  @default(false)
+  filledForm Boolean  @default(false)
 }
-

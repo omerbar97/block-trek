@@ -3,10 +3,11 @@ import React, { useState } from "react";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { usePathname } from "next/navigation";
 import dashboardMenu from "@/constants/dashboardMenu";
-import AppLogo from "../assets/logo"
 import Link from "next/link";
 import CustomBtn from "./shared/customBtn.component";
 import Logo from "./shared/Logo.component";
+import { handleBtnConnect } from "@/utils/wallet";
+import ConnectWallet from "./shared/connectwallet.component";
 
 
 const Sidebar = () => {
@@ -85,7 +86,7 @@ const Sidebar = () => {
             </div>
 
             <div className="flex items-center">
-                <CustomBtn className="ml-5" content="Connect Wallet" onclick={() => { console.log("connecting wallet") }} />
+                <ConnectWallet />
             </div>
 
             {/* Overlay */}

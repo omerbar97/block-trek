@@ -10,7 +10,7 @@ interface CustomBtnProps {
 const CustomBtn: React.FC<CustomBtnProps> = ({ onclick, content, className, image }) => {
     return (
         <button
-            className={`bg-gradient-to-r from-gray-600 to-gray-800 hover:bg-gradient-to-l text-white font-bold py-2 px-4 rounded-full ${className || ''}`}
+            className={`bg-gradient-to-r from-gray-600 to-gray-800 hover:bg-gradient-to-l text-white font-bold py-2 px-4 rounded-full ${className}`}
             onClick={onclick}
         >
             <div className='flex gap-2 items-center'>

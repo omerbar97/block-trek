@@ -1,11 +1,20 @@
 'use client';
 import React from 'react'
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { signIn, signOut, useSession } from 'next-auth/react'
 import CustomBtn from './shared/customBtn.component'
 
 const SigninBtn = () => {
 
     const { data: session } = useSession()
+    const router = useRouter();
+
+    useEffect(() => {
+        if (session && session.user) {
+          router.push(`/`);
+        }
+      }, [session, router])
 
     if (session && session.user) {
         return (

@@ -1,24 +1,42 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
+import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { SiBlockchaindotcom } from "react-icons/si";
-import { connectWallet } from '@/utils/wallet';
+import { WalletContext } from '@/context/wallet.context';
+import { useWallet } from '@/hooks/wallet.hook';
 
+const defaultAccountAddress = 'Connect an account'
 
 const WalletCard = () => {
 
     const { data: session } = useSession()
+    const { walletAddress, ethValue } = useWallet();
 
     const [errorMessage, setErrorMessage] = useState("");
-    const [defaultAccount, setDefaultAccount] = useState("Connect an account");
-    const [userBalance, setUserBalance] = useState("0.0");
-    const [provider, setProvider] = useState(null);
+    const [defaultAccount, setDefaultAccount] = useState(walletAddress ? walletAddress : defaultAccountAddress);
+    const [userBalance, setUserBalance] = useState(ethValue ? ethValue : "0.0");
 
 
-    const card = () => {
-        return (
-            <div className="relative m-auto h-48 w-80 rounded-xl bg-gradient-to-r from-gray-500 to-gray-400 text-white shadow-2xl transition-transform sm:h-56 sm:w-96 sm:hover:scale-110">
+    useEffect(() => {
+        if (!walletAddress) {
+            setDefaultAccount(defaultAccountAddress);
+        } else {
+            // triming the 20 digits of the wallet
+            let val = walletAddress.slice(0, 28);
+            val = val + "..."
+            setDefaultAccount(val)
+        }
+
+        if (!ethValue) {
+            setUserBalance("0.0")
+        } else {
+            setUserBalance(ethValue)
+        }
+    }, [walletAddress, ethValue])
+
+    return (
+        <div className="WalletCard">
+            <div className="relative m-12 h-48 w-80 rounded-xl bg-gradient-to-r from-gray-500 to-gray-400 text-white shadow-2xl transition-transform sm:h-56 sm:w-96 sm:hover:scale-110">
                 <div className="absolute top-4 w-full px-8 sm:top-8">
                     <div className="flex justify-between">
                         <div className="">
@@ -41,30 +59,6 @@ const WalletCard = () => {
                     </div>
                 </div>
             </div>
-        )
-    }
-
-    return (
-        <div className="WalletCard">
-            {card()}
-            <img src="" className="App-logo" alt="logo" />
-            <h3 className="h4">
-                Welcome to a decentralized Application
-            </h3>
-            <button
-                style={{ background: defaultAccount ? "#A5CC82" : "white" }}
-                onClick={() => connectWallet()}>
-                {defaultAccount ? "Connected!!" : "Connect"}
-            </button>
-            <div className="displayAccount">
-                <h4 className="walletAddress">Address:{defaultAccount}</h4>
-                <div className="balanceDisplay">
-                    <h3>
-                        Wallet Amount: {userBalance}
-                    </h3>
-                </div>
-            </div>
-            {errorMessage}
         </div>
     );
 }

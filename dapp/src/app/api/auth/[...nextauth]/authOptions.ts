@@ -11,39 +11,71 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 // Next configure
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET
 
+interface User {
+    email: string;
+    name?: string;
+    avatar?: string;
+    verified?: boolean;
+    filledForm?: boolean;
+}
+
+
 
 export const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt",
     },
     providers: [
-        GoogleProvider({ 
+        GoogleProvider({
             clientId: `${GOOGLE_CLIENT_ID}`,
             clientSecret: `${GOOGLE_CLIENT_SECRET}`,
         }),
     ],
     secret: `${NEXTAUTH_SECRET}`,
     callbacks: {
-        async signIn({account, profile}) {
-            if(!profile?.email) {
+        async signIn({ account, profile }) {
+            if (!profile?.email) {
                 throw new Error('No profile')
             }
-            
-            await prisma.user.upsert({
+
+            // checking if user already signed up
+            const foundUser = await prisma.user.findFirst({
                 where: {
-                    email: profile.email,
-                },
-                create: {
-                    email: profile.email,
-                    name: profile.name,
-                    avatar: profile.image,
-                },
-                update: {
-                    name: profile.name,
-                    avatar: profile.image,
+                    email: profile.email
                 }
             })
-            return true
-        }
+
+            if (!foundUser) {
+                // user doesnt exists
+                const usr: User = {
+                    email: profile.email,
+                    name: profile.name,
+                    avatar: profile.image,
+                    verified: false,
+                    filledForm: false,
+                }
+                await prisma.user.create({
+                    data: {
+                        ...usr
+                    }
+                })
+                return { user: { ...usr } };
+            }
+            else if (!foundUser.filledForm) {
+                return { user: { ...foundUser } };
+            } else {
+                await prisma.user.update({
+                    where: {
+                        email: profile.email,
+                    },
+                    data: {
+                        name: profile.name,
+                        avatar: profile.image,
+                    }
+                })
+            }
+
+            return { user: { ...foundUser } };
+        },
     },
 };

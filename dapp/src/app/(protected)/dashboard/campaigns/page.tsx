@@ -38,10 +38,7 @@ const FundCampaignsPage = () => {
       <Card onClick={handleCardClick} />
       </div>
 
-      {/* Reusable Drawer Component */}
       <Drawer isOpen={drawerOpen} onClose={handleDrawerClose}>
-        {/* Dynamic Content */}
-        {/* Pass data or components as children */}
         <LoadingCard>
           <LoadingCard>
           </LoadingCard>

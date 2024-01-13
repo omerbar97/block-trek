@@ -2,10 +2,11 @@
 import React from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
+import TypewriterComponent from 'typewriter-effect';
 
 const Hero = () => {
 
-    const {data: session} = useSession()
+    const { data: session } = useSession()
 
     // when users are logged in the Get Started button will redirect to the dashboard
     var url = session?.user?.email ? '/dashboard' : '/api/auth/signin'
@@ -30,9 +31,21 @@ const Hero = () => {
                         <h1 className="text-4xl font-bold tracking-tight text-gray-200 sm:text-6xl">
                             A Decentrilized App For Crowd Funding
                         </h1>
-                        <p className="mt-6 text-lg leading-8 text-gray-400">
-                            Explore and fund the future with Block-Trek. Your decentralized crowdfunding hub on the Ethereum blockchain. Empowering innovators, connecting backers, and driving change. Join us in shaping tomorrow's success stories.
-                        </p>
+                        <div className="mt-6 text-lg leading-8 text-gray-400">
+                            <TypewriterComponent options={{
+                                strings: ["Explore and fund the future with Block-Trek. Your decentralized crowdfunding hub on the Ethereum blockchain. Empowering innovators, connecting backers, and driving change. Join us in shaping tomorrow's success stories.",
+                                           "So, What are you waiting for?",
+                                           "Why you are not in the dashboard?",
+                                           "With great power comes great responsability's...",
+                                           "I am just a cursor...",
+                                           "I am knew here as well...",
+                                            ],
+                                autoStart: true,
+                                loop: false,
+                                delay: 50,
+                                deleteSpeed:4,
+                            }} />
+                        </div>
                         <div className="mt-10 flex items-center justify-center gap-x-6">
                             <Link href={url}>
                                 <div
