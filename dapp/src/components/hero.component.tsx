@@ -35,7 +35,7 @@ const Hero = () => {
                                     "Why you are not in the dashboard?",
                                     "With great power comes great responsability's...",
                                     "I am just a cursor...",
-                                    "I am knew here as well...",
+                                    "I am new here as well...",
                                 ],
                                 autoStart: true,
                                 loop: true,

@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useContext, ReactNode } from "react";
 import { WalletContext } from "@/context/wallet.context";
 

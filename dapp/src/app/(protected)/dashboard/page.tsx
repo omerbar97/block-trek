@@ -6,13 +6,13 @@ const DashboardPage = () => {
 
   return (
     <>
-      <div className='flex flex-col justify-center items-center m-auto'>
+      <section className='flex flex-col justify-center items-center m-auto'>
         <div className='flex flex-col md:flex-row lg:flex-row gap-4'>
           <WalletCard />
-          <div className='mt-2 left-5 max-w-96 bg-slate-500 h-fit p-5 rounded-3xl hover:scale-105'>
+          <div className='mt-2 left-5 max-w-96 bg-slate-500 h-fit p-5 rounded-3xl hover:scale-105 font-bold'>
             <p>Welcome to your dashboard! Here, you can manage your wallet, explore campaigns, and track your crowdfunding activities.</p>
             <p>Start by:</p>
-            <ul className='list-disc list-inside text-white mt-2'>
+            <ul className='list-disc list-inside text-white mt-2 font-mono'>
               <li>Connecting your Metamask wallet</li>
               <li>Creating a campaign</li>
               <li>Funding other campaigns</li>
@@ -20,10 +20,10 @@ const DashboardPage = () => {
           </div>
         </div>
         {/* Campaign Statistics */}
-      </div>
-      <div className='pl-20 pr-20 w-full'>
+      </section>
+      <section className='flex justify-center items-center'>
         <StatisticDashboard />
-      </div>
+      </section>
     </>
   )
 }

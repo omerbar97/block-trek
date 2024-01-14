@@ -30,7 +30,6 @@ const ConnectWallet = () => {
         const balance = await provider.getBalance(address);
         if (balance !== undefined) {
             // Convert the balance to ETH (wei to ether)
-            console.log(ethers)
             const formattedBalance = ethers.formatEther(balance)
             setEthValue(formattedBalance);
         } else {

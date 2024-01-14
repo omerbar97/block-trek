@@ -19,8 +19,6 @@ interface User {
     filledForm?: boolean;
 }
 
-
-
 export const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt",
@@ -74,7 +72,6 @@ export const authOptions: NextAuthOptions = {
                     }
                 })
             }
-
             return { user: { ...foundUser } };
         },
     },

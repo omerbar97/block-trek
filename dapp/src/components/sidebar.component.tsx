@@ -54,7 +54,7 @@ const Sidebar = () => {
                         {dashboardMenu.map(({ title, icon, link }, index) => {
                             return (
                                 <div key={index} className="py-2">
-                                    <Link href={link} onClick={() => {setNav(false)}}>
+                                    <Link href={link} onClick={() => { setNav(false) }}>
                                         <li className={`text-xl flex cursor-pointer  w-[100%] rounded-full mx-auto p-2 ${pathname === link
                                             ? 'text-white bg-gray-600'
                                             : 'hover:text-white hover:bg-gray-800'
@@ -74,14 +74,14 @@ const Sidebar = () => {
     return (
         <div className="bg-gradient-to-r from-gray-50 to-gray-300 bg-base-100 border-gray-500 w-full flex justify-between pt-1 pb-1 shadow-lg rounded-full pl-4 pr-4">
             {/* Left side */}
-            <div className="flex items-center">
-                <div onClick={() => setNav(!nav)} className="cursor-pointer">
+            <nav className="flex items-center">
+                <div onClick={() => setNav(!nav)} className="cursor-pointer hover:bg-gray-300 rounded-xl p-2">
                     <AiOutlineMenu size={30} />
                 </div>
                 <h1 className="flex-1 text-3xl">
                     <Logo href="/dashboard" />
                 </h1>
-            </div>
+            </nav>
 
             <div className="flex items-center">
                 <ConnectWallet />
@@ -91,7 +91,7 @@ const Sidebar = () => {
             {nav ? (
                 <div className="bg-black/80 fixed w-full h-screen z-20 top-0 left-0"></div>
             ) : (
-                ""
+                <></>
             )}
 
             {/* Side drawer menu */}

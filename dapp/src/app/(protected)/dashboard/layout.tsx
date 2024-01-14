@@ -1,18 +1,18 @@
 'use client';
-import React from "react";
-import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+import React, { useEffect } from "react";
 import Sidebar from "@/components/sidebar.component";
-import DimmedOverlay from "@/components/shared/dimmerloading.component";
 import { WalletProvider } from "@/hooks/wallet.hook";
 import { SearchbarProvider } from "@/hooks/searchbar.hook";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import DimmedOverlay from "@/components/shared/dimmerloading.component";
+import { unauthenticatedAccessToast } from "@/utils/toast";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const session = useSession();
 
-  if (session.status == 'unauthenticated') {
-    redirect("/api/auth/signin?callbackUrl=/dashboard");
-  }
+  const { data: session, status } = useSession()
+  console.log(status)
+  const router = useRouter()
 
   const layoutContent = () => {
     return (
@@ -31,21 +31,37 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     )
   }
 
-  if (session.status == 'loading') {
-    // Display loading screen
+  useEffect(() => {
+    // Ensure that the toast is displayed only once when unauthenticated
+    if (status === 'unauthenticated') {
+      unauthenticatedAccessToast();
+
+      // Redirect after 5 seconds
+      const timeoutId = setTimeout(() => {
+        router.push('/api/auth/signin?callbackUrl=/dashboard');
+      }, 5000);
+
+      // Clear the timeout when the component unmounts
+      return () => clearTimeout(timeoutId);
+    }
+  }, [status]);
+
+  
+  if (status === 'loading' || status === 'unauthenticated') {
     return (
       <>
-        <DimmedOverlay/>
+        <DimmedOverlay />
         {layoutContent()}
       </>
-
-    );
+    )
   }
 
-  // Display content after loading
-  return (
-    <>
-      {layoutContent()}
-    </>
-  );
+  if (status == 'authenticated') {
+    // Display content after loading
+    return (
+      <>
+        {layoutContent()}
+      </>
+    );
+  }
 }

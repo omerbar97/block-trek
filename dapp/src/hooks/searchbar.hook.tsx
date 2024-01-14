@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useContext, ReactNode } from "react";
 import { SearchBarContext } from "@/context/searchbar.context";
 
