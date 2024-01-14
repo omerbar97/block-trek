@@ -36,9 +36,7 @@ const Drawer: React.FC<DrawerProps> = ({ children, isOpen, onClose }) => {
                                 />
                             </svg>
                         </label>
-                        <div className='flex flex-wrap'>
-                            {children}
-                        </div>
+                        {children}
                     </div>
                 </div>
             </div>
