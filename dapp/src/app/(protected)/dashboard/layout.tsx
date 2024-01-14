@@ -11,7 +11,6 @@ import { unauthenticatedAccessToast } from "@/utils/toast";
 export default function Layout({ children }: { children: React.ReactNode }) {
 
   const { data: session, status } = useSession()
-  console.log(status)
   const router = useRouter()
 
   const layoutContent = () => {
