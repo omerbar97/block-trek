@@ -21,7 +21,6 @@ const dashboardMenu: DashboardMenu[] = [
     createDashboardMenu("My Campaigns", <FaFolderOpen size={25} className='mr-4' />, "/dashboard/my-campaigns"),
     createDashboardMenu("My Donation", <IoWallet size={25} className='mr-4' />, "/dashboard/my-donations"),
     createDashboardMenu("Logout", <RiLogoutBoxFill size={25} className='mr-4' />, "/"),
-
 ];
 
 export default dashboardMenu;

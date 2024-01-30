@@ -5,6 +5,16 @@ export interface Owner {
     avatar?: string;
 }
 
+export interface CampaignCard {
+    contract_address: string;
+    owner_name: string;
+    title: string;
+    image: string;
+    goal: number;
+    collected: number;
+    last_updated: Date
+}
+
 export interface Contributer {
     name?: string;
     wallet_address: string;
@@ -33,11 +43,4 @@ export interface Campaign {
     Rewards: Reward[]
 }
 
-export interface CampaignCard {
-    contract_address: string;
-    owner_name: string;
-    title: string;
-    image: string;
-    goal: number;
-    collected: number;
-}
+

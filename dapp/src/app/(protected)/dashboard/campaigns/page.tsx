@@ -22,7 +22,7 @@ const FundCampaignsPage = () => {
   };
 
   return (
-    <div className='mx-16'>
+    <main className='mx-16'>
       {/* Your Page Content */}
       <div className='sticky top-0 z-10 flex justify-center bg-slate-900 p-5 rounded-xl mb-2'>
         <Searchbar />
@@ -73,7 +73,7 @@ const FundCampaignsPage = () => {
         </LoadingCard> */}
         <DisplayCampaign campaign={testcampaigns[0]}/>
       </Drawer>
-    </div>
+    </main>
   );
 }
 

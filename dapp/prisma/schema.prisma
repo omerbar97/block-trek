@@ -21,3 +21,65 @@ model User {
   verifyed   Boolean  @default(false)
   filledForm Boolean  @default(false)
 }
+
+// Campaigns, each card will be viewed from the dashboard/campaigns route
+model CampaignCard {
+  id              Int      @id @default(autoincrement())
+  contractAddress String   @map(name: "contract_address")
+  ownerName       String   @map(name: "owner_name")
+  title           String
+  image           String
+  goal            Int
+  collected       Int
+  lastUpdated     DateTime @map(name: "last_updated")
+}
+
+model Campaign {
+  contractAddress String        @id(map: "contract_address")
+  ownerId         String        @map(name: "owner_id")
+  title           String
+  description     String
+  image           String
+  video           String?
+  goal            Int
+  collected       Int
+  type            CampaignType
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  owner           Owner         @relation(fields: [ownerId], references: [walletAddress])
+  contributers    Contributer[]
+  rewards         Reward[]
+}
+
+model Contributer {
+  id            Int      @id @default(autoincrement())
+  name          String?
+  walletAddress String   @map(name: "wallet_address")
+  amount        String
+  date          DateTime
+  campaign      Campaign @relation(fields: [campaignId], references: [contractAddress])
+  campaignId    String   @map(name: "campaign_id")
+}
+
+model Reward {
+  id         Int      @id @default(autoincrement())
+  name       String
+  minAmount  String   @map(name: "min_amount")
+  prize      String
+  image      String?
+  campaign   Campaign @relation(fields: [campaignId], references: [contractAddress])
+  campaignId String   @map(name: "campaign_id")
+}
+
+model Owner {
+  walletAddress String     @id(map: "wallet_address")
+  email         String
+  name          String
+  avatar        String?
+  campaigns     Campaign[]
+}
+
+enum CampaignType {
+  Reward
+  Donation
+}
