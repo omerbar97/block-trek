@@ -4,8 +4,8 @@ import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { usePathname } from "next/navigation";
 import dashboardMenu from "@/constants/dashboardMenu";
 import Link from "next/link";
-import Logo from "./shared/Logo.component";
-import ConnectWallet from "./crypto/connectwallet.component";
+import Logo from "../shared/Logo.component";
+import ConnectWallet from "../crypto/connectwallet.component";
 
 
 const Sidebar = () => {

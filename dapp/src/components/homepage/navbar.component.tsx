@@ -1,6 +1,6 @@
 import React from 'react'
-import AuthUser from './shared/auth.component';
-import Logo from './shared/Logo.component';
+import Logo from '../shared/Logo.component'
+import AuthUser from '../auth/auth.component'
 
 const Navbar = () => {
     return (

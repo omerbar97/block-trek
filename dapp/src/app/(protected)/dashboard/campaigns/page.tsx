@@ -1,13 +1,12 @@
 'use client';
 import DisplayCampaign from '@/components/campaigns/displaycampaign.component';
 import Searchbar from '@/components/searchbar/searchbar.component';
-import Card from '@/components/shared/card.component'
-import Drawer from '@/components/shared/drawer.component'
-import LoadingCard from '@/components/shared/loadingcard.component';
 import { useSearch } from '@/hooks/searchbar.hook';
 import React, { useState } from 'react'
 
 import { testcampaigns } from '@/constants/test';
+import Drawer from '@/components/campaigns/drawer.component';
+import Card from '@/components/campaigns/card.component';
 
 const FundCampaignsPage = () => {
 

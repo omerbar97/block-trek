@@ -12,6 +12,13 @@ export interface Contributer {
     date: Date;
 }
 
+export interface Reward {
+    name: string;
+    min_amount: string;
+    prize: string;
+    image?: string
+}
+
 export interface Campaign {
     contract_address: string;
     owner: Owner;
@@ -23,6 +30,7 @@ export interface Campaign {
     collected: number;
     type: "Reward" | "Donation" 
     contributers: Contributer[]
+    Rewards: Reward[]
 }
 
 export interface CampaignCard {

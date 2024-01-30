@@ -7,7 +7,7 @@ import { Button } from '../ui/button';
 // To remove the error causing by window.ethereum
 declare global {
     interface Window {
-        ethereum:any;
+        ethereum: any;
     }
 }
 
@@ -16,9 +16,13 @@ const ConnectWallet = () => {
     const { setWalletAddress, setEthValue, walletAddress } = useWallet()
 
     const handleConnect = async () => {
-        const provider = new BrowserProvider(window.ethereum, "any")
-        await provider.send("eth_requestAccounts", []);
-        handleSigner(provider)
+        try {
+            const provider = new BrowserProvider(window.ethereum, "any")
+            await provider.send("eth_requestAccounts", []);
+            await handleSigner(provider)
+        } catch(e){
+            console.log("failed to connect to a wallet")
+        }
     }
 
     const handleSigner = async (provider: BrowserProvider) => {

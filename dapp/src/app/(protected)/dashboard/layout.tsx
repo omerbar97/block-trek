@@ -1,12 +1,12 @@
 'use client';
 import React, { useEffect } from "react";
-import Sidebar from "@/components/sidebar.component";
 import { WalletProvider } from "@/hooks/wallet.hook";
 import { SearchbarProvider } from "@/hooks/searchbar.hook";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import DimmedOverlay from "@/components/shared/dimmerloading.component";
 import { unauthenticatedAccessToast } from "@/utils/toast";
+import Sidebar from "@/components/dashboard/sidebar.component";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 

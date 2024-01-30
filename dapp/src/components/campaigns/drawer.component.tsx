@@ -19,7 +19,7 @@ const Drawer: React.FC<DrawerProps> = ({ children, isOpen, onClose }) => {
                 />
                 <div className="drawer-side">
                     <label htmlFor="my-drawer-1" aria-label="close sidebar" className="drawer-overlay"></label>
-                    <div className="menu p-4 w-5/6 sm:w-5/6 md:w-4/5 lg:sm:w-1/2 min-h-full bg-slate-500 rounded-md text-base-content">
+                    <div className="menu p-4 w-full md:w-1/2 lg:sm:w-1/2 min-h-full bg-slate-500 rounded-md text-base-content">
                         <label htmlFor="my-drawer-1" className="cursor-pointer mr-4" onClick={onClose}>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -40,7 +40,6 @@ const Drawer: React.FC<DrawerProps> = ({ children, isOpen, onClose }) => {
                     </div>
                 </div>
             </div>
-
         </> : <></>)
 
     );
