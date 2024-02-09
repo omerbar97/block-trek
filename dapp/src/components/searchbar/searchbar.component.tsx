@@ -20,7 +20,7 @@ const Searchbar = () => {
     const { input, setInput, category, setCategory, experationDate, setExperationDate } = useSearch()
 
     useEffect(() => {
-        const input_p = params.get('query')
+        const input_p = params.get('name')
         const category_p = params.get('category')
         const date_p = params.get('experation')
         if (input_p) {
@@ -36,11 +36,10 @@ const Searchbar = () => {
     }, [])
 
     function handleSearch() {
-        
         if (input && input != "") {
-            params.set('query', input);
+            params.set('name', input);
         } else {
-            params.delete('query');
+            params.delete('name');
         }
         if (category && category != "") {
             params.set('category', category);
@@ -55,6 +54,12 @@ const Searchbar = () => {
         replace(`${pathname}?${params.toString()}`);
     }
 
+    const clearFilter = () => {
+        params.delete('name');
+        params.delete('category')
+        params.delete('experation')
+        replace(`${pathname}`)
+    }
 
     const handleSearchLogic: React.MouseEventHandler<HTMLButtonElement> = (e) => {
         // setting in the url
@@ -62,8 +67,6 @@ const Searchbar = () => {
         handleSearch()
         //...
     }
-
-
 
     const searchForm = () => {
         return (
@@ -84,8 +87,11 @@ const Searchbar = () => {
                 <DatePicker />
 
                 {/* Search Button */}
-                <Button type="submit" variant='default' className='text-black' onClick={handleSearchLogic}>
+                <Button type="button" variant='default' className='text-black' onClick={handleSearchLogic}>
                     Search
+                </Button>
+                <Button type="button" variant='default' className='text-black' onClick={clearFilter}>
+                    Clear filter
                 </Button>
             </form>
         )

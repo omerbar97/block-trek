@@ -61,9 +61,9 @@ const Hero = () => {
     }
 
     return (
-        <div className={`fixed left-0 top-0 hero overflow-hidden`}>
+        <section className='left-0 top-0 hero overflow-hidden'>
             {welcomeSection()}
-        </div>
+        </section>
     )
 }
 

@@ -39,6 +39,26 @@ export const testcampaigns: Campaign[] = [
         collected: 500,
         type: 'Reward',
         contributers: contributerss,
+        Rewards:[{
+          min_amount: "10 ETH",
+          name: "Ty Very much!",
+          prize: "Wall of fame"
+        }, 
+        {
+          min_amount: "20 ETH",
+          name: "Ty Very much!",
+          prize: "Wall of fame"
+        },
+        {
+          min_amount: "30 ETH",
+          name: "Ty Very much!",
+          prize: "Wall of fame"
+        },
+        {
+          min_amount: "40 ETH",
+          name: "Ty Very much!",
+          prize: "Wall of fame"
+        }]
     },
     {
         contract_address: '0x9876543210abcdef',
@@ -50,5 +70,6 @@ export const testcampaigns: Campaign[] = [
         collected: 800,
         type: 'Donation',
         contributers: contributerss,
+        Rewards:[]
     },
 ];

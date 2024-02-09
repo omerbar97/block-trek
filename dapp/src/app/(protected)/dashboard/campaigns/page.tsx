@@ -28,42 +28,55 @@ const FundCampaignsPage = () => {
         <Searchbar />
       </div>
       <div className='justify-center flex flex-wrap gap-4'>
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
-        <Card onClick={handleCardClick} />
+        <Card
+          onClick={handleCardClick}
+          title="Campaign 1"
+          description="Help us raise funds for our new community center project."
+          imageUrl="https://via.placeholder.com/300"
+        />
+        <Card
+          onClick={handleCardClick}
+          title="Campaign 1d kasmd askd askd akmkamdk kasd"
+          description="Help us raskdmas mksdm kasm kasdm kasmd kasm kmaskdm askdmksa mkm kasmd ksamaise funds for our new community center project."
+          imageUrl="https://via.placeholder.com/300"
+        />
+
+        <Card
+          onClick={handleCardClick}
+          title="Campaign 1"
+          description="Help us raise funds for our new community center project."
+          imageUrl="https://via.placeholder.com/300"
+        />
+        <Card
+          onClick={handleCardClick}
+          title="Campaign 1d kasmd askd askd akmkamdk kasd"
+          description="Help us raskdmas mksdm kasm kasdm kasmd kasm kmaskdm askdmksa mkm kasmd ksamaise funds for our new community center project."
+          imageUrl="https://via.placeholder.com/300"
+        />
+        <Card
+          onClick={handleCardClick}
+          title="Campaign 1"
+          description="Help us raise funds for our new community center project."
+          imageUrl="https://via.placeholder.com/300"
+        />
+        <Card
+          onClick={handleCardClick}
+          title="Campaign 1d kasmd askd askd akmkamdk kasd"
+          description="Help us raskdmas mksdm kasm kasdm kasmd kasm kmaskdm askdmksa mkm kasmd ksamaise funds for our new community center project."
+          imageUrl="https://via.placeholder.com/300"
+        />
+        <Card
+          onClick={handleCardClick}
+          title="Campaign 1"
+          description="Help us raise funds for our new community center project."
+          imageUrl="https://via.placeholder.com/300"
+        />
+        <Card
+          onClick={handleCardClick}
+          title="Campaign 1d kasmd askd askd akmkamdk kasd"
+          description="Help us raskdmas mksdm kasm kasdm kasmd kasm kmaskdm askdmksa mkm kasmd ksamaise funds for our new community center project."
+          imageUrl="https://via.placeholder.com/300"
+        />
       </div>
 
       <Drawer isOpen={drawerOpen} onClose={handleDrawerClose}>
@@ -71,7 +84,7 @@ const FundCampaignsPage = () => {
           <LoadingCard>
           </LoadingCard>
         </LoadingCard> */}
-        <DisplayCampaign campaign={testcampaigns[0]}/>
+        <DisplayCampaign campaign={testcampaigns[0]} />
       </Drawer>
     </main>
   );

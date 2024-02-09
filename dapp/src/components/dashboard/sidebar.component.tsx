@@ -12,7 +12,6 @@ const Sidebar = () => {
     const [nav, setNav] = useState(false);
     const pathname = usePathname();
 
-
     const smallLeftMenu = () => {
         // Returning the small menu on the left
         return (

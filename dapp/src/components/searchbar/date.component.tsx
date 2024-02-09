@@ -20,7 +20,9 @@ export function DatePicker() {
     const [date, setDate] = useState<Date>()
     
     useEffect(() => {
-        setExperationDate(experationDate)
+        if (date) {
+            setExperationDate(date)
+        }
     }, [date])
 
     return (

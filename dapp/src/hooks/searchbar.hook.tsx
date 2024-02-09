@@ -1,7 +1,6 @@
 'use client';
 import React, { useState, useContext, ReactNode } from "react";
 import { SearchBarContext } from "@/context/searchbar.context";
-import { useSearchParams } from "next/navigation";
 
 interface SearchBarContextChildren {
   children: ReactNode;

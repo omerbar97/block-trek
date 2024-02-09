@@ -24,13 +24,12 @@ const AuthUser = () => {
 
         const downMenuHandle = () => {
             return (
-                <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
+                <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 text-white">
                     <li>
                         <Link href='/dashboard'>
                             <p className="justify-between">
                                 Dashboard
                             </p>
-                            <span className="badge">New</span>
                         </Link>
                     </li>
                     <li onClick={() => signOut()}><a>Logout</a></li>

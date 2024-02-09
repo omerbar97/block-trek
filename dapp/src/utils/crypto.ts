@@ -9,3 +9,19 @@ export const getEthVal = async () => {
   // data.amount will have the result
   return data; 
 };
+
+
+export const getPriceInFormat = (amount:number, value:number | undefined) => {
+  if (amount && value) {
+      const result = amount * value;
+      // Convert the result to a number and format with commas
+      const formattedResult = Number(result.toFixed(4)).toLocaleString(undefined, {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 4
+      });
+
+      return formattedResult;
+  } else {
+      return "0.0";
+  }
+};

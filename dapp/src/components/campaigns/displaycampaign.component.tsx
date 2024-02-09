@@ -1,6 +1,6 @@
 import { Campaign } from '@/types/campaign.interface';
 import { ScrollArea } from '@radix-ui/react-scroll-area';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -12,6 +12,8 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useWallet } from '@/hooks/wallet.hook';
+import { donationAmountCannotBeNegativeToast } from '@/utils/toast';
+import { getEthVal, getPriceInFormat } from '@/utils/crypto';
 
 
 interface CampaignCardProps {
@@ -20,9 +22,42 @@ interface CampaignCardProps {
 
 const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign }) => {
     const isScrollable = campaign.contributers.length > 10;
+    const isScrollableRewards = campaign.Rewards.length > 10
     const progress = (campaign.collected / campaign.goal) * 100;
 
+    const [donationAmount, setDonationAmount] = useState<number>(0)
+    const [ethValue, setEthValue] = useState()
     const { walletAddress } = useWallet()
+
+    const updateEthValue = async () => {
+        const result = await getEthVal()
+        setEthValue(result.data.amount)
+    }
+
+    const onAmountChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+        var val = e.target.value
+        if (val == "") {
+            setDonationAmount(0.0)
+        } else {
+            var valGoal = parseFloat(val)
+            if (valGoal < 0) {
+                setDonationAmount(0.0)
+                donationAmountCannotBeNegativeToast()
+            } else {
+                setDonationAmount(parseFloat(val))
+            }
+        }
+    }
+
+    useEffect(() => {
+        updateEthValue();
+
+        // Set up a setTimeout to periodically check the new value
+        const intervalId = setInterval(updateEthValue, 10000); // Check every 5 seconds
+
+        // Clean up the interval when the component unmounts
+        return () => clearInterval(intervalId);
+    }, []);
 
     return (
         <TooltipProvider>
@@ -53,7 +88,7 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign }) => {
                     </span>
                     <Progress value={progress} className='m-2' />
                     <div className='flex items-center space-x-2 w-fit'>
-                        <Input className="text-sm px-2 py-1 rounded-md text-white w-1/2 placeholder:text-white" placeholder="Contribute in ETH" type='number' />
+                        <Input onChange={onAmountChange} value={donationAmount} className="text-sm px-2 py-1 rounded-md text-white w-1/2 placeholder:text-white" placeholder="Contribute in ETH" type='number' />
                         {walletAddress ?
                             <>
                                 <Button variant='secondary' className='w-1/2'>Contribute</Button>
@@ -69,7 +104,49 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign }) => {
                                 </Tooltip>
                             </>}
                     </div>
+                    <p className='text-sm text-slate-200'>Approximation in USD = <span className='font-bold'>{getPriceInFormat(donationAmount, ethValue)} $</span></p>
                 </div>
+                {(campaign.type == "Reward") && <>
+                    <p className='text-white font-bold'>Pay attention, this is a Reward Campaign. If you donate by the reward amount you can retrive your reward from the campaign owner</p>
+                    <p className='text-white'>Owner contact information: <span className='font-bold'>{campaign.owner.email}</span></p>
+                    <div className="flex mt-5">
+                        <ScrollArea className={`w-full bg-slate-200 border rounded-md ${isScrollableRewards ? ` max-h-96 overflow-y-auto` : ``}`} >
+                            <div className="p-4">
+                                <div className="flex items-center space-x-4 text-sm mb-2">
+                                    <div className="text-sm font-medium leading-none w-2/4 md:w-1/4 ml-4">Reward Name</div>
+                                    <Separator orientation="vertical" />
+                                    <div className="text-sm font-medium leading-none w-2/4 md:w-1/4">Min Amount</div>
+                                    <Separator orientation="vertical" />
+                                    <div className="text-sm font-medium leading-none w-1/4 md:w-1/4">Prize</div>
+                                </div>
+                                {campaign.Rewards.map((Reward, index) => (
+                                    <div key={index} className="flex items-center space-x-4 text-sm mb-2 hover:bg-slate-300 rounded-xl">
+                                        <Tooltip>
+                                            <TooltipTrigger className='w-2/4 overflow-hidden whitespace-nowrap overflow-ellipsis md:w-1/4'>{Reward.name}</TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>{Reward.name}</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                            <TooltipTrigger className='w-2/4 overflow-hidden whitespace-nowrap overflow-ellipsis md:w-1/4'>{Reward.min_amount}</TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>{Reward.min_amount}</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                        <Separator orientation="vertical" />
+                                        <Tooltip>
+                                            <TooltipTrigger className='w-1/4 overflow-hidden whitespace-nowrap overflow-ellipsis'>{Reward.prize}</TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>{Reward.prize}</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                        <Separator orientation="vertical" />
+                                    </div>
+                                ))}
+                            </div>
+                        </ScrollArea>
+                    </div>
+                </>}
                 <div className="flex mt-2">
                     <ScrollArea className={`w-full bg-slate-200 border rounded-md ${isScrollable ? ` max-h-96 overflow-y-auto` : ``}`} >
                         <div className="p-4">
