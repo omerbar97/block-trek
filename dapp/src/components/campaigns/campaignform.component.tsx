@@ -7,6 +7,8 @@ import { useWallet } from '@/hooks/wallet.hook'
 import { getEthVal, getPriceInFormat } from '@/utils/crypto'
 import { goalAmountCannotBeNegativeToast } from '@/utils/toast'
 import TextareaCounter from '../shared/textareacounter.component';
+import axios from 'axios';
+
 
 const CampaignForm = () => {
 
@@ -31,6 +33,21 @@ const CampaignForm = () => {
                 setGoal(parseFloat(val))
             }
         }
+    }
+
+    const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        // Dummy content
+        e.preventDefault()
+        const requestData = {
+            ownerName: 'John Doe',
+            description: 'A new campaign',
+            endDate: 1644614400, // Assuming Unix timestamp for the end date
+            goalAmount: '1000000000000000000', // Assuming 1 ETH in wei
+            campaignType: 0 // Assuming 0 for campaign type
+        };
+
+        const req = await axios.post('/api/campaign', requestData)
+        console.log(req)
     }
 
 
@@ -144,6 +161,7 @@ const CampaignForm = () => {
                     <Button
                         type="submit"
                         variant='outline'
+                        onClick={handleSubmit}
                         disabled={walletAddress ? false : true}
                     >
                         Create Campaign

@@ -4,7 +4,12 @@ pragma solidity ^0.8.0;
 import "./Campaign.sol";
 
 contract CrowdFundingFactory {
+    address owner;
     address[] public deployedCampaigns;
+
+    constructor() {
+        owner = msg.sender;
+    }
 
     event CampaignCreated(
         address indexed campaignAddress,
@@ -12,15 +17,15 @@ contract CrowdFundingFactory {
     );
 
     function createCampaign(
-        string memory description,
         string memory ownerName,
+        string memory description,
         uint256 endDate,
         uint256 goalAmount,
         CampaignType campaignType
     ) external {
         Campaign newCampaign = new Campaign(
-            description,
             ownerName,
+            description,
             endDate,
             goalAmount,
             campaignType

@@ -7,11 +7,11 @@ import React, { useState } from 'react'
 import { testcampaigns } from '@/constants/test';
 import Drawer from '@/components/campaigns/drawer.component';
 import Card from '@/components/campaigns/card.component';
+import LoadingCard from '@/components/campaigns/loadingcard.component';
 
 const FundCampaignsPage = () => {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const { input, experationDate, category } = useSearch()
 
   const handleCardClick = () => {
     setDrawerOpen(!drawerOpen);
@@ -81,8 +81,7 @@ const FundCampaignsPage = () => {
 
       <Drawer isOpen={drawerOpen} onClose={handleDrawerClose}>
         {/* <LoadingCard>
-          <LoadingCard>
-          </LoadingCard>
+          <LoadingCard />
         </LoadingCard> */}
         <DisplayCampaign campaign={testcampaigns[0]} />
       </Drawer>
