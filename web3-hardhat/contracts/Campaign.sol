@@ -1,12 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-// Enum for different campaign types
-enum CampaignType {
-    Donation,
-    Reward,
-    Equity
-}
+
+import "./CampaignType.sol";
+
 
 contract Campaign {
     // Campaign owner
