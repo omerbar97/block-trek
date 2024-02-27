@@ -21,7 +21,7 @@ contract CrowdFundingFactory {
         string memory description,
         uint256 endDate,
         uint256 goalAmount,
-        CampaignType campaignType
+        string memory campaignType
     ) external {
         Campaign newCampaign = new Campaign(
             ownerName,

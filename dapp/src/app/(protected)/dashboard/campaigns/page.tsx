@@ -2,16 +2,28 @@
 import DisplayCampaign from '@/components/campaigns/displaycampaign.component';
 import Searchbar from '@/components/searchbar/searchbar.component';
 import { useSearch } from '@/hooks/searchbar.hook';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { testcampaigns } from '@/constants/test';
 import Drawer from '@/components/campaigns/drawer.component';
 import Card from '@/components/campaigns/card.component';
 import LoadingCard from '@/components/campaigns/loadingcard.component';
+import { getAllCampaigns } from '@/services/api';
+import { useGet } from '@/hooks/usefetch.hook';
+import { useAxiosGet } from '@/hooks/useAxios.hook';
+
 
 const FundCampaignsPage = () => {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [campaigns, setCampaigns] = useState([])
+
+  const {response, loading, error, refetch} = useAxiosGet('/api/campaign')
+
+
+  useEffect(() => {
+    console.log(response)
+  }, [response])
 
   const handleCardClick = () => {
     setDrawerOpen(!drawerOpen);

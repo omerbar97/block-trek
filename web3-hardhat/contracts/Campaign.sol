@@ -21,7 +21,7 @@ contract Campaign {
     // The value that was already collected
     uint256 public totalContributions;
     // The campaign type
-    CampaignType public campaignType;
+    string public campaignType;
     // TotalContributers mapping, each contributers will have the value it funded
     mapping(address => uint256) public contributors;
 
@@ -52,7 +52,7 @@ contract Campaign {
         string memory _campaignDescription,
         uint256 _endDate,
         uint256 _goalAmount,
-        CampaignType _campaignType
+        string memory _campaignType
     ) {
         owner = msg.sender;
         campaignName = _campaignName;
@@ -85,7 +85,7 @@ contract Campaign {
             address,
             uint256,
             uint256,
-            CampaignType
+            string memory
         )
     {
         return (

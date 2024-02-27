@@ -1,8 +1,7 @@
 import { ethers } from 'hardhat';
 import { Signer } from 'ethers';
 import { expect } from 'chai';
-import { CrowdFundingFactory, Campaign, CampaginType  } from '../typechain-types';
-
+import { CrowdFundingFactory, Campaign  } from '../typechain-types';
 
 describe('Campaign Contract', function () {
   let factory: CrowdFundingFactory;
