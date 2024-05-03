@@ -1,11 +1,11 @@
 // useAxios hook
-
+'use client';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 axios.defaults.baseURL = 'http://localhost:3000';
 
-export const useAxiosPost = ({ url, body = null }) => {
+export const useAxiosPost = ({ url, body = null } : {url : string}) => {
     const [response, setResponse] = useState(null);
     const [error, setError] = useState('');
     const [loading, setloading] = useState(true);
@@ -35,7 +35,7 @@ export const useAxiosPost = ({ url, body = null }) => {
 };
 
 
-export const useAxiosGet = ({ url }) => {
+export const useAxiosGet = (url: string) => {
     const [response, setResponse] = useState(null);
     const [error, setError] = useState('');
     const [loading, setloading] = useState(true);

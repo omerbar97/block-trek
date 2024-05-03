@@ -4,7 +4,6 @@ import fs from 'fs'
 export async function getNewContractAddress(transactionHash: string) {
     const provider = new ethers.JsonRpcProvider(); // You may need to specify your provider URL
     const transactionReceipt = await provider.waitForTransaction(transactionHash);
-
     // Now, you can access the contract address from the transaction receipt
     const contractAddress = transactionReceipt?.contractAddress;
     return contractAddress
@@ -14,12 +13,9 @@ export async function getNewContractAddress(transactionHash: string) {
 async function generateABI(filePath: string) {
     // Read the compiled contract JSON file
     const compiledContract = JSON.parse(fs.readFileSync(filePath).toString());
-
     // Extract the ABI definition from the compiled contract
     const abi = compiledContract.abi;
-
     const json = JSON.stringify(abi)
-
     return json
 }
 

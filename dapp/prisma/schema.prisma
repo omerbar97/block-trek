@@ -23,16 +23,16 @@ model User {
 }
 
 // Campaigns, each card will be viewed from the dashboard/campaigns route
-model CampaignCard {
-  id              Int      @id @default(autoincrement())
-  contractAddress String   @map(name: "contract_address")
-  ownerName       String   @map(name: "owner_name")
-  title           String
-  image           String
-  goal            Int
-  collected       Int
-  lastUpdated     DateTime @map(name: "last_updated")
-}
+// model CampaignCard {
+//   id              Int      @id @default(autoincrement())
+//   contractAddress String   @map(name: "contract_address")
+//   ownerName       String   @map(name: "owner_name")
+//   title           String
+//   image           String
+//   goal            Int
+//   collected       Int
+//   lastUpdated     DateTime @map(name: "last_updated")
+// }
 
 model Campaign {
   contractAddress String        @id(map: "contract_address")

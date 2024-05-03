@@ -22,7 +22,7 @@ contract CrowdFundingFactory {
         uint256 endDate,
         uint256 goalAmount,
         string memory campaignType
-    ) external {
+    ) external returns (Campaign) {
         Campaign newCampaign = new Campaign(
             ownerName,
             description,
@@ -34,6 +34,7 @@ contract CrowdFundingFactory {
         deployedCampaigns.push(address(newCampaign));
 
         emit CampaignCreated(address(newCampaign), msg.sender);
+        return newCampaign;
     }
 
     function getDeployedCampaigns() external view returns (address[] memory) {

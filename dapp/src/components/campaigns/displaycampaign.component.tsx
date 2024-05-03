@@ -1,3 +1,4 @@
+'use client';
 import { Campaign } from '@/types/campaign.interface';
 import { ScrollArea } from '@radix-ui/react-scroll-area';
 import React, { useEffect, useState } from 'react';
@@ -12,6 +13,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useWallet } from '@/hooks/wallet.hook';
+import { IoMdInformationCircleOutline } from "react-icons/io";
 import { donationAmountCannotBeNegativeToast } from '@/utils/toast';
 import { getEthVal, getPriceInFormat } from '@/utils/crypto';
 
@@ -95,9 +97,10 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign }) => {
                                 <Button variant='secondary' className='w-1/2'>Contribute</Button>
                             </> :
                             <>
+                                <Button variant='secondary' disabled={true}>Contribute</Button>
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <Button variant='secondary' disabled={true}>Contribute</Button>
+                                        <IoMdInformationCircleOutline />
                                     </TooltipTrigger>
                                     <TooltipContent>
                                         <p>Register with your wallet to contribute</p>

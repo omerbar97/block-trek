@@ -27,3 +27,4 @@ for localhost:
 npx hardhat run --network localhost scripts/deploy.ts
 ```
 
+after so copy the contract address and paste it in the dapp project
