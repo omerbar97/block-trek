@@ -1,5 +1,3 @@
-// pages/api/createContract.ts
-import { getBlockChainContract, getNewContractAddress } from '@/services/crypto/contract';
 import { NextRequest, NextResponse } from 'next/server';
 import { NextApiRequest } from 'next';
 import { getUserSession } from '../getusersession';
@@ -22,13 +20,22 @@ async function postHandler(req: NextRequest) {
     }
 }
 
-async function getHandler(req: NextApiRequest) {
+async function getHandler(req: NextRequest) {
     const session = await getUserSession();
     if (!session || !session.user?.email) {
         return NextResponse.json({ message: "session not found" }, { status: 401 });
     }
     try {
-        const allCampaigns = await getAllCampaignsFromDb()
+
+        const name = req.nextUrl.searchParams.get("name")
+        const category = req.nextUrl.searchParams.get("category")
+        const experation = req.nextUrl.searchParams.get("experation")
+        const n_name = typeof name === 'string' ? name : (Array.isArray(name) ? name[0] : null);
+        const n_category = typeof category === 'string' ? category : (Array.isArray(category) ? category[0] : null);
+        const n_expiration = typeof experation === 'string' ? experation : (Array.isArray(experation) ? experation[0] : null);
+
+        // Your logic using query parameters
+        const allCampaigns = await getAllCampaignsFromDb(n_name, n_category, n_expiration);
         return NextResponse.json(allCampaigns, { status: 200 });
     } catch (error) {
         console.error("Error handling GET request:", error);

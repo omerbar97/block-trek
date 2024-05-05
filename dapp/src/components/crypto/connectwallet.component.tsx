@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import { BrowserProvider } from 'ethers';
 import { Button } from '../ui/button';
 import { connectMetamaskWallet } from '@/services/crypto/wallet';
-import { failedToConnectToMetamaskWalletToast, successToConnectToMetamaskWalletToast, waitingForSessionToBeResolvedToast } from '@/utils/toast';
+import { failedToConnectToMetamaskWalletToast, genericToast, successToConnectToMetamaskWalletToast, waitingForSessionToBeResolvedToast } from '@/utils/toast';
 import { useSession } from 'next-auth/react';
 
 // To remove the error causing by window.ethereum
@@ -22,15 +22,21 @@ const ConnectWallet = () => {
 
 
     const handleConnect = async () => {
+        if (walletAddress !== null) {
+            genericToast("Wallet is already connected", "To wallet: " + walletAddress)
+            return
+        }
         if (status === "authenticated") {
-            const provider = await connectMetamaskWallet()
-            if (provider === null) {
+            const result = await connectMetamaskWallet()
+            if (result.provider === null) {
                 // failed toast message
                 failedToConnectToMetamaskWalletToast()
+                genericToast("Failure", result.message)
                 return
             }
             successToConnectToMetamaskWalletToast()
-            await handleSigner(provider)
+            genericToast("Success", result.message)
+            await handleSigner(result.provider)
         } else if (status === "loading"){
             waitingForSessionToBeResolvedToast()
         }
@@ -47,6 +53,7 @@ const ConnectWallet = () => {
             // Convert the balance to ETH (wei to ether)
             const formattedBalance = ethers.formatEther(balance)
             setEthValue(formattedBalance);
+            genericToast("Amount of ethereum on this account: " + formattedBalance, "Nice!")
         } else {
             // Handle the case where balance is undefined
             console.error('Balance is undefined');

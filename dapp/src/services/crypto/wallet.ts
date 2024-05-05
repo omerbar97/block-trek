@@ -3,7 +3,8 @@ import { createOwner, getOwnerByWalletAddress } from "../controller/owner";
 import { useAxiosPost } from "@/hooks/useAxios.hook";
 import axios from "axios";
 
-export async function connectMetamaskWallet() : Promise<BrowserProvider | null>{
+
+export async function connectMetamaskWallet() : Promise<{provider: BrowserProvider | null, message: string}>{
     try {
         const provider = new BrowserProvider(window.ethereum, "any")
         await provider.send("eth_requestAccounts", [])
@@ -14,15 +15,22 @@ export async function connectMetamaskWallet() : Promise<BrowserProvider | null>{
         const data = {
             walletAddress: address
         }
-
-        const result = await axios.post('/api/owner/auth', data)
+        const result = await axios.post('/api/owner', data)
         if (result.status !== 200) {
             // failed
             throw new Error(result.data.message)
         }
-        return provider
+        var d = {
+            provider: provider,
+            message: result.data.message
+        }
+        return d
     } catch (e) {
         console.log("failed to connect to the metamask account ", e)
-        return null
+        var s = {
+            provider: null,
+            message: e as string
+        }
+        return s
     }
 }

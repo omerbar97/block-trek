@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-axios.defaults.baseURL = 'http://localhost:3000';
+axios.defaults.baseURL = process.env.SITE_URL
 
 export const useAxiosPost = ( url: string, body: any) => {
     const [response, setResponse] = useState(null);
@@ -35,13 +35,20 @@ export const useAxiosPost = ( url: string, body: any) => {
 };
 
 
-export const useAxiosGet = (url: string) => {
+export const useAxiosGet = (url: string, query: Map<string, string> | null=null) => {
     const [response, setResponse] = useState(null);
     const [error, setError] = useState('');
     const [loading, setloading] = useState(true);
 
     const fetchData = () => {
-        axios.get(url)
+        var urlWithQuery = url
+        if (query !== null) {
+            const queryString = Array.from(query)
+            .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+            .join('&');
+            urlWithQuery = `${url}?${queryString}`
+        }
+        axios.get(urlWithQuery)
             .then((res) => {
                 setResponse(res.data);
             })

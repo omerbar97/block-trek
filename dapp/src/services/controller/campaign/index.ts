@@ -3,7 +3,50 @@ import prisma from "@/lib/prisma";
 import { getBlockChainContract } from "@/services/crypto/contract";
 import { Campaign } from "@prisma/client";
 
-export async function getAllCampaignsFromDb() : Promise<Campaign[] | null> {
+export async function getAllCampaignsFromDb(name: string | null=null, category: string | null=null, experation: string | null=null) : Promise<Campaign[] | null> {
+    try {
+        var date : Date
+        if (experation !== null) {
+            date = new Date(experation)
+            const res = await prisma.campaign.findMany({
+                where: {
+                    title: {
+                        contains: name ?? ""
+                    },
+                    endAt: {
+                        lt: date
+                    },
+                    category: {
+                        contains: category ?? ""
+                    }
+                },
+                orderBy: {
+                    endAt: 'asc'
+                }
+            })
+            return res
+        }
+        const res = await prisma.campaign.findMany({
+            where: {
+                title: {
+                    contains: name ?? ""
+                },
+                category: {
+                    contains: category ?? ""
+                }
+            },                
+            orderBy: {
+                endAt: 'asc'
+            }
+        })
+        return res
+    }catch (e) {
+        console.log("failed to get all campaigns ", e)
+        return null;
+    }
+}
+
+export async function getAllCampaignsFromDbWithFilter(name: string, category: string, experation: string) : Promise<Campaign[] | null> {
     try {
         const res = await prisma.campaign.findMany()
         return res
@@ -27,20 +70,37 @@ export async function getCampaignById(id: number) : Promise<Campaign | null> {
     }
 }
 
-export async function saveCampaignToDb(campaign: Campaign, addressOwner: string) {
-    try{
-        // Getting the owner of the wallet if it exits
-        await prisma.campaign.create({
-            data: {
-                ownerId: addressOwner,
-
+export async function getCampaignByIdWithAllData(id: number) : Promise<Campaign | null> {
+    try {
+        const res = await prisma.campaign.findFirst({
+            where:{
+                id: id
+            },
+            include: {
+                rewards: true,
+                contributers: true,
             }
         })
-    }catch(e) {
-        console.log("failed to save campagin to db ", e)
+        return res
+    } catch (e) {
+        console.log("failed to get campaign by id ", e)
+        return null
     }
-
 }
+
+// export async function saveCampaignToDb(campaign: Campaign, addressOwner: string) {
+//     try{
+//         // Getting the owner of the wallet if it exits
+//         await prisma.campaign.create({
+//             data: {
+//                 ownerId: addressOwner,
+//             }
+//         })
+//     }catch(e) {
+//         console.log("failed to save campagin to db ", e)
+//     }
+
+// }
 
 export async function createCampaign(jsonData: any) {
     const service = await getBlockChainContract()

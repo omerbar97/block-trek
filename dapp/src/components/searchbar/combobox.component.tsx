@@ -24,7 +24,7 @@ export function Combobox({className} : {className: string}) {
     const { category, setCategory } = useSearch()
 
     return (
-        <Popover open={open} onOpenChange={setOpen} className={className}>
+        <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
                 <Button
                     variant='default'

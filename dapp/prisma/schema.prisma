@@ -40,16 +40,20 @@ model Campaign {
   ownerId         Int           @map(name: "owner_id")
   title           String
   description     String
+  category        String
   image           String
   video           String?
   goal            Int
   collected       Int
   type            CampaignType
   createdAt       DateTime      @default(now())
+  endAt           DateTime      
   updatedAt       DateTime      @updatedAt
   owner           Owner         @relation(fields: [ownerId], references: [id])
   contributers    Contributer[]
   rewards         Reward[]
+  isFinished      Boolean       @default(false)
+  isFailed        Boolean       @default(false)
 }
 
 model Contributer {
@@ -58,8 +62,8 @@ model Contributer {
   walletAddress String   @map(name: "wallet_address")
   amount        String
   date          DateTime
-  campaign      Campaign @relation(fields: [campaignId], references: [contractAddress])
-  campaignId    String   @map(name: "campaign_id")
+  campaign      Campaign @relation(fields: [campaignId], references: [id])
+  campaignId    Int   @map(name: "campaign_id")
 }
 
 model Reward {
@@ -68,8 +72,8 @@ model Reward {
   minAmount  String   @map(name: "min_amount")
   prize      String
   image      String?
-  campaign   Campaign @relation(fields: [campaignId], references: [contractAddress])
-  campaignId String   @map(name: "campaign_id")
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  campaignId Int   @map(name: "campaign_id")
 }
 
 model Owner {

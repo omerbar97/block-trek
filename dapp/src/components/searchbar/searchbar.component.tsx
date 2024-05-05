@@ -8,10 +8,10 @@ import { SearchPopover } from './searchpopover.component'
 import { useSearch } from '@/hooks/searchbar.hook'
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
+import { SearchBarCategories } from '@/constants/combobox.constant';
 
 
 const Searchbar = () => {
-
     const {replace} = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
@@ -42,7 +42,8 @@ const Searchbar = () => {
             params.delete('name');
         }
         if (category && category != "") {
-            params.set('category', category);
+            const res = SearchBarCategories.filter((e) => e.label === category)
+            params.set('category', res[0]?.value);
         } else {
             params.delete('category')
         }
@@ -65,7 +66,6 @@ const Searchbar = () => {
         // setting in the url
         e.preventDefault()
         handleSearch()
-        //...
     }
 
     const searchForm = () => {
@@ -81,7 +81,7 @@ const Searchbar = () => {
                 />
 
                 {/* Combobox */}
-                <Combobox />
+                <Combobox className=''/>
 
                 {/* Date Picker */}
                 <DatePicker />

@@ -10,7 +10,6 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { useSearch } from "@/hooks/searchbar.hook"
 import { useEffect, useState } from "react"
 import { dateIsNotValidToast, totalNumberOfDaysToast, totalNumberOfHoursToast } from "@/utils/toast"
 import { getDaysBetweenDates, getHoursBetweenDates } from "@/utils/date"

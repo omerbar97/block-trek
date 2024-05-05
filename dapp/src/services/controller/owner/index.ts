@@ -10,7 +10,6 @@ import { Campaign, Owner } from "@prisma/client"
 export async function createOwner(walletAddress:string, email: string) {
     try{
         const isExists = await getOwnerByWalletAddress(walletAddress)
-        console.log("isExists: ", isExists)
         if (isExists) {
             throw new Error("the owner of public address wallet: " + walletAddress + " already exists")
         }

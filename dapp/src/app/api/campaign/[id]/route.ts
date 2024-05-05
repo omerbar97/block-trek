@@ -1,4 +1,4 @@
-import { getCampaignById } from "@/services/controller/campaign";
+import { getCampaignById, getCampaignByIdWithAllData } from "@/services/controller/campaign";
 import { NextApiRequest } from "next";
 import { NextResponse } from "next/server";
 import { getUserSession } from "../../getusersession";
@@ -13,7 +13,7 @@ async function handler(req: NextApiRequest, params: any) {
     const id = params.params.id as string
     try {
         const idAsNum = parseInt(id, 10) as number
-        const res = await getCampaignById(idAsNum)
+        const res = await getCampaignByIdWithAllData(idAsNum)
         if (!res) {
             return NextResponse.json({message: "campaign " + id + " doesn't exists"}, { status: 404 });
         } 

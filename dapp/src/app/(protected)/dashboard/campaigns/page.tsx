@@ -4,26 +4,50 @@ import Searchbar from '@/components/searchbar/searchbar.component';
 import { useSearch } from '@/hooks/searchbar.hook';
 import React, { useEffect, useState } from 'react'
 
+
 import { testcampaigns } from '@/constants/test';
 import Drawer from '@/components/campaigns/drawer.component';
 import Card from '@/components/campaigns/card.component';
 import LoadingCard from '@/components/campaigns/loadingcard.component';
-import { getAllCampaigns } from '@/services/api';
-import { useGet } from '@/hooks/usefetch.hook';
 import { useAxiosGet } from '@/hooks/useAxios.hook';
+import { useSearchParams } from 'next/navigation';
+import { genericToast } from '@/utils/toast';
 
+
+const retrieveCampaignsWithFilter = async (params: URLSearchParams) => {
+  var map: Map<string, string> = new Map();
+  map.set("name", params.get("name") ?? "")
+  map.set("category", params.get("category") ?? "")
+  map.set("experation", params.get("experation") ?? "")
+
+  const {response, loading, error, refetch} = await useAxiosGet(`/api/campaign`, map)
+  return {response, loading, error, refetch }
+}
 
 const FundCampaignsPage = () => {
-
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [campaigns, setCampaigns] = useState([])
+  const [load, setLoad] = useState(true)
+  const searchParams = useSearchParams()
+  const params = new URLSearchParams(searchParams);
+  
+  const handleSearchLogic = async () => {
+    const {response, loading, error, refetch} = await retrieveCampaignsWithFilter(params)
+    if (error) {
+      genericToast("Failed to retreive campaigns", error)
+      return
+    }
+    setCampaigns(response)
 
-  const {response, loading, error, refetch} = useAxiosGet('/api/campaign')
-
+  }
 
   useEffect(() => {
-    console.log(response)
-  }, [response])
+    handleSearchLogic()
+  }, [])
+
+  useEffect(() => {
+    handleSearchLogic()
+  }, [])
 
   const handleCardClick = () => {
     setDrawerOpen(!drawerOpen);

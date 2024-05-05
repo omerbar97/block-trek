@@ -44,6 +44,13 @@ export const successToConnectToMetamaskWalletToast = () => {
   })
 }
 
+export const genericToast = (title: string, description: string, timeout=5000) => {
+  toast(title, {
+    description: description,
+    duration: timeout
+  })
+}
+
 export const waitingForSessionToBeResolvedToast = () => {
   toast("Please wait a few seconds for session to be resolved", {
     description: "...",
