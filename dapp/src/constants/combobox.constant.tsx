@@ -1,4 +1,4 @@
-export const categories = [
+export const SearchBarCategories = [
     {
         value: "socialCauses",
         label: "Social Causes",

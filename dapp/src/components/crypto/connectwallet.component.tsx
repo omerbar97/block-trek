@@ -1,8 +1,12 @@
+'use client';
 import React from 'react'
 import { useWallet } from '@/hooks/wallet.hook';
 import { ethers } from 'ethers';
 import { BrowserProvider } from 'ethers';
 import { Button } from '../ui/button';
+import { connectMetamaskWallet } from '@/services/crypto/wallet';
+import { failedToConnectToMetamaskWalletToast, successToConnectToMetamaskWalletToast, waitingForSessionToBeResolvedToast } from '@/utils/toast';
+import { useSession } from 'next-auth/react';
 
 // To remove the error causing by window.ethereum
 declare global {
@@ -14,14 +18,21 @@ declare global {
 const ConnectWallet = () => {
 
     const { setWalletAddress, setEthValue, walletAddress } = useWallet()
+    const { data: session, status } = useSession()
+
 
     const handleConnect = async () => {
-        try {
-            const provider = new BrowserProvider(window.ethereum, "any")
-            await provider.send("eth_requestAccounts", []);
+        if (status === "authenticated") {
+            const provider = await connectMetamaskWallet()
+            if (provider === null) {
+                // failed toast message
+                failedToConnectToMetamaskWalletToast()
+                return
+            }
+            successToConnectToMetamaskWalletToast()
             await handleSigner(provider)
-        } catch(e){
-            console.log("failed to connect to a wallet")
+        } else if (status === "loading"){
+            waitingForSessionToBeResolvedToast()
         }
     }
 

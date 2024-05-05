@@ -1,17 +1,21 @@
 'use client';
-import React, { useEffect, useState } from 'react'
+import React, { ChangeEvent, Ref, useEffect, useRef, useState } from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { useWallet } from '@/hooks/wallet.hook'
 import { getEthVal, getPriceInFormat } from '@/utils/crypto'
-import { goalAmountCannotBeNegativeToast } from '@/utils/toast'
+import { goalAmountCannotBeNegativeToast, uploadImageSuccessToast, uploadMaxImageSizeExceedsToast, uploadOnlyImagesToast } from '@/utils/toast'
 import TextareaCounter from '../shared/textareacounter.component';
 import axios from 'axios';
+import { SearchBarCategories } from '@/constants/combobox.constant';
+import { Combobox } from '../searchbar/combobox.component';
+import { useSearch } from '@/hooks/searchbar.hook';
+import { DatePicker } from '../searchbar/date.component';
+import DatePickerForCreationCampaign from './dateforcreation.component';
 
 
 const CampaignForm = () => {
-
     const [ethValue, setEthValue] = useState()
     const [goal, setGoal] = useState(0.0)
 
@@ -20,6 +24,51 @@ const CampaignForm = () => {
         setEthValue(result.data.amount)
     }
 
+    // formData
+    const [base64Image, setBase64Image] = useState<string | null | ArrayBuffer>(null);
+    const [date, setDate] = useState<Date | null>(null)
+    const {category, setCategory} = useSearch()
+    const campaignName = useRef<Ref<HTMLInputElement>>()
+    const campaignDescription = useRef<Ref<HTMLTextAreaElement>>()
+    const campaignVideoLink = useRef<Ref<HTMLInputElement>>()
+    const campaignEthAmount = useRef<Ref<HTMLInputElement>>()
+
+    function handleImage(event: ChangeEvent<HTMLInputElement>) {
+        const file = event.target.files?.[0];
+        if (!file) {
+            event.target.value = ''
+            return
+        }
+
+        if (!file.type.startsWith('image/')) {
+            console.error('Selected file is not an image.');
+            uploadOnlyImagesToast()
+            event.target.value = ''
+            return;
+        }
+
+        const maxSizeInBytes = 5 * 1024 * 1024; // 5 MB
+        if (file.size > maxSizeInBytes) {
+          console.error('Selected file exceeds the maximum allowed size (5 MB).');
+          uploadMaxImageSizeExceedsToast()
+          event.target.value = ''
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function () {
+          const base64 = reader.result;
+          uploadImageSuccessToast()
+          setBase64Image(base64);
+        };
+        reader.onerror = function (error) {
+          event.target.value = ''
+          console.error('Error reading the file:', error);
+        };
+    }
+
+    
     const onGoalChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
         var val = e.target.value
         if (val == "") {
@@ -35,19 +84,51 @@ const CampaignForm = () => {
         }
     }
 
+    const getDataFromRefs = () => {
+        return {
+            name: campaignName.current?.value,
+            description: campaignDescription.current?.value,
+            videoLink: campaignVideoLink.current?.value,
+            ethAmount: campaignEthAmount.current?.value,
+            category: category
+        }
+    }
+
     const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         // Dummy content
         e.preventDefault()
+        
+        const data = getDataFromRefs()
+
+        // model Campaign {
+        //     id              Int           @id @default(autoincrement())
+        //     contractAddress String        @unique
+        //     ownerId         Int           @map(name: "owner_id")
+        //     title           String
+        //     description     String
+        //     image           String
+        //     video           String?
+        //     goal            Int
+        //     collected       Int
+        //     type            CampaignType
+        //     createdAt       DateTime      @default(now())
+        //     updatedAt       DateTime      @updatedAt
+        //     owner           Owner         @relation(fields: [ownerId], references: [id])
+        //     contributers    Contributer[]
+        //     rewards         Reward[]
+        //   }
+
+        console.log(data)
         const requestData = {
             ownerName: 'John Doe',
             description: 'A new campaign',
-            endDate: 1644614400, // Assuming Unix timestamp for the end date
-            goalAmount: '1000000000000000000', // Assuming 1 ETH in wei
-            campaignType: 0 // Assuming 0 for campaign type
+            endDate: 1644614400,
+            goalAmount: '1000000000000000000',
+            campaignType: 0
         };
 
-        const req = await axios.post('/api/campaign', requestData)
-        console.log(req)
+        // const req = await axios.post('/api/campaign', requestData)
+        // console.log(req)
     }
 
 
@@ -88,7 +169,7 @@ const CampaignForm = () => {
                                         >
                                             Campaign Name
                                         </label>
-                                        <Input placeholder='Campaign name' id='campaign_name'></Input>
+                                        <Input ref={campaignName} placeholder='Campaign name' id='campaign_name'></Input>
                                     </div>
 
                                     <div className="w-1/2">
@@ -118,7 +199,7 @@ const CampaignForm = () => {
                                 </div>
                             </div>
                             <div className="col-span-full">
-                                <TextareaCounter description={`Get more attention with a good campaign description! Don't forget to write a few sentences about yourself.`} placeholder='Campaign description' />
+                                <TextareaCounter ref={campaignDescription} description={`Get more attention with a good campaign description! Don't forget to write a few sentences about yourself.`} placeholder='Campaign description' />
                             </div>
                             <div className="col-span-full">
                                 <label
@@ -127,7 +208,7 @@ const CampaignForm = () => {
                                 >
                                     Campaign photo
                                 </label>
-                                <Input type='file' className='text-black file-input-primary file-input-bordered' ></Input>
+                                <Input onChange={handleImage} type='file' className='text-black file-input-primary file-input-bordered' ></Input>
                             </div>
                             <div className="w-full">
                                 <label
@@ -136,16 +217,35 @@ const CampaignForm = () => {
                                 >
                                     Campaign Video Link
                                 </label>
-                                <Input placeholder='Campaign video link' id='campaign_video'></Input>
+                                <Input ref={campaignVideoLink} placeholder='Campaign video link' id='campaign_video'></Input>
                             </div>
                             <div className="w-full">
                                 <label
-                                    htmlFor="campaign_video"
+                                    htmlFor="category"
+                                    className="block text-sm font-medium leading-6 text-gray-900"
+                                >
+                                    Campaign Category
+                                </label>
+                                <Combobox className=''/>
+                            </div>
+                            <div className="w-full">
+                                <label
+                                    htmlFor="date"
+                                    className="block text-sm font-medium leading-6 text-gray-900"
+                                >
+                                    Campaign end date
+                                </label>
+                                <DatePickerForCreationCampaign date={date} setDate={setDate} />
+                                {(date) ? <p className='text-sm font-bold'>Campaign will be ended at {date.toLocaleString()}</p> : null}
+                            </div>
+                            <div className="w-full">
+                                <label
+                                    htmlFor="amount"
                                     className="block text-sm font-medium leading-6 text-gray-900"
                                 >
                                     Campaign Goal Amount in ETH
                                 </label>
-                                <Input className="text-sm px-2 py-1 rounded-md text-black placeholder:text-white" placeholder="Contribute in ETH" onChange={onGoalChange} value={goal} type='number' />
+                                <Input ref={campaignEthAmount} id='amount' className="text-sm px-2 py-1 rounded-md text-black placeholder:text-white" placeholder="Contribute in ETH" onChange={onGoalChange} value={goal} type='number' />
                                 <p className='text-sm font-bold'>Approximation in USD =  {getPriceInFormat(goal, ethValue)} $</p>
                             </div>
                         </div>

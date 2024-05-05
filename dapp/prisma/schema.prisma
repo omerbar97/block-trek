@@ -18,7 +18,7 @@ model User {
   name       String?
   avatar     String?
   createdAt  DateTime @default(now()) @db.Timestamp(6) // Adjust the precision based on your needs
-  verifyed   Boolean  @default(false)
+  verified   Boolean  @default(false)
   filledForm Boolean  @default(false)
 }
 
@@ -35,8 +35,9 @@ model User {
 // }
 
 model Campaign {
-  contractAddress String        @id(map: "contract_address")
-  ownerId         String        @map(name: "owner_id")
+  id              Int           @id @default(autoincrement())
+  contractAddress String        @unique
+  ownerId         Int           @map(name: "owner_id")
   title           String
   description     String
   image           String
@@ -46,7 +47,7 @@ model Campaign {
   type            CampaignType
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-  owner           Owner         @relation(fields: [ownerId], references: [walletAddress])
+  owner           Owner         @relation(fields: [ownerId], references: [id])
   contributers    Contributer[]
   rewards         Reward[]
 }
@@ -72,10 +73,9 @@ model Reward {
 }
 
 model Owner {
-  walletAddress String     @id(map: "wallet_address")
+  id            Int        @id @default(autoincrement())
+  walletAddress String     @unique
   email         String
-  name          String
-  avatar        String?
   campaigns     Campaign[]
 }
 

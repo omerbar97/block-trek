@@ -15,16 +15,16 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { categories } from "@/constants/combobox.constant"
+import { SearchBarCategories } from "@/constants/combobox.constant"
 import { useSearch } from "@/hooks/searchbar.hook"
 
-export function Combobox() {
+export function Combobox({className} : {className: string}) {
     const [open, setOpen] = React.useState(false)
 
     const { category, setCategory } = useSearch()
 
     return (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={setOpen} className={className}>
             <PopoverTrigger asChild>
                 <Button
                     variant='default'
@@ -43,7 +43,7 @@ export function Combobox() {
                     <CommandInput placeholder="Search categories..." className="h-9" />
                     <CommandEmpty>No category found.</CommandEmpty>
                     <CommandGroup>
-                        {categories.map((catagory) => (
+                        {SearchBarCategories.map((catagory) => (
                             <CommandItem
                                 key={catagory.value}
                                 value={catagory.value}

@@ -20,7 +20,6 @@ export const WalletProvider: React.FC<WalletContextChildren> = ({ children }) =>
   return (
     <WalletContext.Provider value={contextValue} >{children}</WalletContext.Provider>
   )
-
 };
 
 export const useWallet = () => {

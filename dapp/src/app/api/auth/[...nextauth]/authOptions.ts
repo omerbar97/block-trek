@@ -28,44 +28,48 @@ export const authOptions: NextAuthOptions = {
             if (!profile?.email) {
                 throw new Error('No profile')
             }
-
             // checking if user already signed up
-            const foundUser = await prisma.user.findFirst({
-                where: {
-                    email: profile.email
-                }
-            })
-
-            if (!foundUser) {
-                // user doesnt exists
-                const usr: User = {
-                    email: profile.email,
-                    name: profile.name,
-                    avatar: profile.image,
-                    verified: false,
-                    filledForm: false,
-                }
-                await prisma.user.create({
-                    data: {
-                        ...usr
+            try {
+                const foundUser = await prisma.user.findFirst({
+                    where: {
+                        email: profile.email
                     }
                 })
-                return { user: { ...usr } };
-            }
-            else if (!foundUser.filledForm) {
-                return { user: { ...foundUser } };
-            } else {
-                await prisma.user.update({
-                    where: {
+    
+                if (!foundUser) {
+                    // user doesnt exists
+                    const usr: User = {
                         email: profile.email,
-                    },
-                    data: {
                         name: profile.name,
                         avatar: profile.image,
+                        verified: false,
+                        filledForm: false,
                     }
-                })
+                    await prisma.user.create({
+                        data: {
+                            ...usr
+                        }
+                    })
+                    return { user: { ...usr } };
+                }
+                else if (!foundUser.filledForm) {
+                    return { user: { ...foundUser } };
+                } else {
+                    await prisma.user.update({
+                        where: {
+                            email: profile.email,
+                        },
+                        data: {
+                            name: profile.name,
+                            avatar: profile.image,
+                        }
+                    })
+                }
+                return { user: { ...foundUser } };
             }
-            return { user: { ...foundUser } };
+            catch (e) {
+                console.log("failed to auth user login ", e)
+            }
         },
     },
 };

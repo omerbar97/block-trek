@@ -5,7 +5,7 @@ import axios from 'axios';
 
 axios.defaults.baseURL = 'http://localhost:3000';
 
-export const useAxiosPost = ({ url, body = null } : {url : string}) => {
+export const useAxiosPost = ( url: string, body: any) => {
     const [response, setResponse] = useState(null);
     const [error, setError] = useState('');
     const [loading, setloading] = useState(true);
