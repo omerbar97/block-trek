@@ -39,7 +39,6 @@ async function getHandler(req: NextRequest) {
     }
     try {
         const data = req.nextUrl.searchParams.get('walletAddress') as string
-        console.log(data)
         const owner = await getOwnerByWalletAddress(data)
         if (owner && owner.email === session.user.email) {
             return NextResponse.json(owner, { status: 200 });

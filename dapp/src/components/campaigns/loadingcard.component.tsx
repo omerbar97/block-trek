@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 
 type LoadingCardProps = {
-    children: ReactNode;
+    children?: ReactNode;
 };
 
 const LoadingCard: React.FC<LoadingCardProps> = ({ children }) => {

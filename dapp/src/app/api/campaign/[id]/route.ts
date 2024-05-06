@@ -16,7 +16,7 @@ async function handler(req: NextApiRequest, params: any) {
         const res = await getCampaignByIdWithAllData(idAsNum)
         if (!res) {
             return NextResponse.json({message: "campaign " + id + " doesn't exists"}, { status: 404 });
-        } 
+        }
         return NextResponse.json(res, { status: 200 });
     } catch (error) {
         const s = 'Error fetching user data:' + error

@@ -1,6 +1,7 @@
 import { useAxiosGet } from "@/hooks/useAxios.hook";
 import prisma from "@/lib/prisma";
 import { getBlockChainContract } from "@/services/crypto/contract";
+import { IDisplayCampaign } from "@/types/campaign.interface";
 import { Campaign } from "@prisma/client";
 
 export async function getAllCampaignsFromDb(name: string | null=null, category: string | null=null, experation: string | null=null) : Promise<Campaign[] | null> {
@@ -45,6 +46,22 @@ export async function getAllCampaignsFromDb(name: string | null=null, category: 
     }
 }
 
+export async function getAllCampaignsFromDbForOwnerByWalletAddress(walletAddress: string): Promise<Campaign[] | null> {
+    try{
+        const res = await prisma.campaign.findMany({
+            where: {
+                owner: {
+                    walletAddress: walletAddress,
+                }
+            }
+        })
+        return res
+    } catch (e) {
+        console.log("failed to retreive owner campaign ", e)
+        return null
+    }
+}
+
 export async function getAllCampaignsFromDbWithFilter(name: string, category: string, experation: string) : Promise<Campaign[] | null> {
     try {
         const res = await prisma.campaign.findMany()
@@ -69,7 +86,7 @@ export async function getCampaignById(id: number) : Promise<Campaign | null> {
     }
 }
 
-export async function getCampaignByIdWithAllData(id: number) : Promise<Campaign | null> {
+export async function getCampaignByIdWithAllData(id: number) : Promise<IDisplayCampaign | null> {
     try {
         const res = await prisma.campaign.findFirst({
             where:{
@@ -78,9 +95,19 @@ export async function getCampaignByIdWithAllData(id: number) : Promise<Campaign 
             include: {
                 rewards: true,
                 contributers: true,
+                owner: true,
             }
         })
-        return res
+        if (!res) {
+            return null;
+        }
+        const data = {
+            campaign: res,
+            owner: res?.owner,
+            contributers: res?.contributers ?? [],
+            rewards: res?.rewards ?? [],
+        }
+        return data
     } catch (e) {
         console.log("failed to get campaign by id ", e)
         return null

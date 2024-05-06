@@ -1,5 +1,4 @@
 'use client';
-import { Campaign } from '@/types/campaign.interface';
 import { ScrollArea } from '@radix-ui/react-scroll-area';
 import React, { useEffect, useState } from 'react';
 import { Separator } from '../ui/separator';
@@ -16,15 +15,19 @@ import { useWallet } from '@/hooks/wallet.hook';
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { donationAmountCannotBeNegativeToast } from '@/utils/toast';
 import { getEthVal, getPriceInFormat } from '@/utils/crypto';
+import { Campaign, Contributer, Owner, Reward } from '@prisma/client';
 
 
 interface CampaignCardProps {
     campaign: Campaign;
+    owner: Owner;
+    contributers: Contributer[];
+    rewards: Reward[];
 }
 
-const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign }) => {
-    const isScrollable = campaign.contributers.length > 10;
-    const isScrollableRewards = campaign.Rewards.length > 10
+const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, rewards, owner}) => {
+    const isScrollable = contributers.length > 10;
+    const isScrollableRewards = rewards.length > 10
     const progress = (campaign.collected / campaign.goal) * 100;
 
     const [donationAmount, setDonationAmount] = useState<number>(0)
@@ -54,10 +57,8 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign }) => {
 
     useEffect(() => {
         updateEthValue();
-
         // Set up a setTimeout to periodically check the new value
         const intervalId = setInterval(updateEthValue, 10000); // Check every 5 seconds
-
         // Clean up the interval when the component unmounts
         return () => clearInterval(intervalId);
     }, []);
@@ -74,7 +75,7 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign }) => {
                             Campaign Type:{' '}
                             <span className={campaign.type === 'Reward' ? 'text-green-600' : 'text-blue-600'}>{campaign.type}</span>
                         </div>
-                        <div className="mb-2">Campaign Address: {campaign.contract_address}</div>
+                        <div className="mb-2">Campaign Address: {campaign.contractAddress}</div>
                         <h3 className="block text-lg leading-tight w-fit font-medium hover:bg-slate-500 rounded-xl">
                             Campaign Name: {campaign.title}
                         </h3>
@@ -112,7 +113,7 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign }) => {
                 </div>
                 {(campaign.type == "Reward") && <>
                     <p className='text-white font-bold'>Pay attention, this is a Reward Campaign. If you donate by the reward amount you can retrive your reward from the campaign owner</p>
-                    <p className='text-white'>Owner contact information: <span className='font-bold'>{campaign.owner.email}</span></p>
+                    <p className='text-white'>Owner contact information: <span className='font-bold'>{owner.email}</span></p>
                     <div className="flex mt-5">
                         <ScrollArea className={`w-full bg-slate-200 border rounded-md ${isScrollableRewards ? ` max-h-96 overflow-y-auto` : ``}`} >
                             <div className="p-4">
@@ -123,7 +124,7 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign }) => {
                                     <Separator orientation="vertical" />
                                     <div className="text-sm font-medium leading-none w-1/4 md:w-1/4">Prize</div>
                                 </div>
-                                {campaign.Rewards.map((Reward, index) => (
+                                {rewards.map((Reward, index) => (
                                     <div key={index} className="flex items-center space-x-4 text-sm mb-2 hover:bg-slate-300 rounded-xl">
                                         <Tooltip>
                                             <TooltipTrigger className='w-2/4 overflow-hidden whitespace-nowrap overflow-ellipsis md:w-1/4'>{Reward.name}</TooltipTrigger>
@@ -132,9 +133,9 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign }) => {
                                             </TooltipContent>
                                         </Tooltip>
                                         <Tooltip>
-                                            <TooltipTrigger className='w-2/4 overflow-hidden whitespace-nowrap overflow-ellipsis md:w-1/4'>{Reward.min_amount}</TooltipTrigger>
+                                            <TooltipTrigger className='w-2/4 overflow-hidden whitespace-nowrap overflow-ellipsis md:w-1/4'>{Reward.minAmount}</TooltipTrigger>
                                             <TooltipContent>
-                                                <p>{Reward.min_amount}</p>
+                                                <p>{Reward.minAmount}</p>
                                             </TooltipContent>
                                         </Tooltip>
                                         <Separator orientation="vertical" />
@@ -163,7 +164,7 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign }) => {
                                 <Separator orientation="vertical" />
                                 <div className="text-sm font-medium leading-none w-2/4 md:w-1/4">Date</div>
                             </div>
-                            {campaign.contributers.map((contributer, index) => (
+                            {contributers.map((contributer, index) => (
                                 <div key={index} className="flex items-center space-x-4 text-sm mb-2 hover:bg-slate-300 rounded-xl">
                                     <Tooltip>
                                         <TooltipTrigger className='w-2/4 overflow-hidden whitespace-nowrap overflow-ellipsis md:w-1/4'>{contributer.name}</TooltipTrigger>
@@ -172,9 +173,9 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign }) => {
                                         </TooltipContent>
                                     </Tooltip>
                                     <Tooltip>
-                                        <TooltipTrigger className='w-2/4 overflow-hidden whitespace-nowrap overflow-ellipsis md:w-1/4'>{contributer.wallet_address}</TooltipTrigger>
+                                        <TooltipTrigger className='w-2/4 overflow-hidden whitespace-nowrap overflow-ellipsis md:w-1/4'>{contributer.walletAddress}</TooltipTrigger>
                                         <TooltipContent>
-                                            <p>{contributer.wallet_address}</p>
+                                            <p>{contributer.walletAddress}</p>
                                         </TooltipContent>
                                     </Tooltip>
                                     <Separator orientation="vertical" />
