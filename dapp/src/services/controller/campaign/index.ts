@@ -5,9 +5,8 @@ import { Campaign } from "@prisma/client";
 
 export async function getAllCampaignsFromDb(name: string | null=null, category: string | null=null, experation: string | null=null) : Promise<Campaign[] | null> {
     try {
-        var date : Date
-        if (experation !== null) {
-            date = new Date(experation)
+        if (experation !== null && experation !== "") {
+            const date = new Date(experation)
             const res = await prisma.campaign.findMany({
                 where: {
                     title: {

@@ -38,8 +38,9 @@ async function getHandler(req: NextRequest) {
         return NextResponse.json({ message: "session not found" }, { status: 401 });
     }
     try {
-        const data = await req.json() as {walletAddress: string}
-        const owner = await getOwnerByWalletAddress(data.walletAddress)
+        const data = req.nextUrl.searchParams.get('walletAddress') as string
+        console.log(data)
+        const owner = await getOwnerByWalletAddress(data)
         if (owner && owner.email === session.user.email) {
             return NextResponse.json(owner, { status: 200 });
         }

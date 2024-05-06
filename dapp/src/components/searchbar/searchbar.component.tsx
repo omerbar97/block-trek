@@ -10,8 +10,11 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { SearchBarCategories } from '@/constants/combobox.constant';
 
+interface SearchbarProps {
+    setDidUrlChange: React.Dispatch<React.SetStateAction<Boolean>>
+}
 
-const Searchbar = () => {
+const Searchbar: React.FC<SearchbarProps> = (props: SearchbarProps) => {
     const {replace} = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
@@ -53,6 +56,7 @@ const Searchbar = () => {
             params.delete('experation')
         }
         replace(`${pathname}?${params.toString()}`);
+        props.setDidUrlChange(true)
     }
 
     const clearFilter = () => {
@@ -60,6 +64,7 @@ const Searchbar = () => {
         params.delete('category')
         params.delete('experation')
         replace(`${pathname}`)
+        props.setDidUrlChange(true)
     }
 
     const handleSearchLogic: React.MouseEventHandler<HTMLButtonElement> = (e) => {

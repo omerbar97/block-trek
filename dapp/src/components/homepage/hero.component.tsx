@@ -6,8 +6,14 @@ import TypewriterComponent from 'typewriter-effect';
 
 const Hero = () => {
 
+    const scrollToAboutSection = () => {
+        const aboutSection = document.getElementById('about-section');
+        if (aboutSection) {
+            aboutSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
     const { data: session } = useSession()
-    // when users are logged in the Get Started button will redirect to the dashboard
     var url = session?.user?.email ? '/dashboard' : '/api/auth/signin'
     const welcomeSection = () => {
         return (
@@ -16,7 +22,7 @@ const Hero = () => {
                     <div className="hidden sm:mb-8 sm:flex sm:justify-center">
                         <div className="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-50 ring-1 ring-gray-100/10 hover:ring-gray-200">
                             About our platfrom.{" "}
-                            <Link href="#">
+                            <Link href="#" onClick={scrollToAboutSection}>
                                 <span className="font-semibold text-indigo-600">
                                     <span className="absolute inset-0" aria-hidden="true" />
                                     Read more <span aria-hidden="true">→</span>

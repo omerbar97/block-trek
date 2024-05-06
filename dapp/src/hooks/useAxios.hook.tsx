@@ -36,11 +36,11 @@ export const useAxiosPost = ( url: string, body: any) => {
 
 
 export const useAxiosGet = (url: string, query: Map<string, string> | null=null) => {
-    const [response, setResponse] = useState(null);
-    const [error, setError] = useState('');
-    const [loading, setloading] = useState(true);
+    const [response, setResponse] = useState<any>(null);
+    const [error, setError] = useState<any>('');
+    const [loading, setloading] = useState<boolean>(true);
 
-    const fetchData = () => {
+    const fetchData = (query: Map<string, string> | null=null) => {
         var urlWithQuery = url
         if (query !== null) {
             const queryString = Array.from(query)
@@ -61,11 +61,11 @@ export const useAxiosGet = (url: string, query: Map<string, string> | null=null)
     };
 
     useEffect(() => {
-        fetchData();
+        fetchData(query);
     }, []);
 
-    const refetch = () => {
-        fetchData()
+    const refetch = (query: Map<string, string> | null=null) => {
+        fetchData(query)
     }
 
     return { response, error, loading, refetch };
