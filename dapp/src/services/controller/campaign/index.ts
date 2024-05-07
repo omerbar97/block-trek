@@ -2,7 +2,7 @@ import { useAxiosGet } from "@/hooks/useAxios.hook";
 import prisma from "@/lib/prisma";
 import { getBlockChainContract } from "@/services/crypto/contract";
 import { IDisplayCampaign } from "@/types/campaign.interface";
-import { Campaign } from "@prisma/client";
+import { Campaign, Contributer } from "@prisma/client";
 
 export async function getAllCampaignsFromDb(name: string | null=null, category: string | null=null, experation: string | null=null) : Promise<Campaign[] | null> {
     try {
@@ -43,6 +43,23 @@ export async function getAllCampaignsFromDb(name: string | null=null, category: 
     }catch (e) {
         console.log("failed to get all campaigns ", e)
         return null;
+    }
+}
+
+export async function getAllOwnerDonationFromDbByWalletAddress(walletAddress: string): Promise<Contributer[] | null> {
+    try {
+        const res = await prisma.contributer.findMany({
+            where: {
+                walletAddress: walletAddress,
+            }, 
+            orderBy: {
+                date: 'desc'
+            }
+        })
+        return res
+    } catch (error) {
+        console.log("failed to get owner donation ", error)
+        return null
     }
 }
 
