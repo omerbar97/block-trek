@@ -1,48 +1,107 @@
 import { useAxiosGet } from "@/hooks/useAxios.hook";
 import prisma from "@/lib/prisma";
-import { getBlockChainContract } from "@/services/crypto/contract";
 import { IDisplayCampaign } from "@/types/campaign.interface";
-import { Campaign, Contributer } from "@prisma/client";
+import { Campaign, CampaignCategory, Contributer } from "@prisma/client";
 
-export async function getAllCampaignsFromDb(name: string | null=null, category: string | null=null, experation: string | null=null) : Promise<Campaign[] | null> {
+export async function getAllCampaignsFromDb(name: string | null=null, category: CampaignCategory | null=null, experation: string | null=null) : Promise<Campaign[] | null> {
     try {
-        if (experation !== null && experation !== "") {
-            const date = new Date(experation)
+        if (category) {
+            if (experation !== null && experation !== "") {
+                const date = new Date(experation)
+                const res = await prisma.campaign.findMany({
+                    where: {
+                        title: {
+                            contains: name ?? ""
+                        },
+                        endAt: {
+                            lt: date
+                        },
+                        category: category
+                    },
+                    orderBy: {
+                        endAt: 'asc'
+                    }
+                })
+                return res
+            }
             const res = await prisma.campaign.findMany({
                 where: {
                     title: {
                         contains: name ?? ""
                     },
-                    endAt: {
-                        lt: date
+                    category: category ?? ""
+                },                
+                orderBy: {
+                    endAt: 'asc'
+                }
+            })
+            return res
+        } else {
+            if (experation !== null && experation !== "") {
+                const date = new Date(experation)
+                const res = await prisma.campaign.findMany({
+                    where: {
+                        title: {
+                            contains: name ?? ""
+                        },
+                        endAt: {
+                            lt: date
+                        },
                     },
-                    category: {
-                        contains: category ?? ""
+                    orderBy: {
+                        endAt: 'asc'
                     }
-                },
+                })
+                return res
+            }
+            const res = await prisma.campaign.findMany({
+                where: {
+                    title: {
+                        contains: name ?? ""
+                    },
+                },                
                 orderBy: {
                     endAt: 'asc'
                 }
             })
             return res
         }
-        const res = await prisma.campaign.findMany({
-            where: {
-                title: {
-                    contains: name ?? ""
-                },
-                category: {
-                    contains: category ?? ""
-                }
-            },                
-            orderBy: {
-                endAt: 'asc'
-            }
-        })
-        return res
     }catch (e) {
         console.log("failed to get all campaigns ", e)
         return null;
+    }
+}
+
+export async function saveCampaignToDb(campagin: Campaign): Promise<Boolean> {
+    console.log("saving campaign in db for ", campagin.uuid, " and values ", campagin)
+    try {
+        await prisma.campaign.create({
+            data: {
+                ...campagin
+            }
+        })
+        return true
+    } catch (error) {
+        console.log("failed to save campaign to db ", error)
+        return false
+    }
+}
+
+export async function updateCampaignInDb(uuid: string, values: Partial<Campaign>): Promise<Boolean> {
+    console.log("updating campaign in db for ", uuid, " and values ", values)
+    try {
+        await prisma.campaign.update({
+            where: {
+                uuid: uuid
+            }, 
+            data: {
+                ...values
+            }
+        })
+        return true
+    } catch (error) {
+        console.log("failed to save campaign to db ", error)
+        return false
     }
 }
 
@@ -131,30 +190,33 @@ export async function getCampaignByIdWithAllData(id: number) : Promise<IDisplayC
     }
 }
 
-// export async function saveCampaignToDb(campaign: Campaign, addressOwner: string) {
-//     try{
-//         // Getting the owner of the wallet if it exits
-//         await prisma.campaign.create({
-//             data: {
-//                 ownerId: addressOwner,
-//             }
-//         })
-//     }catch(e) {
-//         console.log("failed to save campagin to db ", e)
-//     }
-
-// }
-
 export async function createCampaign(jsonData: any) {
-    const service = await getBlockChainContract()
-    const { ownerName, description, endDate, goalAmount, campaignType, walletAddress } = jsonData
 
-    if (!ownerName || !description || !endDate || !goalAmount) {
+    const { title, description, endDate, goalAmount, campaignType, walletAddress, uuid, campaignCategory } = jsonData
+
+    if (!title || !description || !endDate || !goalAmount || !walletAddress) {
         throw new Error("please make sure all the configuration is set when creating a new campaign")
     }
-    const res = await service.createCampaign(ownerName, description, endDate, goalAmount, campaignType);
+
+    var campagin: Campaign = {
+        contractAddress: '0',
+        uuid: uuid as string,
+        title: title,
+        description: description,
+        category: campaignCategory,
+        image: '',
+        video: 'video_url.mp4',
+        goal: 1000, // Goal amount
+        collected: 0, // Initial collected amount
+        type: campaignType, // Campaign type
+        createdAt: new Date(), // Current date and time
+        endAt: new Date('2024-12-31'), // End date of the campaign
+        isFinished: false, // Initial state
+        isFailed: false, // Initial state
+    }
     
-    return res
+    // await saveCampaignToDb()
+
 }
 
 export async function getAllCampaigns() {

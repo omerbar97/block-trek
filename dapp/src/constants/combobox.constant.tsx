@@ -1,62 +1,73 @@
 export const SearchBarCategories = [
     {
-        value: "socialCauses",
+        value: "SOCIAL_CAUSES",
         label: "Social Causes",
     },
     {
-        value: "healthAndWellness",
+        value: "HEALTH_AND_WELLNESS",
         label: "Health and Wellness",
     },
     {
-        value: "technologyAndInnovation",
+        value: "TECHNOLOGY_AND_INNOVATION",
         label: "Technology and Innovation",
     },
     {
-        value: "artsAndCulture",
+        value: "ARTS_AND_CULTURE",
         label: "Arts and Culture",
     },
     {
-        value: "communityDevelopment",
+        value: "COMMUNITY_DEVELOPMENT",
         label: "Community Development",
     },
     {
-        value: "educationAndLearning",
+        value: "EDUCATION_AND_LEARNING",
         label: "Education and Learning",
     },
     {
-        value: "humanRights",
+        value: "HUMAN_RIGHTS",
         label: "Human Rights",
     },
     {
-        value: "emergencyRelief",
+        value: "EMERGENCY_RELIEF",
         label: "Emergency Relief",
     },
     {
-        value: "scienceAndResearch",
+        value: "SCIENCE_AND_RESEARCH",
         label: "Science and Research",
     },
     {
-        value: "sportsAndRecreation",
+        value: "SPORTS_AND_RECREATION",
         label: "Sports and Recreation",
     },
     {
-        value: "businessAndEntrepreneurship",
+        value: "BUSINESS_AND_ENTREPRENEURSHIP",
         label: "Business and Entrepreneurship",
     },
     {
-        value: "foodAndAgriculture",
+        value: "FOOD_AND_AGRICULTURE",
         label: "Food and Agriculture",
     },
     {
-        value: "elderlyCare",
+        value: "ELDERLY_CARE",
         label: "Elderly Care",
     },
     {
-        value: "techForGood",
+        value: "TECH_FOR_GOOD",
         label: "Tech for Good",
     },
     {
-        value: "environmentalSustainability",
+        value: "ENVIRONMENTAL_SUSTAINABILITY",
         label: "Environmental Sustainability",
     },
 ];
+
+export const CampaignTypes = [
+    {
+        value: "REWARD",
+        label: "Reward"
+    },
+    {
+        value: "DONATION",
+        label: "Donation"
+    },
+]

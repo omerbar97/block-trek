@@ -36,11 +36,12 @@ model User {
 
 model Campaign {
   id              Int           @id @default(autoincrement())
+  uuid            String        @unique
   contractAddress String        @unique
   ownerId         Int           @map(name: "owner_id")
   title           String
   description     String
-  category        String
+  category        CampaignCategory
   image           String
   video           String?
   goal            Int
@@ -54,6 +55,24 @@ model Campaign {
   rewards         Reward[]
   isFinished      Boolean       @default(false)
   isFailed        Boolean       @default(false)
+}
+
+enum CampaignCategory {
+  SOCIAL_CAUSES
+  HEALTH_AND_WELLNESS
+  TECHNOLOGY_AND_INNOVATION
+  ARTS_AND_CULTURE
+  COMMUNITY_DEVELOPMENT
+  EDUCATION_AND_LEARNING
+  HUMAN_RIGHTS
+  EMERGENCY_RELIEF
+  SCIENCE_AND_RESEARCH
+  SPORTS_AND_RECREATION
+  BUSINESS_AND_ENTREPRENEURSHIP
+  FOOD_AND_AGRICULTURE
+  ELDERLY_CARE
+  TECH_FOR_GOOD
+  ENVIRONMENTAL_SUSTAINABILITY
 }
 
 model Contributer {

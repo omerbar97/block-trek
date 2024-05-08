@@ -85,8 +85,8 @@ const Searchbar: React.FC<SearchbarProps> = (props: SearchbarProps) => {
                     onChange={(e) => {setInput(e.target.value)}}
                 />
 
-                {/* Combobox */}
-                <Combobox className=''/>
+                {/* Category */}
+                <Combobox data={SearchBarCategories} value={category} setValue={setCategory} name="Category"/>
 
                 {/* Date Picker */}
                 <DatePicker />

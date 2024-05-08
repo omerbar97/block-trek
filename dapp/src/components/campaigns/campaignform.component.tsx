@@ -5,14 +5,15 @@ import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { useWallet } from '@/hooks/wallet.hook'
 import { getEthVal, getPriceInFormat } from '@/utils/crypto'
-import { goalAmountCannotBeNegativeToast, uploadImageSuccessToast, uploadMaxImageSizeExceedsToast, uploadOnlyImagesToast } from '@/utils/toast'
+import { genericToast, goalAmountCannotBeNegativeToast, uploadImageSuccessToast, uploadMaxImageSizeExceedsToast, uploadOnlyImagesToast } from '@/utils/toast'
 import TextareaCounter from '../shared/textareacounter.component';
 import axios from 'axios';
-import { SearchBarCategories } from '@/constants/combobox.constant';
+import { CampaignTypes, SearchBarCategories } from '@/constants/combobox.constant';
 import { Combobox } from '../searchbar/combobox.component';
-import { useSearch } from '@/hooks/searchbar.hook';
-import { DatePicker } from '../searchbar/date.component';
 import DatePickerForCreationCampaign from './dateforcreation.component';
+import { requestCreationOfNewCampaign } from '@/services/crypto/contract';
+import { getUnixTime } from 'date-fns';
+import { WeiPerEther } from 'ethers';
 
 
 const CampaignForm = () => {
@@ -27,11 +28,13 @@ const CampaignForm = () => {
     // formData
     const [base64Image, setBase64Image] = useState<string | null | ArrayBuffer>(null);
     const [date, setDate] = useState<Date | null>(null)
-    const {category, setCategory} = useSearch()
+    const [category, setCategory] = useState<string | null>(null)
+    const [type, setType] = useState<string | null>(null)
     const campaignName = useRef<Ref<HTMLInputElement>>()
     const campaignDescription = useRef<Ref<HTMLTextAreaElement>>()
     const campaignVideoLink = useRef<Ref<HTMLInputElement>>()
     const campaignEthAmount = useRef<Ref<HTMLInputElement>>()
+
 
     function handleImage(event: ChangeEvent<HTMLInputElement>) {
         const file = event.target.files?.[0];
@@ -86,51 +89,58 @@ const CampaignForm = () => {
 
     const getDataFromRefs = () => {
         return {
-            name: campaignName.current?.value,
+            title: campaignName.current?.value,
             description: campaignDescription.current?.value,
-            videoLink: campaignVideoLink.current?.value,
-            ethAmount: campaignEthAmount.current?.value,
-            category: category
+            video: campaignVideoLink.current?.value,
+            goal: campaignEthAmount.current?.value,
+            category: category,
+            type: type,
+            walletAddress: walletAddress
         }
     }
 
     const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         // Dummy content
         e.preventDefault()
-        
+        if (date === null) {
+            genericToast("Please select end date for the campaign", "Campaign cannot last forever..")
+            return
+        }
         const data = getDataFromRefs()
 
-        // model Campaign {
-        //     id              Int           @id @default(autoincrement())
-        //     contractAddress String        @unique
-        //     ownerId         Int           @map(name: "owner_id")
-        //     title           String
-        //     description     String
-        //     image           String
-        //     video           String?
-        //     goal            Int
-        //     collected       Int
-        //     type            CampaignType
-        //     createdAt       DateTime      @default(now())
-        //     updatedAt       DateTime      @updatedAt
-        //     owner           Owner         @relation(fields: [ownerId], references: [id])
-        //     contributers    Contributer[]
-        //     rewards         Reward[]
-        //   }
+        if (data.goal <= 0) {
+            genericToast("Goal amount cannot be 0 or less", "...")
+            return
+        }
 
-        console.log(data)
+        if(data.category === null) {
+            genericToast("Campaign must be categorized", "...")
+            return   
+        }
+
+        if(data.type === null) {
+            genericToast("Campaign must have a type", "...")
+            return   
+        }
+
+        // requestCreationOfNewCampaign()
         const requestData = {
-            ownerName: 'John Doe',
-            description: 'A new campaign',
-            endDate: 1644614400,
-            goalAmount: '1000000000000000000',
-            campaignType: 0
+            ...data,
+            image: base64Image ?? "",
+            endDate: date,
         };
 
-        // const req = await axios.post('/api/campaign', requestData)
-        // console.log(req)
-    }
+        var goalAsWei: bigint
+        goalAsWei = BigInt(goal)*WeiPerEther
 
+        const req = await axios.post('/api/campaign', requestData)
+        requestCreationOfNewCampaign(data.title, data.description, getUnixTime(date), goalAsWei, type ?? "", "923i1209")
+        if (req.status === 200) {
+            genericToast("Created campaign succssfully", "Good job mate!")
+            return
+        }
+        genericToast("Failed to create campaign", "Sorry, please try again later")
+    }
 
 
     useEffect(() => {
@@ -226,7 +236,16 @@ const CampaignForm = () => {
                                 >
                                     Campaign Category
                                 </label>
-                                <Combobox className=''/>
+                                <Combobox data={SearchBarCategories} value={category} setValue={setCategory} name="Category"/>
+                            </div>
+                            <div className="w-full">
+                                <label
+                                    htmlFor="category"
+                                    className="block text-sm font-medium leading-6 text-gray-900"
+                                >
+                                    Campaign Type
+                                </label>
+                                <Combobox data={CampaignTypes} value={type} setValue={setType} name="Type"/>
                             </div>
                             <div className="w-full">
                                 <label

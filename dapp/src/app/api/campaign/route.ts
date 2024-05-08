@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { NextApiRequest } from 'next';
 import { getUserSession } from '../getusersession';
 import { createCampaign, getAllCampaignsFromDb } from '@/services/controller/campaign';
+import { CampaignCategory } from '@prisma/client';
 
 
 async function postHandler(req: NextRequest) {
@@ -11,8 +12,9 @@ async function postHandler(req: NextRequest) {
     }
     try {
         const data = await req.json()
-        const res = await createCampaign(data)
-        console.log(res)
+        console.log(data)
+        // const res = await createCampaign(data)
+        // console.log(res)
         return NextResponse.json({ message: 'Campaign created successfully' }, {status: 200})
     } catch (error) {
         console.error("Error creating contract:", error);
@@ -35,7 +37,7 @@ async function getHandler(req: NextRequest) {
         const n_expiration = typeof experation === 'string' ? experation : (Array.isArray(experation) ? experation[0] : null);
 
         // Your logic using query parameters
-        const allCampaigns = await getAllCampaignsFromDb(n_name, n_category, n_expiration);
+        const allCampaigns = await getAllCampaignsFromDb(n_name, n_category as CampaignCategory, n_expiration);
         return NextResponse.json(allCampaigns, { status: 200 });
     } catch (error) {
         console.error("Error handling GET request:", error);

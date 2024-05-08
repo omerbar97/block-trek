@@ -1,7 +1,0 @@
-Within the graphql folder, GraphQL-related code, such as queries 
-and mutations, is centralized, enabling clear separation of concerns 
-and streamlining data interactions with the backend.
-
-we will catagorized each queries, if queries related to users, then under
-the folder graphql/Users we will create the queries for that purpose.
-

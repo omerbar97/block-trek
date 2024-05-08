@@ -15,14 +15,18 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { SearchBarCategories } from "@/constants/combobox.constant"
-import { useSearch } from "@/hooks/searchbar.hook"
 
-export function Combobox({className} : {className: string}) {
+interface ComboboxProps {
+    data: {label: string, value:string}[];
+    setValue: React.Dispatch<React.SetStateAction<string | null>>
+    value: string | null
+    name: string
+}
+
+export const Combobox= (props: ComboboxProps) => {
     const [open, setOpen] = React.useState(false)
 
-    const { category, setCategory } = useSearch()
-
+    const { data, setValue, value, name} = props
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
@@ -32,31 +36,31 @@ export function Combobox({className} : {className: string}) {
                     aria-expanded={open}
                     className="w-full justify-between text-black"
                 >
-                    {category
-                        ? category
-                        : "Select category..."}
+                    {value
+                        ? value
+                        : `Select ${name}...`}
                     <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-full h-96 p-0">
+            <PopoverContent className="w-full h-fit-content p-0 max-h-96">
                 <Command>
                     <CommandInput placeholder="Search categories..." className="h-9" />
-                    <CommandEmpty>No category found.</CommandEmpty>
+                    <CommandEmpty>No {name} found.</CommandEmpty>
                     <CommandGroup>
-                        {SearchBarCategories.map((catagory) => (
+                        {data && data.map((d) => (
                             <CommandItem
-                                key={catagory.value}
-                                value={catagory.value}
+                                key={d.value}
+                                value={d.value}
                                 onSelect={(currentValue) => {
-                                    setCategory(currentValue === category ? "" : catagory.label)
+                                    setValue(currentValue === value ? "" : d.label)
                                     setOpen(false)
                                 }}
                             >
-                                {catagory.label}
+                                {d.label}
                                 <CheckIcon
                                     className={cn(
                                         "ml-auto h-4 w-4",
-                                        category === catagory.value ? "opacity-100" : "opacity-0"
+                                        value === d.value ? "opacity-100" : "opacity-0"
                                     )}
                                 />
                             </CommandItem>

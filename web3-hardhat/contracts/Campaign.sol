@@ -27,10 +27,10 @@ contract Campaign {
 
 
     // Events for tracking contributions, refund, withdrawal, and campaign completion
-    event Contribution(address indexed contributor, uint256 amount);
-    event Refund(address indexed contributor, uint256 amount);
-    event Withdrawal(uint256 amount);
-    event CampaignCompleted();
+    event Contribution(address indexed contributor, uint256 amount, uint256 time);
+    event Refund(address indexed contributor, uint256 amount, uint256 time);
+    event Withdrawal(uint256 amount, uint256 time);
+    event CampaignCompleted(uint256 time);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only the owner can call this function");
@@ -64,6 +64,7 @@ contract Campaign {
 
     function contribute() external payable campaignNotEnded {
         require(msg.value > 0, "Contribution amount must be greater than 0");
+        require(totalContributions < goalAmount, "Goal amount already reached");
         contributors[msg.sender] += msg.value;
         totalContributions += msg.value;
         bool isInList = false;
@@ -75,7 +76,10 @@ contract Campaign {
         if (!isInList) {
             contributorsKeys.push(msg.sender);
         }
-        emit Contribution(msg.sender, msg.value);
+        if (totalContributions >= goalAmount) {
+            emit CampaignCompleted(block.timestamp);
+        }
+        emit Contribution(msg.sender, msg.value, block.timestamp);
     }
 
     function getCampaignDetails()
@@ -116,7 +120,7 @@ contract Campaign {
         // Refund the contributor
         payable(msg.sender).transfer(refundAmount);
 
-        emit Refund(msg.sender, refundAmount);
+        emit Refund(msg.sender, refundAmount, block.timestamp);
     }
 
     function withdrawFunds() external onlyOwner campaignEnded {
@@ -128,7 +132,7 @@ contract Campaign {
         // Transfer funds to the owner
         payable(owner).transfer(totalContributions);
 
-        emit Withdrawal(totalContributions);
+        emit Withdrawal(totalContributions, block.timestamp);
     }
 
     function campaignEnd() external onlyOwner {
@@ -150,11 +154,9 @@ contract Campaign {
                     // Refund the contributor
                     payable(contributor).transfer(refundAmount);
 
-                    emit Refund(contributor, refundAmount);
+                    emit Refund(contributor, refundAmount, block.timestamp);
                 }
             }
     }
-
-    emit CampaignCompleted();
 }
 }
