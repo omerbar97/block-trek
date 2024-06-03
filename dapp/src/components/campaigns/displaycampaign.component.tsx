@@ -18,7 +18,7 @@ import { getEthVal, getPriceInFormat } from '@/utils/crypto';
 import { Campaign, Contributer, Owner, Reward } from '@prisma/client';
 import { SearchBarCategories } from '@/constants/combobox.constant';
 import { WeiPerEther } from 'ethers';
-import { requestBlockchainForDonation } from '@/services/crypto/contract';
+import { requestBlockchainForDonation, requestBlockchainForCampaign } from '@/services/crypto/contract';
 
 
 interface CampaignCardProps {
@@ -87,9 +87,9 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
         console.log("tests")
         var n:bigint = BigInt(donationAmount)
         n = n * WeiPerEther
-        const isOk = await requestBlockchainForDonation(campaign.uuid, n)
+        // const isOk = await requestBlockchainForDonation(campaign.uuid, n)
+        const isOk = await requestBlockchainForCampaign(campaign.uuid)
         if (!isOk) {
-            // Failed to donate
             genericToast("Failed to Donate!", "Try to check your information...", 5)
             return
         }

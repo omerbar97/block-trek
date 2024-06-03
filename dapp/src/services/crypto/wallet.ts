@@ -32,3 +32,16 @@ export async function connectMetamaskWallet() : Promise<{provider: BrowserProvid
         return s
     }
 }
+
+
+export async function getProviders() : Promise<BrowserProvider | null>{
+    try {
+        const provider = new BrowserProvider(window.ethereum, "any")
+        await provider.send("eth_requestAccounts", [])
+        return provider
+    } catch (error) {
+        console.log("Failed to get providers: ", error)
+        return null
+    }
+}
+
