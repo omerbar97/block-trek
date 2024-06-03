@@ -1,30 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-
 import "./CampaignType.sol";
 
-
 contract Campaign {
-    // Campaign owner
+    string public uuid; // unique identifier
     address public owner;
-    // Campian name
     string  public campaignName;
-    // Description
     string  public campaignDescription;
-    // All the contributers keys are stored here
-    address[] contributorsKeys;
-    // End date to collect all the money
-    uint256 public endDate;
-    // The goal amount to be collected
+    address[] contributorsKeys; // the address of all the user that donated
+    uint256 public endDate; // end date in linux time
     uint256 public goalAmount;
-    // The value that was already collected
     uint256 public totalContributions;
-    // The campaign type
     string public campaignType;
-    // TotalContributers mapping, each contributers will have the value it funded
     mapping(address => uint256) public contributors;
-
 
     // Events for tracking contributions, refund, withdrawal, and campaign completion
     event Contribution(address indexed contributor, uint256 amount, uint256 time);
@@ -34,6 +23,11 @@ contract Campaign {
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only the owner can call this function");
+        _;
+    }
+
+    modifier notOwner() {
+        require(msg.sender != owner, "Owner cannot invoke this function");
         _;
     }
 
@@ -47,30 +41,42 @@ contract Campaign {
         _;
     }
 
+    modifier contributionNumberMoreThenZero() {
+        require(msg.value > 0, "Contribution amount must be greater than 0");
+        _;
+    }
+
+    modifier goalAmountNotReached() {
+        require(totalContributions < goalAmount, "Goal amount already reached");
+        _;
+    }
+
     constructor(
         string memory _campaignName,
         string memory _campaignDescription,
         uint256 _endDate,
         uint256 _goalAmount,
-        string memory _campaignType
+        string memory _campaignType,
+        address _ownerWalletAddress,
+        string memory _uuid
     ) {
-        owner = msg.sender;
+        owner = _ownerWalletAddress;
         campaignName = _campaignName;
         campaignDescription = _campaignDescription;
         endDate = _endDate;
         goalAmount = _goalAmount;
         campaignType = _campaignType;
+        uuid = _uuid;
     }
 
-    function contribute() external payable campaignNotEnded {
-        require(msg.value > 0, "Contribution amount must be greater than 0");
-        require(totalContributions < goalAmount, "Goal amount already reached");
+    function contribute() external payable notOwner campaignNotEnded contributionNumberMoreThenZero goalAmountNotReached {
         contributors[msg.sender] += msg.value;
         totalContributions += msg.value;
         bool isInList = false;
         for (uint256 i = 0; i < contributorsKeys.length; i++) {
             if (contributorsKeys[i] == msg.sender) {
                 isInList = true;
+                break;
             }
         }
         if (!isInList) {
@@ -112,14 +118,11 @@ contract Campaign {
         // Can only refund when the end date didn't passed
         uint256 refundAmount = contributors[msg.sender];
         require(refundAmount > 0, "No contribution to refund");
-
         // Reset contributor balance
         contributors[msg.sender] = 0;
         totalContributions -= refundAmount;
-
         // Refund the contributor
         payable(msg.sender).transfer(refundAmount);
-
         emit Refund(msg.sender, refundAmount, block.timestamp);
     }
 
@@ -131,13 +134,11 @@ contract Campaign {
 
         // Transfer funds to the owner
         payable(owner).transfer(totalContributions);
-
         emit Withdrawal(totalContributions, block.timestamp);
     }
 
     function campaignEnd() external onlyOwner {
         require(block.timestamp >= endDate, "Campaign has not ended yet");
-
         // If the goal is achieved, the funds are transferred to the owner
         if (totalContributions >= goalAmount) {
             payable(owner).transfer(totalContributions);
@@ -150,13 +151,11 @@ contract Campaign {
                 if (refundAmount > 0) {
                     // Reset contributor balance
                     contributors[contributor] = 0;
-
                     // Refund the contributor
                     payable(contributor).transfer(refundAmount);
-
                     emit Refund(contributor, refundAmount, block.timestamp);
                 }
             }
+        }
     }
-}
 }

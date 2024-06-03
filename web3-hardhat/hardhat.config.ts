@@ -5,4 +5,12 @@ const config: HardhatUserConfig = {
   solidity: "0.8.19",
 };
 
-export default config;
+module.exports = {
+  ...config,
+  networks: {
+    hardhat: {
+      chainId: 1337,
+    },
+  },
+};
+

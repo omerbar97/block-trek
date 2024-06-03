@@ -1,6 +1,4 @@
 import { BrowserProvider } from "ethers";
-import { createOwner, getOwnerByWalletAddress } from "../controller/owner";
-import { useAxiosPost } from "@/hooks/useAxios.hook";
 import axios from "axios";
 
 

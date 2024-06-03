@@ -19,6 +19,7 @@ contract CrowdFundingFactory {
     );
 
     function createCampaign(
+        address ownerWalletAddress,
         string memory campaignName,
         string memory description,
         uint256 endDate,
@@ -31,12 +32,14 @@ contract CrowdFundingFactory {
             description,
             endDate,
             goalAmount,
-            campaignType
+            campaignType,
+            ownerWalletAddress,
+            uuid
         );
 
         deployedCampaignsAddress.push(address(newCampaign));
 
-        emit CampaignCreated(address(newCampaign), msg.sender, uuid);
+        emit CampaignCreated(address(newCampaign), ownerWalletAddress, uuid);
         return newCampaign;
     }
 

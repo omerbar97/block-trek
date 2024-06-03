@@ -9,8 +9,8 @@ import { useSearchParams } from 'next/navigation';
 import { genericToast } from '@/utils/toast';
 import { Campaign } from '@prisma/client';
 import GhostCard from '@/components/campaigns/ghostcard.component';
-import { getCampaignFullDataFromServerById, getCampaignsWithFilterFromServer } from '@/services/frontend/campaign';
 import { IDisplayCampaign } from '@/types/campaign.interface';
+import { useAxiosGet } from '@/hooks/useAxios.hook';
 
 const getParamsMap = (params: URLSearchParams) => {
   var map: Map<string, string> = new Map();
@@ -22,7 +22,12 @@ const getParamsMap = (params: URLSearchParams) => {
 
 const retrieveCampaignsWithFilter = (params: URLSearchParams) => {
   const map = getParamsMap(params)
-  const {response, loading, error, refetch} = getCampaignsWithFilterFromServer(map)
+  const {response, loading, error, refetch} = useAxiosGet(`/api/campaign`, map)
+  return {response, loading, error, refetch }
+}
+
+const retreiveSelectedCampaign = (id: string) => {
+  const {response, loading, error, refetch} = useAxiosGet(`/api/campaign/${id}`)
   return {response, loading, error, refetch }
 }
 
@@ -36,6 +41,7 @@ const FundCampaignsPage = () => {
   const params = new URLSearchParams(searchParams);
 
   const { response, error, loading, refetch } = retrieveCampaignsWithFilter(params);
+  const SelectedData = retreiveSelectedCampaign("1")
 
   useEffect(() => {
     if (error) {
@@ -49,31 +55,33 @@ const FundCampaignsPage = () => {
     }
   }, [response, error, loading]);
 
+  useEffect(() => {
+    if (SelectedData.error) {
+      console.error("Failed to fetch ", SelectedData.error);
+      genericToast("Failed to retreive campaign", "Please try again later");
+    } else if (SelectedData.loading) {
+      setIsSelectedModelLoading(loading)
+      console.log('Loading...');
+    } else {
+      console.log('Data:', SelectedData.response);
+      setSelectedCampaign(SelectedData.response as IDisplayCampaign);
+      setIsSelectedModelLoading(false)
+    }
+  }, [SelectedData.response, SelectedData.loading, SelectedData.error])
 
   useEffect(() => {
     if (didUrlChange) {
       const map = getParamsMap(params)
-      refetch(map)
+      refetch(null, map)
       setDidUrlChange(false)
     }
   }, [didUrlChange])
 
   const handleCardClick = (id: string) => {
     // Fetching the campaign data
-    const {response, loading, error, refetch} = getCampaignFullDataFromServerById(id)
-    useEffect(() => {
-      if (error) {
-        console.error("Failed to fetch ", error);
-        genericToast("Failed to retreive campaign", "Please try again later");
-      } else if (loading) {
-        setIsSelectedModelLoading(loading)
-        console.log('Loading...');
-      } else {
-        console.log('Data:', response);
-        setSelectedCampaign(response as IDisplayCampaign);
-        setIsSelectedModelLoading(false)
-      }
-    }, [response, loading, error])
+    if (!drawerOpen) {
+      SelectedData.refetch(`/api/campaign/${id}`)
+    }
     setDrawerOpen(!drawerOpen);
   };
 
@@ -98,8 +106,10 @@ const FundCampaignsPage = () => {
             <Card
               key={campaign.id}
               onClick={() => {
+                const params = new URLSearchParams(window.location.search);
                 const stringId = `${campaign.id}`
                 params.set("id", stringId)
+                console.log(params)
                 handleCardClick(stringId)
               }}
               campaign={campaign}

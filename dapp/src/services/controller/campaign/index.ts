@@ -2,6 +2,9 @@ import { useAxiosGet } from "@/hooks/useAxios.hook";
 import prisma from "@/lib/prisma";
 import { IDisplayCampaign } from "@/types/campaign.interface";
 import { Campaign, CampaignCategory, Contributer } from "@prisma/client";
+import { v4 as uuidv4 } from 'uuid';
+import { getOwnerByWalletAddress } from "../owner";
+
 
 export async function getAllCampaignsFromDb(name: string | null=null, category: CampaignCategory | null=null, experation: string | null=null) : Promise<Campaign[] | null> {
     try {
@@ -72,12 +75,18 @@ export async function getAllCampaignsFromDb(name: string | null=null, category: 
     }
 }
 
-export async function saveCampaignToDb(campagin: Campaign): Promise<Boolean> {
+export async function saveCampaignToDb(campagin: Campaign, ownerId: number): Promise<Boolean> {
     console.log("saving campaign in db for ", campagin.uuid, " and values ", campagin)
     try {
+        console.log("before prisma: ", campagin)
         await prisma.campaign.create({
             data: {
-                ...campagin
+                ...campagin,
+                owner: {
+                    connect:{
+                        id: ownerId
+                    }
+                }
             }
         })
         return true
@@ -87,7 +96,7 @@ export async function saveCampaignToDb(campagin: Campaign): Promise<Boolean> {
     }
 }
 
-export async function updateCampaignInDb(uuid: string, values: Partial<Campaign>): Promise<Boolean> {
+export async function updateCampaignInDbByUuid(uuid: string, values: Partial<Campaign>): Promise<Boolean> {
     console.log("updating campaign in db for ", uuid, " and values ", values)
     try {
         await prisma.campaign.update({
@@ -191,32 +200,68 @@ export async function getCampaignByIdWithAllData(id: number) : Promise<IDisplayC
 }
 
 export async function createCampaign(jsonData: any) {
+    const { title, description, video, goal, type, category, endDate, walletAddress, image } = jsonData
 
-    const { title, description, endDate, goalAmount, campaignType, walletAddress, uuid, campaignCategory } = jsonData
-
-    if (!title || !description || !endDate || !goalAmount || !walletAddress) {
+    if (!title || !description || !endDate || !goal || !walletAddress || !type || !category) {
         throw new Error("please make sure all the configuration is set when creating a new campaign")
     }
 
-    var campagin: Campaign = {
+    const owner = await getOwnerByWalletAddress(walletAddress)
+    if(!owner) {
+        throw new Error("failed to get owner for wallet address: " + walletAddress)
+    }
+
+    const uuid = uuidv4()
+    var campagin: Partial<Campaign> = {
         contractAddress: '0',
         uuid: uuid as string,
         title: title,
         description: description,
-        category: campaignCategory,
-        image: '',
-        video: 'video_url.mp4',
-        goal: 1000, // Goal amount
-        collected: 0, // Initial collected amount
-        type: campaignType, // Campaign type
-        createdAt: new Date(), // Current date and time
-        endAt: new Date('2024-12-31'), // End date of the campaign
-        isFinished: false, // Initial state
-        isFailed: false, // Initial state
+        category: category,
+        image: image ?? "",
+        video: video ?? "",
+        goal: goal,
+        type: type,
+        endAt: new Date(endDate),
     }
-    
-    // await saveCampaignToDb()
 
+    console.log(campagin)
+
+    await saveCampaignToDb(campagin, Number(owner.id))
+    return uuid
+}
+
+export async function isCampaignContractAddressExists(campaginUuid: string) {
+    try {
+        const c = await prisma.campaign.findFirst({
+            where: {
+                uuid:campaginUuid,
+            }
+        })
+        console.log("contract: ", c)
+        if (c) {
+            return !(c.contractAddress === '0')
+        }
+        return false
+    } catch (error) {
+        console.log("failed to check campaign wallet address")
+    }
+}
+
+
+
+export async function deleteCampaign(campaignUuid: string) {
+    try {
+        await prisma.campaign.delete({
+            where:{
+                uuid: campaignUuid
+            }
+        })
+        return true
+    } catch (error) {
+        console.log("failed to delete campaign from db ", error)
+        return false
+    }
 }
 
 export async function getAllCampaigns() {

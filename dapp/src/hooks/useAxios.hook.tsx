@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 axios.defaults.baseURL = process.env.SITE_URL
-
 export const useAxiosPost = ( url: string, body: any) => {
     const [response, setResponse] = useState(null);
     const [error, setError] = useState('');
@@ -40,7 +39,8 @@ export const useAxiosGet = (url: string, query: Map<string, string> | null=null)
     const [error, setError] = useState<any>('');
     const [loading, setloading] = useState<boolean>(true);
 
-    const fetchData = (query: Map<string, string> | null=null) => {
+    const fetchData = (newUrl: string| null=null, query: Map<string, string> | null=null) => {
+        url = newUrl ?? url
         var urlWithQuery = url
         if (query !== null) {
             const queryString = Array.from(query)
@@ -61,11 +61,11 @@ export const useAxiosGet = (url: string, query: Map<string, string> | null=null)
     };
 
     useEffect(() => {
-        fetchData(query);
+        fetchData(url, query);
     }, []);
 
-    const refetch = (query: Map<string, string> | null=null) => {
-        fetchData(query)
+    const refetch = (newUrl: string | null=null, query: Map<string, string> | null=null) => {
+        fetchData(newUrl, query)
     }
 
     return { response, error, loading, refetch };

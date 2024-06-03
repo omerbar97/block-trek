@@ -1,10 +1,9 @@
 import { ethers } from 'ethers';
 // import fs from 'fs'
-import { updateCampaignInDb } from '../controller/campaign';
 import { FACTORY_ABI } from './abi';
+import axios from 'axios';
 
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-
+const CONTRACT_ADDRESS = "0x5fbdb2315678afecb367f032d93f642f64180aa3"
 
 export async function getNewContractAddress(transactionHash: string) {
     const provider = new ethers.JsonRpcProvider(); // You may need to specify your provider URL
@@ -24,27 +23,25 @@ async function generateABI() {
     return abi
 }
 
-let campaignFactoryContract: ethers.Contract | null = null;
 
 export const getCampaignFactoryContract = async () => {
     try {
-        // If contract instance already exists, return it
-        if (campaignFactoryContract) {
-            return campaignFactoryContract;
-        }
         const provider = await new ethers.JsonRpcProvider(process.env.BLOCKCHAIN_URL);
-        const signer = await provider.getSigner();
+        const signer = await provider.getSigner()
         const abi = await generateABI();
-        campaignFactoryContract = await new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
-        // Creating event listeners for events
+        const campaignFactoryContract = await new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
 
         campaignFactoryContract.on("CampaignCreated", async (campaignAddress: string, owner: string, uuid: string) => {
-            console.log("New campaign created: ");
-            console.log("Campaign Address:", campaignAddress);
-            console.log("Owner:", owner);
-            
-            // Sending request to db to add a new campaign to the db
-            await updateCampaignInDb(uuid, {contractAddress: campaignAddress})
+            console.log("New campaign created with the following parameters");
+            console.log("Campaign Address: ", campaignAddress);
+            console.log("Owner Wallet Address: ", owner);
+            console.log("Campaign UUID: ", uuid);
+            const data = {
+                uuid: uuid,
+                contractAddress: campaignAddress,
+                ownerWallet: owner
+            }
+            await axios.put('/api/campaign', data)
         });
 
         return campaignFactoryContract;
@@ -60,28 +57,40 @@ export const requestCreationOfNewCampaign = async (
     endDate: number,
     goalAmountInWei: bigint,
     campaignType: string,
-    uuid: string
+    uuid: string,
+    ownerWalletAddress: string
 ) => {
     try {
         const service = await getCampaignFactoryContract();
         if (service) {
             // Assuming createCampaign method exists on the contract
+            console.log(campaignName)
+            console.log(description)
+            console.log(endDate)
+            console.log(goalAmountInWei)
+            console.log(campaignType)
+            console.log(ownerWalletAddress)
+            console.log(uuid)
             const transaction = await service.createCampaign(
                 campaignName,
                 description,
                 endDate,
                 goalAmountInWei,
                 campaignType,
-                uuid,
+                ownerWalletAddress,
+                uuid
             );
 
             await transaction.wait();
-            console.log("New campaign created successfully!");
+            console.log(transaction)
+            return true
         } else {
             console.log("Failed to obtain campaign factory contract.");
+            return false
         }
     } catch (error) {
         console.log("Failed to request creation of new campaign ", error);
+        return false
     }
 }
 

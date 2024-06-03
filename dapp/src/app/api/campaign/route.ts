@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NextApiRequest } from 'next';
 import { getUserSession } from '../getusersession';
-import { createCampaign, getAllCampaignsFromDb } from '@/services/controller/campaign';
+import { createCampaign, deleteCampaign, getAllCampaignsFromDb, isCampaignContractAddressExists, updateCampaignInDbByUuid } from '@/services/controller/campaign';
 import { CampaignCategory } from '@prisma/client';
+
 
 
 async function postHandler(req: NextRequest) {
@@ -12,9 +13,57 @@ async function postHandler(req: NextRequest) {
     }
     try {
         const data = await req.json()
-        console.log(data)
-        // const res = await createCampaign(data)
-        // console.log(res)
+        const res = await createCampaign(data)
+        if (!res) {
+            return NextResponse.json({message: "Failed to create campaign"}, {status: 400})
+        }
+        const response = {
+            uuid: res
+        }
+        return NextResponse.json(response, {status: 200})
+    } catch (error) {
+        console.error("Error creating contract:", error);
+        return NextResponse.json({ message: "Error creating contract: " + error }, {status: 400})
+    }
+}
+
+async function deleteHandler(req: NextRequest) {
+    const session = await getUserSession();
+    if (!session || !session.user?.email) {
+        return NextResponse.json({ message: "session not found" }, { status: 401 });
+    }
+    try {
+        // Need to add logic to check if campaign exists in contract
+        const data = await req.json()
+        const uuid = data.campaginUuid
+        const isAddressExists = await isCampaignContractAddressExists(uuid)
+        if (!isAddressExists) {
+            const res = await deleteCampaign(uuid)
+            if (!res) {
+                return NextResponse.json({message: "Failed to delete campaign"}, {status: 400})
+            }
+            return NextResponse.json({message: "deleted campaign uuid: " + data.campaginUuid}, {status: 200})
+        } else {
+            return NextResponse.json({message: "cannot delete campaign that exists"}, {status: 400})   
+        }
+    } catch (error) {
+        console.error("Error creating contract:", error);
+        return NextResponse.json({ message: "Error creating contract: " + error }, {status: 400})
+    }
+}
+
+async function putHandler(req: NextRequest) {
+    const session = await getUserSession();
+    if (!session || !session.user?.email) {
+        return NextResponse.json({ message: "session not found" }, { status: 401 });
+    }
+    try {
+        const data = await req.json()
+        console.log("From PUT REQUEST:", data)
+        const res = await updateCampaignInDbByUuid(data.uuid, data)
+        if (!res) {
+            return NextResponse.json({ message: 'Failed to save campaign' }, {status: 500})
+        }
         return NextResponse.json({ message: 'Campaign created successfully' }, {status: 200})
     } catch (error) {
         console.error("Error creating contract:", error);
@@ -45,4 +94,4 @@ async function getHandler(req: NextRequest) {
     }
 }
 
-export { postHandler as POST, getHandler as GET};
+export { postHandler as POST, getHandler as GET, putHandler as PUT, deleteHandler as DELETE};

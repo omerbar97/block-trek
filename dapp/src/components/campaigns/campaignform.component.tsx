@@ -11,9 +11,10 @@ import axios from 'axios';
 import { CampaignTypes, SearchBarCategories } from '@/constants/combobox.constant';
 import { Combobox } from '../searchbar/combobox.component';
 import DatePickerForCreationCampaign from './dateforcreation.component';
+import { WeiPerEther } from 'ethers';
 import { requestCreationOfNewCampaign } from '@/services/crypto/contract';
 import { getUnixTime } from 'date-fns';
-import { WeiPerEther } from 'ethers';
+import { formatEtherFromString, pasreEtherFromStringEtherToWEI } from '@/services/crypto/utils';
 
 
 const CampaignForm = () => {
@@ -25,7 +26,6 @@ const CampaignForm = () => {
         setEthValue(result.data.amount)
     }
 
-    // formData
     const [base64Image, setBase64Image] = useState<string | null | ArrayBuffer>(null);
     const [date, setDate] = useState<Date | null>(null)
     const [category, setCategory] = useState<string | null>(null)
@@ -88,12 +88,22 @@ const CampaignForm = () => {
     }
 
     const getDataFromRefs = () => {
+        const lst = SearchBarCategories.filter((e) => {
+            return e.label === category
+        })
+        var campaignCategory: string
+        if (lst.length > 0) {
+            campaignCategory = lst[0].value
+        } else {
+            campaignCategory = "NO_CATEGORY"
+        }
+
         return {
             title: campaignName.current?.value,
             description: campaignDescription.current?.value,
             video: campaignVideoLink.current?.value,
             goal: campaignEthAmount.current?.value,
-            category: category,
+            category: campaignCategory,
             type: type,
             walletAddress: walletAddress
         }
@@ -107,6 +117,11 @@ const CampaignForm = () => {
             return
         }
         const data = getDataFromRefs()
+
+        if (!walletAddress) {
+            genericToast("You must connect a wallet address", "...")
+            return
+        }
 
         if (data.goal <= 0) {
             genericToast("Goal amount cannot be 0 or less", "...")
@@ -123,32 +138,39 @@ const CampaignForm = () => {
             return   
         }
 
-        // requestCreationOfNewCampaign()
+        var goalAsWei: bigint
+        goalAsWei = pasreEtherFromStringEtherToWEI(data.goal)
+        const bigintAsString = goalAsWei.toString();
+
         const requestData = {
             ...data,
             image: base64Image ?? "",
+            goal: bigintAsString,
             endDate: date,
         };
 
-        var goalAsWei: bigint
-        goalAsWei = BigInt(goal)*WeiPerEther
-
         const req = await axios.post('/api/campaign', requestData)
-        requestCreationOfNewCampaign(data.title, data.description, getUnixTime(date), goalAsWei, type ?? "", "923i1209")
-        if (req.status === 200) {
-            genericToast("Created campaign succssfully", "Good job mate!")
+        if (req.status !== 200) {
+            // Failed to save campaign data to db
+            genericToast("Failed to create campaign", "Sorry, please try again later")
             return
         }
-        genericToast("Failed to create campaign", "Sorry, please try again later")
+
+        const uuid = req.data.uuid
+        const res = await requestCreationOfNewCampaign(data.title, data.description, getUnixTime(date), goalAsWei, type ?? "", uuid, walletAddress)
+        if (res) {
+            genericToast("Created campaign succssfully", "Good job mate!")
+        }
+        genericToast("Failed to create campaign", "That's a bummer")
+        const dataToDelete = { campaginUuid: uuid };
+        const reqq = await axios.delete('/api/campaign', {data: dataToDelete})
     }
 
 
     useEffect(() => {
         updateEthValue();
-
         // Set up a setTimeout to periodically check the new value
         const intervalId = setInterval(updateEthValue, 10000); // Check every 5 seconds
-
         // Clean up the interval when the component unmounts
         return () => clearInterval(intervalId);
     }, []);
