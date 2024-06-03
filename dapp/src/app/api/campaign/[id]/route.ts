@@ -11,6 +11,9 @@ async function handler(req: NextApiRequest, params: any) {
         return NextResponse.json({ message: "session not found" }, { status: 401 });
     }
     const id = params.params.id as string
+    if (id == "dummy") {
+        return NextResponse.json("", { status: 200 });
+    }
     try {
         const idAsNum = parseInt(id, 10) as number
         const res = await getCampaignByIdWithAllData(idAsNum)

@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { FACTORY_ABI } from './abi';
 import axios from 'axios';
 
-const CONTRACT_ADDRESS = "0x5fbdb2315678afecb367f032d93f642f64180aa3"
+const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
 export async function getNewContractAddress(transactionHash: string) {
     const provider = new ethers.JsonRpcProvider(); // You may need to specify your provider URL
@@ -31,19 +31,11 @@ export const getCampaignFactoryContract = async () => {
         const abi = await generateABI();
         const campaignFactoryContract = await new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
 
-        campaignFactoryContract.on("CampaignCreated", async (campaignAddress: string, owner: string, uuid: string) => {
+        campaignFactoryContract.on("CampaignCreated", async (uuid: string, owner: string) => {
             console.log("New campaign created with the following parameters");
-            console.log("Campaign Address: ", campaignAddress);
             console.log("Owner Wallet Address: ", owner);
             console.log("Campaign UUID: ", uuid);
-            const data = {
-                uuid: uuid,
-                contractAddress: campaignAddress,
-                ownerWallet: owner
-            }
-            await axios.put('/api/campaign', data)
         });
-
         return campaignFactoryContract;
     } catch (e) {
         console.log("Failed to get blockchain factory contract ", e);
@@ -51,36 +43,25 @@ export const getCampaignFactoryContract = async () => {
     }
 }
 
-export const requestCreationOfNewCampaign = async (
+export const requestBlockchainForNewCampaign = async (
+    uuid: string,
     campaignName: string,
     description: string,
     endDate: number,
     goalAmountInWei: bigint,
     campaignType: string,
-    uuid: string,
-    ownerWalletAddress: string
 ) => {
     try {
         const service = await getCampaignFactoryContract();
         if (service) {
-            // Assuming createCampaign method exists on the contract
-            console.log(campaignName)
-            console.log(description)
-            console.log(endDate)
-            console.log(goalAmountInWei)
-            console.log(campaignType)
-            console.log(ownerWalletAddress)
-            console.log(uuid)
             const transaction = await service.createCampaign(
+                uuid,
                 campaignName,
                 description,
                 endDate,
                 goalAmountInWei,
                 campaignType,
-                ownerWalletAddress,
-                uuid
             );
-
             await transaction.wait();
             console.log(transaction)
             return true
@@ -95,5 +76,23 @@ export const requestCreationOfNewCampaign = async (
 }
 
 
-
-
+export const requestBlockchainForDonation = async (
+    uuid: string,
+    amount: bigint
+) => {
+    try {
+        const service = await getCampaignFactoryContract();
+        if (service) {
+            const transaction = await service.donate(uuid, {value: amount})
+            await transaction.wait();
+            console.log(transaction)
+            return true
+        } else {
+            console.log("Failed to obtain campaign factory contract.");
+            return false
+        }
+    } catch (error) {
+        console.log("Failed to donate to campaign ", uuid ," with error: ", error);
+        return false
+    }
+}

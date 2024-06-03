@@ -12,7 +12,7 @@ import { CampaignTypes, SearchBarCategories } from '@/constants/combobox.constan
 import { Combobox } from '../searchbar/combobox.component';
 import DatePickerForCreationCampaign from './dateforcreation.component';
 import { WeiPerEther } from 'ethers';
-import { requestCreationOfNewCampaign } from '@/services/crypto/contract';
+import { getCampaignFactoryContract } from '@/services/crypto/contract';
 import { getUnixTime } from 'date-fns';
 import { formatEtherFromString, pasreEtherFromStringEtherToWEI } from '@/services/crypto/utils';
 
@@ -157,9 +157,10 @@ const CampaignForm = () => {
         }
 
         const uuid = req.data.uuid
-        const res = await requestCreationOfNewCampaign(data.title, data.description, getUnixTime(date), goalAsWei, type ?? "", uuid, walletAddress)
+        const res = await getCampaignFactoryContract(uuid, data.title, data.description, getUnixTime(date), goalAsWei, type ?? "")
         if (res) {
             genericToast("Created campaign succssfully", "Good job mate!")
+            return
         }
         genericToast("Failed to create campaign", "That's a bummer")
         const dataToDelete = { campaginUuid: uuid };

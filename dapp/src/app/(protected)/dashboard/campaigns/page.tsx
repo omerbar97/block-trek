@@ -41,14 +41,14 @@ const FundCampaignsPage = () => {
   const params = new URLSearchParams(searchParams);
 
   const { response, error, loading, refetch } = retrieveCampaignsWithFilter(params);
-  const SelectedData = retreiveSelectedCampaign("1")
+  const SelectedData = retreiveSelectedCampaign("dummy")
 
   useEffect(() => {
-    if (error) {
+    if (loading) {
+      console.log('Loading...');
+    } else if (error) {
       console.error("Failed to fetch ", error);
       genericToast("Failed to retreive campaigns", "Please try again later");
-    } else if (loading) {
-      console.log('Loading...');
     } else {
       console.log('Data:', response);
       setCampaigns(response as Campaign[]);
@@ -94,7 +94,7 @@ const FundCampaignsPage = () => {
     <main className='mx-16'>
       {/* Your Page Content */}
       <div className='sticky top-0 z-10 flex justify-center bg-slate-900 p-5 rounded-xl mb-2'>
-        <Searchbar setDidUrlChange={setDidUrlChange}/>
+        <Searchbar setDidUrlChange={setDidUrlChange} didUrlChange={didUrlChange}/>
       </div>
       <div className='justify-center flex flex-wrap gap-4'>
       {loading ? (

@@ -18,7 +18,7 @@ import { getEthVal, getPriceInFormat } from '@/utils/crypto';
 import { Campaign, Contributer, Owner, Reward } from '@prisma/client';
 import { SearchBarCategories } from '@/constants/combobox.constant';
 import { WeiPerEther } from 'ethers';
-import { generateKey } from 'crypto';
+import { requestBlockchainForDonation } from '@/services/crypto/contract';
 
 
 interface CampaignCardProps {
@@ -82,6 +82,19 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
         }
     }
 
+    const handleContribute = async () => {
+        // trying to donate
+        console.log("tests")
+        var n:bigint = BigInt(donationAmount)
+        n = n * WeiPerEther
+        const isOk = await requestBlockchainForDonation(campaign.uuid, n)
+        if (!isOk) {
+            // Failed to donate
+            genericToast("Failed to Donate!", "Try to check your information...", 5)
+            return
+        }
+    }
+
     useEffect(() => {
         updateEthValue();
         // Set up a setTimeout to periodically check the new value
@@ -113,10 +126,10 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
                             <td className="pr-2">Campaign Category:</td>
                             <td>{categoryFormat.label}</td>
                         </tr>
-                        <tr>
+                        {/* <tr>
                             <td className="pr-2">CAMPAIGN ADDRESS:</td>
                             <td>{campaign.contractAddress}</td>
-                        </tr>
+                        </tr> */}
                         <tr>
                             <td className="pr-2">END DATE:</td>
                             <td>{campaign.endAt.toString()}</td>
@@ -130,6 +143,13 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
                         <h3 className='mt-2 text-gray-200 w-fit font-semibold'><u>CAMPAIGN DESCRIPTION</u></h3>
                         <p className="mt-2 text-gray-200 w-fit ">{campaign.description}</p>
                     </div>
+                    {(campaign.video ? 
+                    <>
+                    <div className='hover:bg-slate-500 rounded-xl p-2'>
+                        <p className="mt-2 text-gray-100 font-bold">                    Campaign Video: <u><a href={campaign.video} target="_blank" rel="noopener noreferrer">{campaign.video}</a></u></p>
+                    </div></>
+                     : 
+                     <></>)}
                     <span className="text-gray-300 font-bold block md:inline-block">Goal: {weiToEth(campaign.goal)} ETH</span>
                     <span className="ml-0 mt-2 mb-2 md:ml-4 md:mt-0 text-gray-300 font-bold block md:inline-block">
                         Collected: {weiToEth(campaign.collected)} ETH
@@ -142,7 +162,7 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
                         <Input onChange={onAmountChange} value={donationAmount} className="text-sm px-2 py-1 rounded-md text-white w-1/2 placeholder:text-white" placeholder="Contribute in ETH" type='number' />
                         {walletAddress ?
                             <>
-                                <Button variant='secondary' className='w-1/2'>Contribute</Button>
+                                <Button variant='secondary' className='w-1/2' onClick={handleContribute}>Contribute</Button>
                             </> :
                             <>
                                 <Button variant='secondary' disabled={true}>Contribute</Button>
@@ -159,7 +179,7 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
                     <p className='text-sm text-slate-200'>Approximation in USD = <span className='font-bold'>{getPriceInFormat(donationAmount, ethValue)} $</span></p>
                 </div>
                 {(campaign.type == "Reward" && rewards.length > 0) && <>
-                    <p className='text-white font-bold'>Pay attention, this is a Reward Campaign. If you donate by the reward amount you can retrive your reward from the campaign owner</p>
+                    <p className='text-white font-bold'>Pay attention, this is a Reward Campaign. If you donate by the reward amount you can retreive your reward's from the campaign owner</p>
                     <p className='text-white'>Owner contact information: <span className='font-bold'>{owner.email}</span></p>
                     <div className="flex mt-5">
                         <ScrollArea className={`w-full bg-slate-200 border rounded-md ${isScrollableRewards ? ` max-h-96 overflow-y-auto` : ``}`} >

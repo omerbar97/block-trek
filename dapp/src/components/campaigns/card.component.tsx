@@ -15,6 +15,13 @@ function hasDatePassed(dateToCheck: Date): boolean {
     return currentDate > dateToCheck;
 }
 
+function truncateDescription(description: string, maxLength: number): string {
+    if (description.length > maxLength) {
+        return description.substring(0, maxLength) + '...';
+    }
+    return description;
+}
+
 
 const Card: React.FC<CardProps> = ({ onClick, campaign }: CardProps) => {
 
@@ -22,6 +29,8 @@ const Card: React.FC<CardProps> = ({ onClick, campaign }: CardProps) => {
     if (image === null || image === undefined || image === "") {
         image = "https://via.placeholder.com/300"
     }
+
+    
         
     return (
         <div className="card w-80 bg-gray-900 shadow-xl overflow-hidden">
@@ -30,8 +39,9 @@ const Card: React.FC<CardProps> = ({ onClick, campaign }: CardProps) => {
             </figure>
             <div className="card-body items-center text-center">
                 <h2 className="card-title overflow-hidden">{campaign.title}</h2>
-                <p className="overflow-hidden">{campaign.description}</p>
-                <div className="card-actions">
+                <p className="overflow-hidden">
+                    {truncateDescription(campaign.description, 100)}
+                </p>                <div className="card-actions">
                     {((hasDatePassed(campaign.endAt) || campaign.isFailed ) ? 
                     <>
                         <Button variant={"destructive"} onClick={onClick}>Campaign Ended</Button>

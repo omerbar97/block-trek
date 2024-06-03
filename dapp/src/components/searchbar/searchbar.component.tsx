@@ -9,9 +9,11 @@ import { useSearch } from '@/hooks/searchbar.hook'
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { SearchBarCategories } from '@/constants/combobox.constant';
+import { setDate } from 'date-fns';
 
 interface SearchbarProps {
     setDidUrlChange: React.Dispatch<React.SetStateAction<Boolean>>
+    didUrlChange: Boolean
 }
 
 const Searchbar: React.FC<SearchbarProps> = (props: SearchbarProps) => {
@@ -56,7 +58,7 @@ const Searchbar: React.FC<SearchbarProps> = (props: SearchbarProps) => {
             params.delete('experation')
         }
         replace(`${pathname}?${params.toString()}`);
-        props.setDidUrlChange(true)
+        props.setDidUrlChange(!props.didUrlChange)
     }
 
     const clearFilter = () => {
@@ -64,7 +66,10 @@ const Searchbar: React.FC<SearchbarProps> = (props: SearchbarProps) => {
         params.delete('category')
         params.delete('experation')
         replace(`${pathname}`)
-        props.setDidUrlChange(true)
+        props.setDidUrlChange(!props.didUrlChange)
+        setInput(null)
+        setExperationDate(null)
+        setCategory(null)
     }
 
     const handleSearchLogic: React.MouseEventHandler<HTMLButtonElement> = (e) => {

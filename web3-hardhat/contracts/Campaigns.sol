@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+contract Campaigns {
 
-
-contract CrowdFundingFactory {
-
-    address owner; // owner of the entire crowd funding platform
-    string[] public deployedCampaignsUuid;
+    address owner; // the owner of the entire crowd funding platform
+    string[] public deployedCampaignsUuid; // all the campiagns there is
     mapping(string => Campaign) campaigns;
 
     struct Campaign {
@@ -30,6 +28,7 @@ contract CrowdFundingFactory {
         string uuid,
         address indexed owner
     );
+    
     event Contribution(string campaignUuid, address indexed contributor, uint256 amount, uint256 time);
     event Refund(string campaignUuid, address indexed contributor, uint256 amount, uint256 time);
     event Withdrawal(string campaignUuid, uint256 amount, uint256 time);
@@ -93,13 +92,22 @@ contract CrowdFundingFactory {
         );
     }
 
-    function donate(string memory uuid) public payable returns(bool) {
+    function donate(string memory uuid) public payable {
         require(msg.value > 0, "Can only donate positive number");
-        Campaign storage newCampaign = campaigns[uuid];
-        require(bytes(newCampaign.uuid).length > 0, "Campaign doesn't exists");
-        require(newCampaign.endDate < block.timestamp, "Campaign end date already reached");
-        require(newCampaign.goalAmount < newCampaign.totalContributions, "Campaign already funded the goal amount");
-        require(newCampaign.goalAmount <= newCampaign.totalContributions + msg.value, "You cannot donate more then the goal amount");
+        Campaign storage currentCampaign = campaigns[uuid];
+        require(bytes(currentCampaign.uuid).length > 0, "Campaign doesn't exists");
+        require(currentCampaign.endDate < block.timestamp, "Campaign end date already reached");
+        require(currentCampaign.goalAmount < currentCampaign.totalContributions, "Campaign already funded the goal amount");
         
+        // adding the amount to the campaign
+        currentCampaign.contributorsKeys.push(msg.sender);
+        currentCampaign.contributors[msg.sender] += msg.value;
+        currentCampaign.totalContributions += msg.value;
+        
+        if(currentCampaign.totalContributions >= currentCampaign.goalAmount) {
+            emit CampaignCompleted(currentCampaign.uuid, block.timestamp);
+        }
+        // New contribution
+        emit Contribution(currentCampaign.uuid, msg.sender, msg.value, block.timestamp);
     }
 }

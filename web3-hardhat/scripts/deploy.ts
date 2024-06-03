@@ -2,14 +2,13 @@ import { ethers } from "hardhat";
 
 async function main() {
 
-  const CrowdFundingFactory = await ethers.getContractFactory("CrowdFundingFactory");
-  const crowdFundingFactory = await CrowdFundingFactory.deploy();
+  const Contract = await ethers.getContractFactory("Campaigns");
+  const contract = await Contract.deploy();
 
-  const address = await crowdFundingFactory.getAddress()
+  const address = await contract.getAddress()
 
   console.log("CrowdFundingFactory deployed to:", address);
 }
-
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 main().catch((error) => {
