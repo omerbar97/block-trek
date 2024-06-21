@@ -5,8 +5,8 @@ import { Button } from '../ui/button';
 import { connectMetamaskWallet } from '@/services/crypto/wallet';
 import { failedToConnectToMetamaskWalletToast, genericToast, successToConnectToMetamaskWalletToast, waitingForSessionToBeResolvedToast } from '@/utils/toast';
 import { useSession } from 'next-auth/react';
-import { formatEtherFromString } from '@/services/crypto/utils';
-import { ConnectWallet as connectWalletFunc, useAddress } from "@thirdweb-dev/react";
+// import { formatEtherFromString } from '@/services/crypto/utils';
+// import { ConnectWallet, useAddress } from "@thirdweb-dev/react";
 
 
 // To remove the error causing by window.ethereum
@@ -16,12 +16,11 @@ declare global {
     }
 }
 
-const ConnectWallet = () => {
+const ConnectWalletCM = () => {
 
     const { setWalletAddress, setEthValue, walletAddress } = useWallet()
     const { data: session, status } = useSession()
-    const address = useAddress()
-    setWalletAddress(address ?? null)
+
 
 
     const handleConnect = async () => {
@@ -69,4 +68,4 @@ const ConnectWallet = () => {
     )
 }
 
-export default ConnectWallet
+export default ConnectWalletCM

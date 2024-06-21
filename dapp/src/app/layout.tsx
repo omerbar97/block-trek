@@ -22,10 +22,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`inter.className bg-secondImg bg-cover`}>
         <Providers>
-          <ThirdwebProvider desiredChainId={ChainId.Localhost}>
+          {/* <ThirdwebProvider desiredChainId={ChainId.Localhost}> */}
           {children}
           <Toaster />
-          </ThirdwebProvider>
+          {/* </ThirdwebProvider> */}
         </Providers>
       </body>
     </html>

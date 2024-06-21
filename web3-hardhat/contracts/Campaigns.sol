@@ -42,7 +42,7 @@ contract Campaigns {
         uint256 endDate,
         uint256 goalAmount,
         string memory campaignType
-    ) public {
+    ) external {
         require(bytes(uuid).length > 0, "UUID is required");
         require(bytes(campaigns[uuid].uuid).length == 0, "This campaign UUID already exists");
         campaigns[uuid].uuid = uuid;
@@ -73,6 +73,7 @@ contract Campaigns {
         string memory,
         address[] memory
     ) {
+        require(bytes(campaigns[uuid].uuid).length != 0, "campaign with this uuid doesn't exists");
         Campaign storage campaign = campaigns[uuid];
         return (
             campaign.uuid,

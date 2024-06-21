@@ -7,6 +7,10 @@ const config: HardhatUserConfig = {
 
 module.exports = {
   ...config,
+  throwOnTransactionFailures: true,
+  throwOnCallFailures: true,
+  allowUnlimitedContractSize: true,
+  timeout: 1800000,
   networks: {
     hardhat: {
       chainId: 1337,

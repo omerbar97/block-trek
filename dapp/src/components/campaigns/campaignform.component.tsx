@@ -11,8 +11,7 @@ import axios from 'axios';
 import { CampaignTypes, SearchBarCategories } from '@/constants/combobox.constant';
 import { Combobox } from '../searchbar/combobox.component';
 import DatePickerForCreationCampaign from './dateforcreation.component';
-import { WeiPerEther } from 'ethers';
-import { getCampaignFactoryContract } from '@/services/crypto/contract';
+import { getCampaignFactoryContract, requestBlockchainForNewCampaign } from '@/services/crypto/contract';
 import { getUnixTime } from 'date-fns';
 import { formatEtherFromString, pasreEtherFromStringEtherToWEI } from '@/services/crypto/utils';
 
@@ -157,7 +156,7 @@ const CampaignForm = () => {
         }
 
         const uuid = req.data.uuid
-        const res = await getCampaignFactoryContract(uuid, data.title, data.description, getUnixTime(date), goalAsWei, type ?? "")
+        const res = await requestBlockchainForNewCampaign(uuid, data.title, data.description, getUnixTime(date), goalAsWei, type ?? "")
         if (res) {
             genericToast("Created campaign succssfully", "Good job mate!")
             return
