@@ -1,10 +1,10 @@
-import { parseEther, formatEther } from "ethers"
+import { utils } from "ethers"
 
 
 export const formatEtherFromString = (balance: string) => {
-    return formatEther(balance)
+    return utils.formatEther(balance)
 }
 
 export const pasreEtherFromStringEtherToWEI = (balance: string) => {
-    return parseEther(balance)
+    return utils.parseEther(balance)
 }

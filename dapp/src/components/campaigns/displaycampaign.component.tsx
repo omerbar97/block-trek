@@ -17,7 +17,7 @@ import { donationAmountCannotBeNegativeToast, genericToast } from '@/utils/toast
 import { getEthVal, getPriceInFormat } from '@/utils/crypto';
 import { Campaign, Contributer, Owner, Reward } from '@prisma/client';
 import { SearchBarCategories } from '@/constants/combobox.constant';
-import { WeiPerEther } from 'ethers';
+// import { WeiPerEther } from 'ethers';
 import { requestBlockchainForDonation, requestBlockchainForCampaign } from '@/services/crypto/contract';
 
 
@@ -32,7 +32,7 @@ function weiToEth(weiString: string): number {
     // Convert the string representation of Wei to a BigInt
     const weiBigInt = BigInt(weiString);
     // Calculate the ETH value using BigInt arithmetic
-    const ethValue = Number(weiBigInt) / Number(WeiPerEther);
+    const ethValue = Number(weiBigInt) / Number(BigInt(1e18));
     // Return the ETH value as a number
     return ethValue;
 }
@@ -86,13 +86,16 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
         // trying to donate
         console.log("tests")
         var n:bigint = BigInt(donationAmount)
-        n = n * WeiPerEther
+        n = n * BigInt(1e18)
         // const isOk = await requestBlockchainForDonation(campaign.uuid, n)
-        const isOk = await requestBlockchainForCampaign(campaign.uuid)
-        if (!isOk) {
-            genericToast("Failed to Donate!", "Try to check your information...", 5)
-            return
-        }
+        // const isOk = await requestBlockchainForDonation(campaign.uuid, n)
+        const res = await requestBlockchainForCampaign(campaign.uuid)
+        // if (!isOk) {
+        //     genericToast("Failed to Donate!", "Try to check your information...", 5)
+        //     return
+        // }
+        
+
     }
 
     useEffect(() => {

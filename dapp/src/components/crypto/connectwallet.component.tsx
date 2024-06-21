@@ -1,12 +1,13 @@
 'use client';
 import React from 'react'
 import { useWallet } from '@/hooks/wallet.hook';
-import { ethers } from 'ethers';
-import { BrowserProvider } from 'ethers';
 import { Button } from '../ui/button';
 import { connectMetamaskWallet } from '@/services/crypto/wallet';
 import { failedToConnectToMetamaskWalletToast, genericToast, successToConnectToMetamaskWalletToast, waitingForSessionToBeResolvedToast } from '@/utils/toast';
 import { useSession } from 'next-auth/react';
+import { formatEtherFromString } from '@/services/crypto/utils';
+import { ConnectWallet as connectWalletFunc, useAddress } from "@thirdweb-dev/react";
+
 
 // To remove the error causing by window.ethereum
 declare global {
@@ -19,6 +20,8 @@ const ConnectWallet = () => {
 
     const { setWalletAddress, setEthValue, walletAddress } = useWallet()
     const { data: session, status } = useSession()
+    const address = useAddress()
+    setWalletAddress(address ?? null)
 
 
     const handleConnect = async () => {
@@ -28,7 +31,7 @@ const ConnectWallet = () => {
         }
         if (status === "authenticated") {
             const result = await connectMetamaskWallet()
-            if (result.provider === null) {
+            if (result.provider === null || result.walletAddress === null || result.walletValue === null) {
                 // failed toast message
                 failedToConnectToMetamaskWalletToast()
                 genericToast("Failure", result.message)
@@ -36,28 +39,18 @@ const ConnectWallet = () => {
             }
             successToConnectToMetamaskWalletToast()
             genericToast("Success", result.message)
-            await handleSigner(result.provider)
+            await handleSigner(result.walletAddress, result.walletValue)
         } else if (status === "loading"){
             waitingForSessionToBeResolvedToast()
         }
     }
 
-    const handleSigner = async (provider: BrowserProvider) => {
-        const signer = provider.getSigner();
-        const address = (await signer).address
-        setWalletAddress(address)
-        // Retrieve the balance
-
-        const balance = await provider.getBalance(address);
-        if (balance !== undefined) {
-            // Convert the balance to ETH (wei to ether)
-            const formattedBalance = ethers.formatEther(balance)
-            setEthValue(formattedBalance);
-            genericToast("Amount of ethereum on this account: " + formattedBalance, "Nice!")
-        } else {
-            // Handle the case where balance is undefined
-            console.error('Balance is undefined');
-        }
+    const handleSigner = async (walletAddress: string, walletValue: string) => {
+        setWalletAddress(walletAddress)
+        // formatEtherFromString(walletValue)
+        // const formattedBalance = ethers.utils.formatEther(walletValue)
+        setEthValue(walletValue);
+        genericToast("Amount of ethereum on this account: " + walletValue, "Nice!")
     }
 
     return (

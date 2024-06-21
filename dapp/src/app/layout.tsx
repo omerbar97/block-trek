@@ -3,6 +3,8 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from "@/components/ui/sonner"
 import Providers from '@/components/auth/providers'
+import { ChainId, ThirdwebProvider } from "@thirdweb-dev/react";
+
 
 const inter = Inter({ subsets: ['latin'], display: 'swap', adjustFontFallback: false })
 
@@ -20,8 +22,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`inter.className bg-secondImg bg-cover`}>
         <Providers>
+          <ThirdwebProvider desiredChainId={ChainId.Localhost}>
           {children}
           <Toaster />
+          </ThirdwebProvider>
         </Providers>
       </body>
     </html>

@@ -1,18 +1,16 @@
 import { ethers } from 'ethers';
-// import fs from 'fs'
 import { FACTORY_ABI } from './abi';
-import axios from 'axios';
 import { getProviders } from './wallet';
 
 const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
-export async function getNewContractAddress(transactionHash: string) {
-    const provider = new ethers.JsonRpcProvider(); // You may need to specify your provider URL
-    const transactionReceipt = await provider.waitForTransaction(transactionHash);
-    // Now, you can access the contract address from the transaction receipt
-    const contractAddress = transactionReceipt?.contractAddress;
-    return contractAddress
-}
+// export async function getNewContractAddress(transactionHash: string) {
+//     const provider = new ethers.JsonRpcProvider(); // You may need to specify your provider URL
+//     const transactionReceipt = await provider.waitForTransaction(transactionHash);
+//     // Now, you can access the contract address from the transaction receipt
+//     const contractAddress = transactionReceipt?.contractAddress;
+//     return contractAddress
+// }
 
 
 async function generateABI() {
@@ -27,8 +25,22 @@ async function generateABI() {
 
 export const getCampaignFactoryContract = async () => {
     try {
-        const provider = await new ethers.JsonRpcProvider(process.env.BLOCKCHAIN_URL);
-        const signer = await provider.getSigner()
+        const ethereum = window.ethereum
+        const accounts = await ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545")
+        const signer = provider.getSigner(0)
+        // const provider = new ethers.providers.Web3Provider(ethereum)
+        // const walletAddress = accounts[0]
+        // const signer = provider.getSigner(walletAddress)
+
+        // console.log("provider: ", provider)
+        // console.log("walletAddress: ", walletAddress)
+        // console.log("signer: ", signer)
+
+        // const provider = await new ethers.providers.Web3Provider(process.env.BLOCKCHAIN_URL);
+        // const signer = await provider.getSigner()
         const abi = await generateABI();
         const campaignFactoryContract = await new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
 
@@ -62,31 +74,22 @@ export const requestBlockchainForNewCampaign = async (
     campaignType: string,
 ) => {
     try {
-
         const service = await getCampaignFactoryContract();
+        console.log(service)
         const providers = await getProviders()
         if (service && providers) {
-            const signer = await providers?.getSigner()
-            const unsignedTx = await service['createCampaign'].populateTransaction(
-                uuid,
+            const signer = await providers.getSigner()
+            const signedService = service.connect(signer);
+            const transaction = await signedService.createCampaign(
+                uuid, 
                 campaignName,
                 description,
                 endDate,
                 goalAmountInWei,
-                campaignType,
-            );
-            // const txResponse = await transaction.wait();
+                campaignType);
 
-            // const contract = new ethers.Contract(address, abi, provider);
-            // const unsignedTx = await contract.populateTransaction.approve(spender, amount);
-
-            // const wallet = new ethers.Wallet('0xprivatekey');
-            const signedTx = await signer.signTransaction(unsignedTx);
-
-            // // at a later point in Time
-            // await providers.submitTransaction(signedTx);
-
-            console.log("Transaction hash:", signedTx);
+            await transaction.wait();
+            console.log(transaction);
             return true
         } else {
             console.log("Failed to obtain campaign factory contract.");
@@ -98,6 +101,15 @@ export const requestBlockchainForNewCampaign = async (
     }
 }
 
+            // const unsignedTx = await service['createCampaign'].populateTransaction(
+            //     uuid,
+            //     campaignName,
+            //     description,
+            //     endDate,
+            //     goalAmountInWei,
+            //     campaignType,
+            // );
+            // const signedTx = await signedService.signTransaction(unsignedTx);
 
 export const requestBlockchainForDonation = async (
     uuid: string,
@@ -105,20 +117,23 @@ export const requestBlockchainForDonation = async (
 ) => {
     try {
         const service = await getCampaignFactoryContract();
-        const providers = await getProviders()
-        if (service && providers) {
-            const providers = await getProviders()
-            const transaction = await service.connect(providers).donate(uuid, {value: amount})
+        console.log(service)
+        const provider = await getProviders()
+        if (service && provider) {
+            const signer = provider.getSigner();
+            const signedService = service.connect(signer);
+
+            const transaction = await signedService.donate(uuid, { value: amount });
             await transaction.wait();
-            console.log(transaction)
+            console.log(transaction);
             return true
         } else {
-            console.log("Failed to obtain campaign factory contract.");
-            return false
+            console.log("Failed to obtain campaign factory contract or provider.");
+            return false;
         }
     } catch (error) {
-        console.log("Failed to donate to campaign ", uuid ," with error: ", error);
-        return false
+        console.log("Failed to donate to campaign ", uuid, " with error: ", error);
+        return false;
     }
 }
 
@@ -129,7 +144,7 @@ export const requestBlockchainForCampaign = async (
         const service = await getCampaignFactoryContract();
         if (service) {
             const transaction = await service.getCampaign(uuid)
-            console.log(transaction)
+            console.log("campaign: ", transaction)
             return true
         } else {
             console.log("Failed to obtain campaign factory contract.");
