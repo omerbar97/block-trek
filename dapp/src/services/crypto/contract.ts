@@ -1,16 +1,10 @@
 import { ethers } from 'ethers';
 import { FACTORY_ABI } from './abi';
 import { getProviders } from './wallet';
+import { genericToast } from '@/utils/toast';
 
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-
-// export async function getNewContractAddress(transactionHash: string) {
-//     const provider = new ethers.JsonRpcProvider(); // You may need to specify your provider URL
-//     const transactionReceipt = await provider.waitForTransaction(transactionHash);
-//     // Now, you can access the contract address from the transaction receipt
-//     const contractAddress = transactionReceipt?.contractAddress;
-//     return contractAddress
-// }
+export const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+export const CONTRACT_URL = "http://localhost:8545"
 
 
 async function generateABI() {
@@ -29,33 +23,25 @@ export const getCampaignFactoryContract = async () => {
         const accounts = await ethereum.request({
           method: "eth_requestAccounts",
         });
-        const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545")
+        const provider = new ethers.providers.JsonRpcProvider(CONTRACT_URL)
         const signer = provider.getSigner(0)
-        // const provider = new ethers.providers.Web3Provider(ethereum)
-        // const walletAddress = accounts[0]
-        // const signer = provider.getSigner(walletAddress)
-
-        // console.log("provider: ", provider)
-        // console.log("walletAddress: ", walletAddress)
-        // console.log("signer: ", signer)
-
-        // const provider = await new ethers.providers.Web3Provider(process.env.BLOCKCHAIN_URL);
-        // const signer = await provider.getSigner()
         const abi = await generateABI();
         const campaignFactoryContract = await new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
 
         campaignFactoryContract.on("CampaignCreated", async (uuid: string, owner: string) => {
-            console.log("New campaign created with the following parameters");
-            console.log("Owner Wallet Address: ", owner);
-            console.log("Campaign UUID: ", uuid);
+            genericToast("New Campaign Created!", "By the owner: " + owner)
+            // console.log("New campaign created with the following parameters");
+            // console.log("Owner Wallet Address: ", owner);
+            // console.log("Campaign UUID: ", uuid);
         });
 
         campaignFactoryContract.on("Contribution", async (uuid: string, owner: string, amount: bigint, time:number) => {
-            console.log("New Contribution");
-            console.log("Contiruber: ", owner);
-            console.log("Campaign UUID: ", uuid);
-            console.log("Amount: ", amount);
-            console.log("Time: ", time);
+            genericToast("New Contribution by " + owner, "Donated " + amount.toString() + " to " + uuid)
+            // console.log("New Contribution");
+            // console.log("Contiruber: ", owner);
+            // console.log("Campaign UUID: ", uuid);
+            // console.log("Amount: ", amount);
+            // console.log("Time: ", time);
         });
 
         return campaignFactoryContract;
@@ -101,15 +87,6 @@ export const requestBlockchainForNewCampaign = async (
     }
 }
 
-            // const unsignedTx = await service['createCampaign'].populateTransaction(
-            //     uuid,
-            //     campaignName,
-            //     description,
-            //     endDate,
-            //     goalAmountInWei,
-            //     campaignType,
-            // );
-            // const signedTx = await signedService.signTransaction(unsignedTx);
 
 export const requestBlockchainForDonation = async (
     uuid: string,
@@ -122,7 +99,6 @@ export const requestBlockchainForDonation = async (
         if (service && provider) {
             const signer = provider.getSigner();
             const signedService = service.connect(signer);
-
             const transaction = await signedService.donate(uuid, { value: amount });
             await transaction.wait();
             console.log(transaction);

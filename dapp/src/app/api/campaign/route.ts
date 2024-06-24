@@ -59,7 +59,6 @@ async function putHandler(req: NextRequest) {
     }
     try {
         const data = await req.json()
-        console.log("From PUT REQUEST:", data)
         const res = await updateCampaignInDbByUuid(data.uuid, data)
         if (!res) {
             return NextResponse.json({ message: 'Failed to save campaign' }, {status: 500})

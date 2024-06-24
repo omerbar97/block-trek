@@ -88,12 +88,12 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
         var n:bigint = BigInt(donationAmount)
         n = n * BigInt(1e18)
         // const isOk = await requestBlockchainForDonation(campaign.uuid, n)
-        // const isOk = await requestBlockchainForDonation(campaign.uuid, n)
-        const res = await requestBlockchainForCampaign(campaign.uuid)
-        // if (!isOk) {
-        //     genericToast("Failed to Donate!", "Try to check your information...", 5)
-        //     return
-        // }
+        const isOk = await requestBlockchainForDonation(campaign.uuid, n)
+        // const res = await requestBlockchainForCampaign(campaign.uuid)
+        if (!isOk) {
+            genericToast("Failed to Donate!", "Try to check your information...", 5)
+            return
+        }
         
 
     }
@@ -108,7 +108,7 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
 
     return (
         <TooltipProvider>
-            <div className={`w-full h-fit bg-slate-600 shadow-xl p-3 rounded-md text-black`}>
+            <div className={`w-full h-fit bg-slate-500 shadow-xl p-3 rounded-md text-black`}>
                 <div className="flex flex-col md:flex-row">
                     <div className="md:flex-shrink-0">
                         <img className="h-48 w-48 object-cover rounded-xl" src={image} alt="Campaign Image" />

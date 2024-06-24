@@ -5,9 +5,6 @@ import { Button } from '../ui/button';
 import { connectMetamaskWallet } from '@/services/crypto/wallet';
 import { failedToConnectToMetamaskWalletToast, genericToast, successToConnectToMetamaskWalletToast, waitingForSessionToBeResolvedToast } from '@/utils/toast';
 import { useSession } from 'next-auth/react';
-// import { formatEtherFromString } from '@/services/crypto/utils';
-// import { ConnectWallet, useAddress } from "@thirdweb-dev/react";
-
 
 // To remove the error causing by window.ethereum
 declare global {
@@ -24,10 +21,10 @@ const ConnectWalletCM = () => {
 
 
     const handleConnect = async () => {
-        if (walletAddress !== null) {
-            genericToast("Wallet is already connected", "To wallet: " + walletAddress)
-            return
-        }
+        // if (walletAddress !== null) {
+        //     genericToast("Wallet is already connected", "To wallet: " + walletAddress)
+        //     return
+        // }
         if (status === "authenticated") {
             const result = await connectMetamaskWallet()
             if (result.provider === null || result.walletAddress === null || result.walletValue === null) {
@@ -36,8 +33,8 @@ const ConnectWalletCM = () => {
                 genericToast("Failure", result.message)
                 return
             }
-            successToConnectToMetamaskWalletToast()
-            genericToast("Success", result.message)
+            // successToConnectToMetamaskWalletToast()
+            // genericToast("Success", result.message)
             await handleSigner(result.walletAddress, result.walletValue)
         } else if (status === "loading"){
             waitingForSessionToBeResolvedToast()
@@ -46,8 +43,6 @@ const ConnectWalletCM = () => {
 
     const handleSigner = async (walletAddress: string, walletValue: string) => {
         setWalletAddress(walletAddress)
-        // formatEtherFromString(walletValue)
-        // const formattedBalance = ethers.utils.formatEther(walletValue)
         setEthValue(walletValue);
         genericToast("Amount of ethereum on this account: " + walletValue, "Nice!")
     }

@@ -171,6 +171,21 @@ export async function getCampaignById(id: number) : Promise<Campaign | null> {
     }
 }
 
+
+export async function getCampaignByUuid(uuid: string) : Promise<Campaign | null> {
+    try {
+        const res = await prisma.campaign.findFirst({
+            where:{
+                uuid: uuid
+            }
+        })
+        return res
+    } catch (e) {
+        console.log("failed to get campaign by id ", e)
+        return null
+    }
+}
+
 export async function getCampaignByIdWithAllData(id: number) : Promise<IDisplayCampaign | null> {
     try {
         const res = await prisma.campaign.findFirst({
@@ -199,6 +214,7 @@ export async function getCampaignByIdWithAllData(id: number) : Promise<IDisplayC
     }
 }
 
+
 export async function createCampaign(jsonData: any) {
     const { title, description, video, goal, type, category, endDate, walletAddress, image } = jsonData
 
@@ -224,8 +240,6 @@ export async function createCampaign(jsonData: any) {
         type: type,
         endAt: new Date(endDate),
     }
-
-    console.log(campagin)
 
     await saveCampaignToDb(campagin, Number(owner.id))
     return uuid

@@ -22,22 +22,10 @@ model User {
   filledForm Boolean  @default(false)
 }
 
-// Campaigns, each card will be viewed from the dashboard/campaigns route
-// model CampaignCard {
-//   id              Int      @id @default(autoincrement())
-//   contractAddress String   @map(name: "contract_address")
-//   ownerName       String   @map(name: "owner_name")
-//   title           String
-//   image           String
-//   goal            Int
-//   collected       Int
-//   lastUpdated     DateTime @map(name: "last_updated")
-// }
 
 model Campaign {
   id              Int           @id @default(autoincrement())
   uuid            String        @unique
-  contractAddress String        
   ownerId         Int           
   title           String
   description     String
@@ -79,21 +67,21 @@ enum CampaignCategory {
 model Contributer {
   id            Int      @id @default(autoincrement())
   name          String?
-  walletAddress String   @map(name: "wallet_address")
+  walletAddress String   
   amount        String
   date          DateTime
   campaign      Campaign @relation(fields: [campaignId], references: [id])
-  campaignId    Int   @map(name: "campaign_id")
+  campaignId    Int
 }
 
 model Reward {
   id         Int      @id @default(autoincrement())
   name       String
-  minAmount  String   @map(name: "min_amount")
+  minAmount  String
   prize      String
   image      String?
   campaign   Campaign @relation(fields: [campaignId], references: [id])
-  campaignId Int   @map(name: "campaign_id")
+  campaignId Int
 }
 
 model Owner {
