@@ -1,5 +1,9 @@
 export const SearchBarCategories = [
     {
+        value: "NO_CATEGORY",
+        label: "No Category",
+    },
+    {
         value: "SOCIAL_CAUSES",
         label: "Social Causes",
     },

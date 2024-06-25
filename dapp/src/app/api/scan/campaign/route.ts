@@ -8,10 +8,8 @@ async function updateCampaignsInDb(req: NextRequest) {
         return NextResponse.json({ message: "session not found" }, { status: 401 });
     }
     try {
-        console.log("test")
         await scanCampaignsAndInsertToDb();
-        // reading all campaign from database and checking updating information
-        return NextResponse.json({message: "update succssfully"}, { status: 401 });
+        return NextResponse.json({message: "update succssfully"}, { status: 200 });
     } catch (error) {
         console.error("Error handling updateCampaignsInDb:", error);
         return NextResponse.json({ message: "Error handling GET request: " + error }, { status: 500 });

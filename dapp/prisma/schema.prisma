@@ -74,6 +74,14 @@ model Contributer {
   campaignId    Int
 }
 
+model ContributerBlockChainScanIndex {
+  id            Int @id @default(autoincrement())
+  campaignId    Int @unique
+  value         Int @default(0)
+  creationDate  DateTime @default(now())
+  updateDate    DateTime @default(now())
+}
+
 model Reward {
   id         Int      @id @default(autoincrement())
   name       String

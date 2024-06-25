@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NextApiRequest } from 'next';
 import { getUserSession } from '../getusersession';
-import { createCampaign, deleteCampaign, getAllCampaignsFromDb, isCampaignContractAddressExists, updateCampaignInDbByUuid } from '@/services/controller/campaign';
+import { createCampaign, deleteCampaignFromDb, getAllCampaignsFromDb, isCampaignContractAddressExists, updateCampaignInDbByUuid } from '@/services/controller/campaign';
 import { CampaignCategory } from '@prisma/client';
-
-
+import { scanSyncCampaignsFromDbToBlockchain } from '@/services/controller/scan/sync.scan';
 
 async function postHandler(req: NextRequest) {
     const session = await getUserSession();
@@ -36,19 +35,11 @@ async function deleteHandler(req: NextRequest) {
         // Need to add logic to check if campaign exists in contract
         const data = await req.json()
         const uuid = data.campaginUuid
-        const isAddressExists = await isCampaignContractAddressExists(uuid)
-        if (!isAddressExists) {
-            const res = await deleteCampaign(uuid)
-            if (!res) {
-                return NextResponse.json({message: "Failed to delete campaign"}, {status: 400})
-            }
-            return NextResponse.json({message: "deleted campaign uuid: " + data.campaginUuid}, {status: 200})
-        } else {
-            return NextResponse.json({message: "cannot delete campaign that exists"}, {status: 400})   
-        }
+        await scanSyncCampaignsFromDbToBlockchain(uuid)
+        return NextResponse.json({message: "deleted the campaign succssfully"}, {status: 200})   
     } catch (error) {
-        console.error("Error creating contract:", error);
-        return NextResponse.json({ message: "Error creating contract: " + error }, {status: 400})
+        console.error("Error deleting contract:", error);
+        return NextResponse.json({ message: "Error deleting contract: " + error }, {status: 400})
     }
 }
 

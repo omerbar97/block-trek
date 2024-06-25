@@ -66,13 +66,22 @@ export const requestBlockchainForNewCampaign = async (
         if (service && providers) {
             const signer = await providers.getSigner()
             const signedService = service.connect(signer);
+            // Estimate gas
+            const gasLimit = await signedService.estimateGas.createCampaign(
+                uuid, 
+                campaignName,
+                description,
+                endDate,
+                goalAmountInWei,
+                campaignType
+            );
             const transaction = await signedService.createCampaign(
                 uuid, 
                 campaignName,
                 description,
                 endDate,
                 goalAmountInWei,
-                campaignType);
+                campaignType, { gasLimit: gasLimit.add(10000) });
 
             await transaction.wait();
             console.log(transaction);

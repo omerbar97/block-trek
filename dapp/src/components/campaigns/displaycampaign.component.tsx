@@ -127,7 +127,7 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
                         </tr>
                         <tr>
                             <td className="pr-2">Campaign Category:</td>
-                            <td>{categoryFormat.label}</td>
+                            <td>{categoryFormat?.label}</td>
                         </tr>
                         {/* <tr>
                             <td className="pr-2">CAMPAIGN ADDRESS:</td>

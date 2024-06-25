@@ -75,10 +75,63 @@ export async function getAllCampaignsFromDb(name: string | null=null, category: 
     }
 }
 
+export async function saveCampaignToDbUpdate(campaign: Campaign): Promise<Boolean> {
+    console.log("saving campaign in db for ", campaign.uuid, " and values ", campaign)
+    try {
+        const existingCampaign = await prisma.campaign.findUnique({
+            where: { uuid: campaign.uuid },
+        });
+
+        if (existingCampaign) {
+            console.log("Campaign with this UUID already exists. Updating existing campaign.");
+            await prisma.campaign.update({
+                where: { uuid: campaign.uuid },
+                data: {
+                    title: campaign.title,
+                    description: campaign.description,
+                    category: campaign.category,
+                    video: campaign.video,
+                    image: campaign.image,
+                    goal: campaign.goal,
+                    type: campaign.type,
+                    endAt: campaign.endAt,
+                    createdAt: campaign.createdAt,
+                    owner: {
+                        connect: { id: campaign.ownerId }
+                    },
+                    isFinished: campaign.isFinished,
+                },
+            });
+        } else {
+            await prisma.campaign.create({
+                data: {
+                    title: campaign.title,
+                    uuid: campaign.uuid,
+                    description: campaign.description,
+                    category: campaign.category,
+                    video: campaign.video,
+                    image: campaign.image,
+                    goal: campaign.goal,
+                    type: campaign.type,
+                    endAt: campaign.endAt,
+                    createdAt: campaign.createdAt,
+                    owner: {
+                        connect: { id: campaign.ownerId }
+                    },
+                    isFinished: campaign.isFinished,
+                },
+            })
+        }
+        return true
+    } catch (error) {
+        console.log("failed to save campaign to db ", error)
+        return false
+    }
+}
+
 export async function saveCampaignToDb(campagin: Campaign, ownerId: number): Promise<Boolean> {
     console.log("saving campaign in db for ", campagin.uuid, " and values ", campagin)
     try {
-        console.log("before prisma: ", campagin)
         await prisma.campaign.create({
             data: {
                 ...campagin,
@@ -228,8 +281,7 @@ export async function createCampaign(jsonData: any) {
     }
 
     const uuid = uuidv4()
-    var campagin: Partial<Campaign> = {
-        contractAddress: '0',
+    var campagin: Campaign = {
         uuid: uuid as string,
         title: title,
         description: description,
@@ -245,11 +297,11 @@ export async function createCampaign(jsonData: any) {
     return uuid
 }
 
-export async function isCampaignContractAddressExists(campaginUuid: string) {
+export async function isCampaignContractAddressExists(campaignUuid: string) {
     try {
         const c = await prisma.campaign.findFirst({
             where: {
-                uuid:campaginUuid,
+                uuid:campaignUuid,
             }
         })
         console.log("contract: ", c)
@@ -264,7 +316,8 @@ export async function isCampaignContractAddressExists(campaginUuid: string) {
 
 
 
-export async function deleteCampaign(campaignUuid: string) {
+export async function deleteCampaignFromDb(campaignUuid: string) {
+    console.log("deleting campaign: " + campaignUuid)
     try {
         await prisma.campaign.delete({
             where:{
@@ -278,6 +331,3 @@ export async function deleteCampaign(campaignUuid: string) {
     }
 }
 
-export async function getAllCampaigns() {
-    return await useAxiosGet('/api/campaign')
-}

@@ -1,8 +1,9 @@
-import { ethers, Contract } from "ethers"
 import { FACTORY_ABI } from "./abi";
 import { CONTRACT_ADDRESS, CONTRACT_URL } from "./contract";
+import { Web3 } from 'web3'
 
-let CampaignFactory: Contract | undefined = undefined
+const web3 = new Web3(new Web3.providers.HttpProvider(CONTRACT_URL));
+let CampaignFactory = undefined
 
 async function generateABI() {
     // Read the compiled contract JSON file
@@ -18,10 +19,8 @@ export const getCampaignContractForBackend = async () => {
         if(CampaignFactory != undefined) {
             return CampaignFactory
         }
-        const provider = new ethers.providers.JsonRpcProvider(CONTRACT_URL)
-        const signer = provider.getSigner(0)
         const abi = await generateABI();
-        CampaignFactory = await new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
+        CampaignFactory = new web3.eth.Contract(abi, CONTRACT_ADDRESS);
         return CampaignFactory;
     } catch (e) {
         console.log("Failed to get blockchain factory contract ", e);
