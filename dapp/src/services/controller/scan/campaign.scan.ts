@@ -2,9 +2,10 @@ import { deleteCampaignFromDb, getAllCampaignsFromDb, getCampaignByUuid, saveCam
 import { Campaign, CampaignCategory, CampaignType, Contributer } from "@prisma/client";
 import { getOwnerByWalletAddress } from "../owner";
 import { getCampaignByUuidFromBlockchain, getCampaignContributionByUuid, getDeployedCampaignsUuidFromBlockchain } from "../crypto";
-import { getContributetrsByCampaignUuid, saveContributersToDb } from "../contributers";
+import { deleteAllContributersForCampaignByCampaignId, getContributetrsByCampaignUuid, saveContributersToDb, updateAllContributersToBeRefundedByCampaignIdAndWallet } from "../contributers";
 import { getContributionScanIndex, updateContributionScanIndex } from "../scanindex";
 import { getUnixTime } from "date-fns";
+import { convertToJSDate } from "@/utils/date";
 
 
 const bigintToString = (value: bigint): string => {
@@ -30,7 +31,7 @@ interface CampaignFromBlockchain {
 interface ContributionsFromBlockchain {
     keys: string[];
     amounts: bigint[];
-    dates: number[];
+    dates: bigint[];
 }
 
 const transformCampaignToJson = (input: any): CampaignFromBlockchain => {
@@ -101,24 +102,27 @@ async function handleCampaignNotInDb(campaignFromBC: CampaignFromBlockchain) {
     const contributersFromDb = await getContributetrsByCampaignUuid(campaignFromBC.uuid)
     const campaign = await getCampaignByUuid(campaignFromBC.uuid)
     if (campaign === null) {
-        throw new Error("failed to get campaign from database to get the campain id")
+        throw new Error("failed to get campaign from database to get the campain id for campaign uuid: " + campaignFromBC.uuid)
+    }
+    if (contributersFromDb === null) {
+        throw new Error("failed to get contributers from database for campain id: " + campaign.id)
     }
     await updateContributionInDbForCampaign(campaign.id, contributersFromDb, contributersJson)
 }
 
-async function updateContributionInDbForCampaign(campaignId: number, contributersFromDb: Contributer[]|null, contributersJson: ContributionsFromBlockchain) {
+async function updateContributionInDbForCampaign(campaignId: number, contributersFromDb: Contributer[], contributersJson: ContributionsFromBlockchain) {
     console.log("try to updateContributionInDbForCampaign for campaign id: " + campaignId)
-    let shouldUpdateCurser = contributersJson.keys.length > 0
+    let shouldUpdateCurser = contributersJson.keys.length - contributersFromDb?.length > 0
     try {
-        if (contributersFromDb === null) {
+        if (contributersFromDb.length === 0) {
             // adding all the contributers from blockchain
             let i = 0;
             for(; i < contributersJson.keys.length; i++) {
                 const contributer = {
                     name: null,
                     walletAddress: contributersJson.keys[i],
-                    amount: contributersJson.amounts[i],
-                    date: new Date(contributersJson.dates[i]),
+                    amount: bigintToString(contributersJson.amounts[i]),
+                    date: convertToJSDate(contributersJson.dates[i]),
                     campaignId: campaignId
                 }
                 await saveContributersToDb(contributer)
@@ -127,28 +131,44 @@ async function updateContributionInDbForCampaign(campaignId: number, contributer
                 await updateContributionScanIndex(campaignId, i)
             }
         } else {
-            const index = await getContributionScanIndex(campaignId)
-            // checking that the contribution is not included
-            let i = index ? index.value : 0
+            let i = 0
             for(; i < contributersJson.keys.length; i++) {
                 const arrayFilterd = contributersFromDb.filter(item => item.walletAddress === contributersJson.keys[i]);
                 if (arrayFilterd) {
-                    const latestItem = arrayFilterd.reduce((prev, current) =>
-                        (prev.date > current.date) ? prev : current
-                    );
-                    const sum = arrayFilterd.reduce((accumulator, currentValue) => accumulator + BigInt(currentValue.amount), BigInt(0));
-                    
-                    const value = BigInt(latestItem.amount)
-                    if (sum !== value) {
-                        // adding the differences
+                    let latestItem = null
+                    if (arrayFilterd.length == 1) {
+                        latestItem = arrayFilterd[0]
+                    } else {
+                        latestItem = arrayFilterd.reduce((prev, current) =>
+                            (prev.date > current.date) ? prev : current
+                        );
+                    }
+                    const sum = contributersJson.amounts[i]
+                    if (sum == BigInt(0)) {
+                        // this means that a person already contributers with the wallet but then refunded the amount
+                        await updateAllContributersToBeRefundedByCampaignIdAndWallet(campaignId, contributersJson.keys[i])
+                        // adding the new contribution
                         const contributer = {
                             name: null,
                             walletAddress: contributersJson.keys[i],
-                            amount: sum > value ? sum - value : value - sum,
-                            date: new Date(contributersJson.dates[i]*1000),
+                            amount: bigintToString(contributersJson.amounts[i]),
+                            date: convertToJSDate(contributersJson.dates[i]),
                             campaignId: campaignId
                         }
                         await saveContributersToDb(contributer)
+                    } else {
+                        const value = BigInt(latestItem.amount)
+                        if (sum !== value) {
+                            // adding the differences
+                            const contributer = {
+                                name: null,
+                                walletAddress: contributersJson.keys[i],
+                                amount: sum > value ? bigintToString(sum - value) : bigintToString(value - sum),
+                                date: convertToJSDate(contributersJson.dates[i]),
+                                campaignId: campaignId
+                            }
+                            await saveContributersToDb(contributer)
+                        }
                     }
                 } else {
                     // the wallet from the contribution is not in the filteredArray
@@ -156,7 +176,7 @@ async function updateContributionInDbForCampaign(campaignId: number, contributer
                         name: null,
                         walletAddress: contributersJson.keys[i],
                         amount: contributersJson.amounts[i],
-                        date: new Date(contributersJson.dates[i]*1000),
+                        date: convertToJSDate(contributersJson.dates[i]),
                         campaignId: campaignId
                     }
                     await saveContributersToDb(contributer)
@@ -197,6 +217,9 @@ async function handleCampaignsAndInsertToDb(uuid: string) {
     const contributersFromBlockchain = await getCampaignContributionByUuid(campaignFromBC.uuid)
     const contributersJson = transformContributersToJson(contributersFromBlockchain)
     const contributionFromDb = await getContributetrsByCampaignUuid(campaignFromDb.uuid)
+    if (contributionFromDb === null) {
+        throw new Error("failed to get campaign from db")
+    }
     await updateContributionInDbForCampaign(campaignFromDb.id, contributionFromDb, contributersJson)
     await updateCampaignDetailsInDb(campaignFromDb, campaignFromBC)
 }
@@ -207,6 +230,7 @@ async function syncCampaignsBetweenBlockchainAndDb(campaignsFromDb: Campaign[], 
         const campaignsNotInDb = campaignsFromDb.filter(campaign => !campaignsUuidFromBC.some(uuid => uuid === campaign.uuid));
         // deleting all the campaignsNotInDb
         for(let i = 0; i < campaignsNotInDb.length; i++) {
+            await deleteAllContributersForCampaignByCampaignId(campaignsNotInDb[i].id)
             await deleteCampaignFromDb(campaignsNotInDb[i].uuid)
         }
     } catch (error) {

@@ -18,7 +18,7 @@ import { getEthVal, getPriceInFormat } from '@/utils/crypto';
 import { Campaign, Contributer, Owner, Reward } from '@prisma/client';
 import { SearchBarCategories } from '@/constants/combobox.constant';
 // import { WeiPerEther } from 'ethers';
-import { requestBlockchainForDonation, requestBlockchainForCampaign } from '@/services/crypto/contract';
+import { requestBlockchainForDonation, requestBlockchainForRefund } from '@/services/crypto/contract';
 
 
 interface CampaignCardProps {
@@ -41,9 +41,8 @@ function weiToEth(weiString: string): number {
 const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, rewards, owner}) => {
     const isScrollable = contributers.length > 10;
     const isScrollableRewards = rewards.length > 10
-    const progress = String((BigInt(campaign.collected) / BigInt(campaign.goal)) * BigInt(100));
+    const progress = String((Number(BigInt(campaign.collected)) / Number(BigInt(campaign.goal))) * 100);
     const numberProgress = Number(progress)
-
     const leftOver = weiToEth(campaign.goal) - weiToEth(campaign.collected)
 
     const categoryFormat = SearchBarCategories.filter((e) => {
@@ -56,6 +55,7 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
     }
 
     const [donationAmount, setDonationAmount] = useState<number>(0)
+
     const [ethValue, setEthValue] = useState()
     const { walletAddress } = useWallet()
 
@@ -84,18 +84,21 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
 
     const handleContribute = async () => {
         // trying to donate
-        console.log("tests")
         var n:bigint = BigInt(donationAmount)
         n = n * BigInt(1e18)
-        // const isOk = await requestBlockchainForDonation(campaign.uuid, n)
         const isOk = await requestBlockchainForDonation(campaign.uuid, n)
-        // const res = await requestBlockchainForCampaign(campaign.uuid)
         if (!isOk) {
             genericToast("Failed to Donate!", "Try to check your information...", 5)
             return
         }
-        
+    }
 
+    const handleRefund = async () => {
+        const isOk = await requestBlockchainForRefund(campaign.uuid)
+        if (!isOk) {
+            genericToast("Failed to Donate!", "Try to check your information...", 5)
+            return
+        }
     }
 
     useEffect(() => {
@@ -108,12 +111,12 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
 
     return (
         <TooltipProvider>
-            <div className={`w-full h-fit bg-slate-500 shadow-xl p-3 rounded-md text-black`}>
+            <div className={`w-full h-fit bg-stone-800 shadow-xl p-3 rounded-2xl text-black`}>
                 <div className="flex flex-col md:flex-row">
                     <div className="md:flex-shrink-0">
                         <img className="h-48 w-48 object-cover rounded-xl" src={image} alt="Campaign Image" />
                     </div>
-                    <table className="text-white m-4 p-4 hover:bg-slate-500 rounded-xl font-semibold uppercase">
+                    <table className="text-white m-4 p-2 hover:bg-stone-700 rounded-xl font-semibold uppercase">
                     <tbody>
                         <tr>
                             <td className="pr-2">Campaign Name:</td>
@@ -142,39 +145,53 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
 
                 </div>
                 <div className="m-4 flex-row items-center">
-                    <div className='hover:bg-slate-500 rounded-xl p-2'>
+                    <div className='hover:bg-stone-700 rounded-xl p-2'>
                         <h3 className='mt-2 text-gray-200 w-fit font-semibold'><u>CAMPAIGN DESCRIPTION</u></h3>
                         <p className="mt-2 text-gray-200 w-fit ">{campaign.description}</p>
                     </div>
                     {(campaign.video ? 
                     <>
-                    <div className='hover:bg-slate-500 rounded-xl p-2'>
-                        <p className="mt-2 text-gray-100 font-bold">                    Campaign Video: <u><a href={campaign.video} target="_blank" rel="noopener noreferrer">{campaign.video}</a></u></p>
+                    <div className='hover:bg-stone-700 rounded-xl p-2'>
+                        <p className="text-gray-100 font-bold">                    Campaign Video: <u><a href={campaign.video} target="_blank" rel="noopener noreferrer">{campaign.video}</a></u></p>
                     </div></>
                      : 
                      <></>)}
-                    <span className="text-gray-300 font-bold block md:inline-block">Goal: {weiToEth(campaign.goal)} ETH</span>
-                    <span className="ml-0 mt-2 mb-2 md:ml-4 md:mt-0 text-gray-300 font-bold block md:inline-block">
-                        Collected: {weiToEth(campaign.collected)} ETH
-                    </span>
+                    <div className="flex flex-col md:flex-row">
+                        <span className="text-gray-100 font-bold block md:inline-block mb-2 md:mb-0 md:mr-4">
+                            Goal: {weiToEth(campaign.goal)} ETH
+                        </span>
+                        <span className="text-gray-100 font-bold block md:inline-block">
+                            Collected: {weiToEth(campaign.collected)} ETH
+                        </span>
+                    </div>
                     <span className='block font-bold text-white'>
                         More then {progress}% was collected
                     </span>
                     <Progress value={numberProgress} className='m-2' />
                     <div className='flex items-center space-x-2 w-fit'>
-                        <Input onChange={onAmountChange} value={donationAmount} className="text-sm px-2 py-1 rounded-md text-white w-1/2 placeholder:text-white" placeholder="Contribute in ETH" type='number' />
+                        <Input onChange={onAmountChange} value={donationAmount} className="text-sm px-2 py-1 rounded-md bg-slate-700 text-white w-1/2 placeholder:text-white" placeholder="Contribute in ETH" type='number' />
                         {walletAddress ?
                             <>
-                                <Button variant='secondary' className='w-1/2' onClick={handleContribute}>Contribute</Button>
+                                <Button variant='default' className='w-1/2' onClick={handleContribute}>Contribute</Button>
+                                <Button variant='default' className='w-1/2' onClick={handleRefund}>Refund</Button>
                             </> :
                             <>
                                 <Button variant='secondary' disabled={true}>Contribute</Button>
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <IoMdInformationCircleOutline />
+                                        <IoMdInformationCircleOutline color='white'/>
                                     </TooltipTrigger>
                                     <TooltipContent>
                                         <p>Register with your wallet to contribute</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                                <Button variant='secondary' disabled={true}>Refund</Button>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <IoMdInformationCircleOutline color='white'/>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Register with your wallet to refund your wallet</p>
                                     </TooltipContent>
                                 </Tooltip>
                             </>}
@@ -239,9 +256,9 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
                         {contributers.map((contributer, index) => (
                             <div key={index} className="flex items-center space-x-4 text-sm mb-2 hover:bg-slate-300 rounded-xl">
                                 <Tooltip>
-                                    <TooltipTrigger className='w-2/4 overflow-hidden whitespace-nowrap overflow-ellipsis md:w-1/4'>{contributer.name}</TooltipTrigger>
+                                    <TooltipTrigger className='w-2/4 overflow-hidden whitespace-nowrap overflow-ellipsis md:w-1/4'>{contributer.name ?? "Anonymous"}</TooltipTrigger>
                                     <TooltipContent>
-                                        <p>{contributer.name}</p>
+                                        <p>{contributer.name ?? "Anonymous"}</p>
                                     </TooltipContent>
                                 </Tooltip>
                                 <Tooltip>
@@ -259,9 +276,9 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
                                 </Tooltip>
                                 <Separator orientation="vertical" />
                                 <Tooltip>
-                                    <TooltipTrigger className='w-2/4 overflow-hidden whitespace-nowrap overflow-ellipsis md:w-1/4'>{contributer.date.toDateString()}</TooltipTrigger>
+                                    <TooltipTrigger className='w-2/4 overflow-hidden whitespace-nowrap overflow-ellipsis md:w-1/4'>{new Date(contributer.date).toDateString()}</TooltipTrigger>
                                     <TooltipContent>
-                                        <p>{contributer.date.toDateString()}</p>
+                                        <p>{new Date(contributer.date).toDateString()}</p>
                                     </TooltipContent>
                                 </Tooltip>
                                 <Separator orientation="vertical" />
@@ -272,7 +289,7 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
             </div></>
                  :
                 <>
-                    <h3 className='text-white m-2 p-2 hover:bg-slate-500 rounded-xl font-semibold uppercase'>No Contributers Yet!</h3>
+                    <h3 className='text-white m-2 p-2 hover:bg-stone-700 rounded-xl font-semibold uppercase'>No Contributers Yet!</h3>
                 </>}
             </div>
         </TooltipProvider>

@@ -169,7 +169,7 @@ contract Campaigns {
     function getMoneyBackFromCampaign(string memory uuid) public {
         require(bytes(campaigns[uuid].uuid).length > 0, "Campaign doesn't exist");
         Campaign storage campaign = campaigns[uuid];
-        require(campaign.endDate < block.timestamp, "Campaign already finished cannot retreivied the money");
+        require(campaign.endDate > block.timestamp, "Campaign already finished cannot retreivied the money");
         require(campaign.owner != msg.sender, "Owner can withdraw any money because the owner cannot donate it for a campaign that he owns.");
 
         uint256 amount = campaigns[uuid].contributors[msg.sender].amount;

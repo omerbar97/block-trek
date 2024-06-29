@@ -2,6 +2,12 @@ export const getDateAsUnixTime = (date: Date) => {
     return date.getTime()
 }
 
+export function convertToJSDate(timestamp: bigint): Date {
+    // Convert seconds to milliseconds (JavaScript Date uses milliseconds)
+    const milliseconds = Number(timestamp) * 1000;
+    return new Date(milliseconds);
+}
+
 export function getDaysBetweenDates(date1: Date, date2: Date): number {
     // Calculate the difference in time between the two dates
     const timeDifference = date2.getTime() - date1.getTime();

@@ -1,4 +1,5 @@
 import { deleteCampaignFromDb, getCampaignByUuid} from "../campaign";
+import { deleteAllContributersForCampaignByCampaignId } from "../contributers";
 import { getDeployedCampaignsUuidFromBlockchain } from "../crypto";
 
 export async function scanSyncCampaignsFromDbToBlockchain(campaignUuid: string) {
@@ -11,6 +12,7 @@ export async function scanSyncCampaignsFromDbToBlockchain(campaignUuid: string) 
     const isCampaignInBlockchain = campaignsUuidFromBC.some(uuid => uuid === campaignUuid);
     if(!isCampaignInBlockchain) {
         // deleting the campaign
+        await deleteAllContributersForCampaignByCampaignId(campaignsFromDb.id)
         await deleteCampaignFromDb(campaignUuid)
     }
 }

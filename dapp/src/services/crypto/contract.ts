@@ -30,18 +30,10 @@ export const getCampaignFactoryContract = async () => {
 
         campaignFactoryContract.on("CampaignCreated", async (uuid: string, owner: string) => {
             genericToast("New Campaign Created!", "By the owner: " + owner)
-            // console.log("New campaign created with the following parameters");
-            // console.log("Owner Wallet Address: ", owner);
-            // console.log("Campaign UUID: ", uuid);
         });
 
         campaignFactoryContract.on("Contribution", async (uuid: string, owner: string, amount: bigint, time:number) => {
             genericToast("New Contribution by " + owner, "Donated " + amount.toString() + " to " + uuid)
-            // console.log("New Contribution");
-            // console.log("Contiruber: ", owner);
-            // console.log("Campaign UUID: ", uuid);
-            // console.log("Amount: ", amount);
-            // console.log("Time: ", time);
         });
 
         return campaignFactoryContract;
@@ -61,7 +53,6 @@ export const requestBlockchainForNewCampaign = async (
 ) => {
     try {
         const service = await getCampaignFactoryContract();
-        console.log(service)
         const providers = await getProviders()
         if (service && providers) {
             const signer = await providers.getSigner()
@@ -103,14 +94,15 @@ export const requestBlockchainForDonation = async (
 ) => {
     try {
         const service = await getCampaignFactoryContract();
-        console.log(service)
         const provider = await getProviders()
         if (service && provider) {
             const signer = provider.getSigner();
             const signedService = service.connect(signer);
-            const transaction = await signedService.donate(uuid, { value: amount });
+            const gasLimit = await signedService.estimateGas.donate(
+                uuid, { value: amount }
+            );
+            const transaction = await signedService.donate(uuid, { value: amount, gasLimit: gasLimit.add(10000) });
             await transaction.wait();
-            console.log(transaction);
             return true
         } else {
             console.log("Failed to obtain campaign factory contract or provider.");
@@ -122,6 +114,31 @@ export const requestBlockchainForDonation = async (
     }
 }
 
+export const requestBlockchainForRefund = async (
+    uuid: string,
+) => {
+    try {
+        const service = await getCampaignFactoryContract();
+        const provider = await getProviders()
+        if (service && provider) {
+            const signer = provider.getSigner();
+            const signedService = service.connect(signer);
+            const gasLimit = await signedService.estimateGas.getMoneyBackFromCampaign(
+                uuid
+            );
+            const transaction = await signedService.getMoneyBackFromCampaign(uuid, { gasLimit: gasLimit.add(10000) });
+            await transaction.wait();
+            return true
+        } else {
+            console.log("Failed to obtain campaign factory contract or provider.");
+            return false;
+        }
+    } catch (error) {
+        console.log("Failed to refund from campaign ", uuid, " with error: ", error);
+        return false;
+    }
+}
+
 export const requestBlockchainForCampaign = async (
     uuid: string
 ) => {
@@ -129,7 +146,6 @@ export const requestBlockchainForCampaign = async (
         const service = await getCampaignFactoryContract();
         if (service) {
             const transaction = await service.getCampaign(uuid)
-            console.log("campaign: ", transaction)
             return true
         } else {
             console.log("Failed to obtain campaign factory contract.");
