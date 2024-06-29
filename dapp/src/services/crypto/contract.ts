@@ -101,7 +101,7 @@ export const requestBlockchainForDonation = async (
             const gasLimit = await signedService.estimateGas.donate(
                 uuid, { value: amount }
             );
-            const transaction = await signedService.donate(uuid, { value: amount, gasLimit: gasLimit.add(10000) });
+            const transaction = await signedService.donate(uuid, { value: amount, gasLimit: gasLimit.add(25000) });
             await transaction.wait();
             return true
         } else {
@@ -126,7 +126,7 @@ export const requestBlockchainForRefund = async (
             const gasLimit = await signedService.estimateGas.getMoneyBackFromCampaign(
                 uuid
             );
-            const transaction = await signedService.getMoneyBackFromCampaign(uuid, { gasLimit: gasLimit.add(10000) });
+            const transaction = await signedService.getMoneyBackFromCampaign(uuid, { gasLimit: gasLimit.add(20000) });
             await transaction.wait();
             return true
         } else {

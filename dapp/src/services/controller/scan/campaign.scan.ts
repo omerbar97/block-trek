@@ -3,7 +3,7 @@ import { Campaign, CampaignCategory, CampaignType, Contributer } from "@prisma/c
 import { getOwnerByWalletAddress } from "../owner";
 import { getCampaignByUuidFromBlockchain, getCampaignContributionByUuid, getDeployedCampaignsUuidFromBlockchain } from "../crypto";
 import { deleteAllContributersForCampaignByCampaignId, getContributetrsByCampaignUuid, saveContributersToDb, updateAllContributersToBeRefundedByCampaignIdAndWallet } from "../contributers";
-import { getContributionScanIndex, updateContributionScanIndex } from "../scanindex";
+import { updateContributionScanIndex } from "../scanindex";
 import { getUnixTime } from "date-fns";
 import { convertToJSDate } from "@/utils/date";
 
@@ -91,7 +91,7 @@ async function handleCampaignNotInDb(campaignFromBC: CampaignFromBlockchain) {
         ownerId: owner.id,
         isFinished: campaignFromBC.isFinished,
     }
-    const flag = await saveCampaignToDbUpdate(data)
+    const flag = await saveCampaignToDbUpdate(data as Campaign)
     if (!flag) return
 
     // Saving the contributers
@@ -125,7 +125,7 @@ async function updateContributionInDbForCampaign(campaignId: number, contributer
                     date: convertToJSDate(contributersJson.dates[i]),
                     campaignId: campaignId
                 }
-                await saveContributersToDb(contributer)
+                await saveContributersToDb(contributer as Contributer)
             }
             if (shouldUpdateCurser) {
                 await updateContributionScanIndex(campaignId, i)
@@ -134,40 +134,43 @@ async function updateContributionInDbForCampaign(campaignId: number, contributer
             let i = 0
             for(; i < contributersJson.keys.length; i++) {
                 const arrayFilterd = contributersFromDb.filter(item => item.walletAddress === contributersJson.keys[i]);
+                let sumInDatabase = BigInt(0)
                 if (arrayFilterd) {
                     let latestItem = null
                     if (arrayFilterd.length == 1) {
                         latestItem = arrayFilterd[0]
+                        sumInDatabase = BigInt(arrayFilterd[0].amount)
                     } else {
                         latestItem = arrayFilterd.reduce((prev, current) =>
                             (prev.date > current.date) ? prev : current
                         );
+                        sumInDatabase = arrayFilterd.reduce((acc, e) => acc + BigInt(e.amount), sumInDatabase);
                     }
-                    const sum = contributersJson.amounts[i]
-                    if (sum == BigInt(0)) {
+                    const sumInBlockChain = contributersJson.amounts[i]
+                    if (sumInBlockChain == BigInt(0) && !latestItem.isRefunded) {
                         // this means that a person already contributers with the wallet but then refunded the amount
                         await updateAllContributersToBeRefundedByCampaignIdAndWallet(campaignId, contributersJson.keys[i])
-                        // adding the new contribution
-                        const contributer = {
-                            name: null,
-                            walletAddress: contributersJson.keys[i],
-                            amount: bigintToString(contributersJson.amounts[i]),
-                            date: convertToJSDate(contributersJson.dates[i]),
-                            campaignId: campaignId
-                        }
-                        await saveContributersToDb(contributer)
                     } else {
-                        const value = BigInt(latestItem.amount)
-                        if (sum !== value) {
+                        if(sumInBlockChain > sumInDatabase) {
+                            // that's mean there were more contribution that happened on the blockchain
+                            const contributer = {
+                                name: null,
+                                walletAddress: contributersJson.keys[i],
+                                amount: bigintToString(sumInBlockChain - sumInDatabase),
+                                date: convertToJSDate(contributersJson.dates[i]),
+                                campaignId: campaignId
+                            }
+                            await saveContributersToDb(contributer as Contributer)
+                        } else if (sumInBlockChain !== sumInDatabase) {
                             // adding the differences
                             const contributer = {
                                 name: null,
                                 walletAddress: contributersJson.keys[i],
-                                amount: sum > value ? bigintToString(sum - value) : bigintToString(value - sum),
+                                amount: bigintToString(sumInDatabase - sumInBlockChain),
                                 date: convertToJSDate(contributersJson.dates[i]),
                                 campaignId: campaignId
                             }
-                            await saveContributersToDb(contributer)
+                            await saveContributersToDb(contributer as Contributer)
                         }
                     }
                 } else {
@@ -175,11 +178,11 @@ async function updateContributionInDbForCampaign(campaignId: number, contributer
                     const contributer = {
                         name: null,
                         walletAddress: contributersJson.keys[i],
-                        amount: contributersJson.amounts[i],
+                        amount: bigintToString(contributersJson.amounts[i]),
                         date: convertToJSDate(contributersJson.dates[i]),
                         campaignId: campaignId
                     }
-                    await saveContributersToDb(contributer)
+                    await saveContributersToDb(contributer as Contributer)
                 }
                 if (shouldUpdateCurser) {
                     await updateContributionScanIndex(campaignId, i)
