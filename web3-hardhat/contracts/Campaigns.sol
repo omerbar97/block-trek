@@ -11,6 +11,7 @@ contract Campaigns {
         address donator;
         uint256 amount;
         uint256 date;
+        bool isInKeys;
     }
 
     struct Campaign {
@@ -129,9 +130,10 @@ contract Campaigns {
 
         Campaign storage campaign = campaigns[uuid];
 
-        if (campaign.contributors[msg.sender].amount == 0) {
+        if (campaign.contributors[msg.sender].amount == 0 && !campaign.contributors[msg.sender].isInKeys) {
             // Adding the donator to the contributors list if not already present
             campaign.contributorsKeys.push(msg.sender);
+            campaign.contributors[msg.sender].isInKeys = true;
         }
 
         // Updating the contributor's information

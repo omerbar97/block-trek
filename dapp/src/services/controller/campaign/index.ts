@@ -150,7 +150,7 @@ export async function saveCampaignToDb(campagin: Campaign, ownerId: number): Pro
 }
 
 export async function updateCampaignInDbByUuid(uuid: string, values: Partial<Campaign>): Promise<Boolean> {
-    console.log("updating campaign in db for ", uuid, " and values ", values)
+    console.log("updating campaign in db for ", uuid)
     try {
         await prisma.campaign.update({
             where: {

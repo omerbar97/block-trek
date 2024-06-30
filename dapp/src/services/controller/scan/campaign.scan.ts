@@ -2,10 +2,11 @@ import { deleteCampaignFromDb, getAllCampaignsFromDb, getCampaignByUuid, saveCam
 import { Campaign, CampaignCategory, CampaignType, Contributer } from "@prisma/client";
 import { getOwnerByWalletAddress } from "../owner";
 import { getCampaignByUuidFromBlockchain, getCampaignContributionByUuid, getDeployedCampaignsUuidFromBlockchain } from "../crypto";
-import { deleteAllContributersForCampaignByCampaignId, getContributetrsByCampaignUuid, saveContributersToDb, updateAllContributersToBeRefundedByCampaignIdAndWallet } from "../contributers";
+import { deleteAllContributersForCampaignByCampaignId, getContributetrsByCampaignUuid, getSumOfContributerByCampaignIdAndWalletAddress, saveContributersToDb, updateAllContributersToBeRefundedByCampaignIdAndWallet } from "../contributers";
 import { updateContributionScanIndex } from "../scanindex";
 import { getUnixTime } from "date-fns";
 import { convertToJSDate } from "@/utils/date";
+import { bigint } from "zod";
 
 
 const bigintToString = (value: bigint): string => {
@@ -118,14 +119,16 @@ async function updateContributionInDbForCampaign(campaignId: number, contributer
             // adding all the contributers from blockchain
             let i = 0;
             for(; i < contributersJson.keys.length; i++) {
-                const contributer = {
-                    name: null,
-                    walletAddress: contributersJson.keys[i],
-                    amount: bigintToString(contributersJson.amounts[i]),
-                    date: convertToJSDate(contributersJson.dates[i]),
-                    campaignId: campaignId
+                if(contributersJson.amounts[i] > BigInt(0)) {
+                    const contributer = {
+                        name: null,
+                        walletAddress: contributersJson.keys[i],
+                        amount: bigintToString(contributersJson.amounts[i]),
+                        date: convertToJSDate(contributersJson.dates[i]),
+                        campaignId: campaignId
+                    }
+                    await saveContributersToDb(contributer as Contributer)
                 }
-                await saveContributersToDb(contributer as Contributer)
             }
             if (shouldUpdateCurser) {
                 await updateContributionScanIndex(campaignId, i)
@@ -134,25 +137,32 @@ async function updateContributionInDbForCampaign(campaignId: number, contributer
             let i = 0
             for(; i < contributersJson.keys.length; i++) {
                 const arrayFilterd = contributersFromDb.filter(item => item.walletAddress === contributersJson.keys[i]);
-                let sumInDatabase = BigInt(0)
+                let sumInDatabase = await getSumOfContributerByCampaignIdAndWalletAddress(campaignId, contributersJson.keys[i])
                 if (arrayFilterd) {
+                    console.log(0)
                     let latestItem = null
                     if (arrayFilterd.length == 1) {
+                        console.log(11)
                         latestItem = arrayFilterd[0]
-                        sumInDatabase = BigInt(arrayFilterd[0].amount)
+                        // sumInDatabase = BigInt(arrayFilterd[0].amount)
                     } else {
+                        console.log(12)
                         latestItem = arrayFilterd.reduce((prev, current) =>
                             (prev.date > current.date) ? prev : current
                         );
-                        sumInDatabase = arrayFilterd.reduce((acc, e) => acc + BigInt(e.amount), sumInDatabase);
+                        // sumInDatabase = arrayFilterd.reduce((acc, e) => acc + BigInt(e.amount), sumInDatabase);
                     }
                     const sumInBlockChain = contributersJson.amounts[i]
+                    console.log(sumInBlockChain)
+                    console.log("latestItem:", latestItem)
                     if (sumInBlockChain == BigInt(0) && !latestItem.isRefunded) {
                         // this means that a person already contributers with the wallet but then refunded the amount
+                        console.log(1)
                         await updateAllContributersToBeRefundedByCampaignIdAndWallet(campaignId, contributersJson.keys[i])
                     } else {
                         if(sumInBlockChain > sumInDatabase) {
                             // that's mean there were more contribution that happened on the blockchain
+                        console.log(2)
                             const contributer = {
                                 name: null,
                                 walletAddress: contributersJson.keys[i],
@@ -161,12 +171,22 @@ async function updateContributionInDbForCampaign(campaignId: number, contributer
                                 campaignId: campaignId
                             }
                             await saveContributersToDb(contributer as Contributer)
-                        } else if (sumInBlockChain !== sumInDatabase) {
+                        } else if (sumInBlockChain < sumInDatabase) {
                             // adding the differences
+                            await updateAllContributersToBeRefundedByCampaignIdAndWallet(campaignId, contributersJson.keys[i])
                             const contributer = {
                                 name: null,
                                 walletAddress: contributersJson.keys[i],
-                                amount: bigintToString(sumInDatabase - sumInBlockChain),
+                                amount: bigintToString(sumInBlockChain),
+                                date: convertToJSDate(contributersJson.dates[i]),
+                                campaignId: campaignId
+                            }
+                            await saveContributersToDb(contributer as Contributer)
+                        } else if (sumInBlockChain === sumInDatabase && latestItem.isRefunded) {
+                            const contributer = {
+                                name: null,
+                                walletAddress: contributersJson.keys[i],
+                                amount: bigintToString(sumInBlockChain),
                                 date: convertToJSDate(contributersJson.dates[i]),
                                 campaignId: campaignId
                             }

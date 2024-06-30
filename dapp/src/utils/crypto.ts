@@ -10,6 +10,16 @@ export const getEthVal = async () => {
   return data; 
 };
 
+export function weiToEthStringFormat(wei: string): string {
+  const WEI_PER_ETH = BigInt(10 ** 18);
+  // Convert the input string to a bigint
+  const weiBigInt = BigInt(wei);
+  // Perform the division to get the ETH amount
+  const ethAmount = Number(weiBigInt) / Number(WEI_PER_ETH);
+  // Return the ETH amount as a string with 'ETH' suffix
+  return `${ethAmount.toFixed(2)}`;
+}
+
 
 export const getPriceInFormat = (amount:number, value:number | undefined) => {
   if (amount && value) {

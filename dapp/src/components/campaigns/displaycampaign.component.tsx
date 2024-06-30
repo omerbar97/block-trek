@@ -14,7 +14,7 @@ import {
 import { useWallet } from '@/hooks/wallet.hook';
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { donationAmountCannotBeNegativeToast, genericToast } from '@/utils/toast';
-import { getEthVal, getPriceInFormat } from '@/utils/crypto';
+import { getEthVal, getPriceInFormat, weiToEthStringFormat } from '@/utils/crypto';
 import { Campaign, Contributer, Owner, Reward } from '@prisma/client';
 import { SearchBarCategories } from '@/constants/combobox.constant';
 // import { WeiPerEther } from 'ethers';
@@ -254,7 +254,9 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
                             <div className="text-sm font-medium leading-none w-2/4 md:w-1/4">Date</div>
                         </div>
                         {contributers.map((contributer, index) => (
-                            <div key={index} className="flex items-center space-x-4 text-sm mb-2 hover:bg-slate-300 rounded-xl">
+                            <div key={index} className={`flex items-center space-x-4 text-sm mb-2 rounded-xl hover:bg-slate-300 ${
+                                contributer.isRefunded ? "text-red-500" : ""
+                              }`}>
                                 <Tooltip>
                                     <TooltipTrigger className='w-2/4 overflow-hidden whitespace-nowrap overflow-ellipsis md:w-1/4'>{contributer.name ?? "Anonymous"}</TooltipTrigger>
                                     <TooltipContent>
@@ -269,9 +271,9 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
                                 </Tooltip>
                                 <Separator orientation="vertical" />
                                 <Tooltip>
-                                    <TooltipTrigger className='w-1/4 overflow-hidden whitespace-nowrap overflow-ellipsis'>{contributer.amount} ETH</TooltipTrigger>
+                                    <TooltipTrigger className='w-1/4 overflow-hidden whitespace-nowrap overflow-ellipsis'>{weiToEthStringFormat(contributer.amount)} ETH</TooltipTrigger>
                                     <TooltipContent>
-                                        <p>{contributer.amount} ETH</p>
+                                        <p>{weiToEthStringFormat(contributer.amount)} ETH</p>
                                     </TooltipContent>
                                 </Tooltip>
                                 <Separator orientation="vertical" />

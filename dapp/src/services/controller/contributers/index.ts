@@ -1,5 +1,7 @@
 import prisma from "@/lib/prisma";
+import { sumAmountsOfContribution } from "@/utils/calculation";
 import { Contributer } from "@prisma/client";
+
 
 export async function saveContributersToDb(contributer: Contributer): Promise<boolean> {
     console.log("saving contributer to db")
@@ -75,5 +77,22 @@ export async function updateAllContributersToBeRefundedByCampaignIdAndWallet(cam
     } catch (error) {
         console.log("failed to set all contribution for campaign id: " + campaignId + " and walletAddress: " + walletAddress + " to refunded. error: " + " " + error)
         return false
+    }
+}
+
+export async function getSumOfContributerByCampaignIdAndWalletAddress(campaignId: number, walletAddress:string): Promise<bigint> {
+    console.log("getting contribution for campaign id: " + campaignId + " and walletAddress: " + walletAddress + " to refunded")
+    try {
+        const result = await prisma.contributer.findMany({
+            where: {
+                campaignId: campaignId,
+                walletAddress: walletAddress,
+                isRefunded: false
+            },
+        })
+        return sumAmountsOfContribution(result)
+    } catch (error) {
+        console.log("failed to set all contribution for campaign id: " + campaignId + " and walletAddress: " + walletAddress + " to refunded. error: " + " " + error)
+        return BigInt(0)
     }
 }
