@@ -44,6 +44,12 @@ const ConnectWalletCM = () => {
         }
     }
 
+    const handleDisconnect = () => {
+        setWalletAddress(null);
+        setEthValue(null);
+        genericToast("Wallet disconnected", "You have successfully disconnected your wallet.");
+    };
+
     const handleSigner = async (walletAddress: string, walletValue: string) => {
         setWalletAddress(walletAddress)
         setEthValue(walletValue);
@@ -54,7 +60,7 @@ const ConnectWalletCM = () => {
         <>
             {walletAddress ?
                 <div>
-                    <Button size='sm' variant='connected' className='rounded-2xl' onClick={handleConnect}>Connected</Button>
+                    <Button size='sm' variant='connected' className='rounded-2xl' onClick={handleDisconnect}>Connected</Button>
                 </div>
                 :
                 <div>
