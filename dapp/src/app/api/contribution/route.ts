@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserSession } from '../getusersession';
-import { createCampaign, getAllCampaignsFromDb, isCampaignContractAddressExists, updateCampaignInDbByUuid } from '@/services/controller/campaign';
+import { createCampaign, getAllCampaignsFromDb, updateCampaignInDbByUuid } from '@/services/controller/campaign';
 import { CampaignCategory } from '@prisma/client';
 import { scanSyncCampaignsFromDbToBlockchain } from '@/services/controller/scan/sync.scan';
+import { scanSyncContributionFromBlockchainToDb } from '@/services/controller/scan/contribution.scan';
 
 async function postHandler(req: NextRequest) {
     const session = await getUserSession();
@@ -11,17 +12,11 @@ async function postHandler(req: NextRequest) {
     }
     try {
         const data = await req.json()
-        const res = await createCampaign(data)
-        if (!res) {
-            return NextResponse.json({message: "Failed to create campaign"}, {status: 400})
-        }
-        const response = {
-            uuid: res
-        }
-        return NextResponse.json(response, {status: 200})
+        await scanSyncContributionFromBlockchainToDb(data.campaignUuid)
+        return NextResponse.json({"message":"update succssfully"}, {status: 200})
     } catch (error) {
-        console.error("Error creating contract:", error);
-        return NextResponse.json({ message: "Error creating contract: " + error }, {status: 400})
+        console.error("Error updating contribution on contract: ", error);
+        return NextResponse.json({ message: "Error updating contribution on contract: " + error }, {status: 400})
     }
 }
 

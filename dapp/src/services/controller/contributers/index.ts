@@ -22,7 +22,7 @@ export async function saveContributersToDb(contributer: Contributer): Promise<bo
     }
 }
 
-export async function getContributetrsByCampaignUuid(uuid: string): Promise<Contributer[]|null> {
+export async function getContributetrsFromDbByCampaignUuid(uuid: string): Promise<Contributer[]|null> {
     console.log("getting all contributers for campaign " + uuid)
     try {
         const campaignId = await prisma.campaign.findFirst({

@@ -19,6 +19,7 @@ import { Campaign, Contributer, Owner, Reward } from '@prisma/client';
 import { SearchBarCategories } from '@/constants/combobox.constant';
 // import { WeiPerEther } from 'ethers';
 import { requestBlockchainForDonation, requestBlockchainForRefund } from '@/services/crypto/contract';
+import axios from 'axios';
 
 
 interface CampaignCardProps {
@@ -83,13 +84,30 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
     }
 
     const handleContribute = async () => {
-        // trying to donate
-        var n:bigint = BigInt(donationAmount)
-        n = n * BigInt(1e18)
-        const isOk = await requestBlockchainForDonation(campaign.uuid, n)
+        // Check if the donation amount is a valid number
+        if (isNaN(donationAmount) || donationAmount <= 0) {
+            genericToast("Invalid Donation Amount!", "Please enter a valid number.", 5);
+            return;
+        }
+
+        // Convert the donation amount to WEI as a bigint
+        const donationAmountWei = BigInt(Math.round(donationAmount * 1e18));
+
+        const isOk = await requestBlockchainForDonation(campaign.uuid, donationAmountWei)
         if (!isOk) {
             genericToast("Failed to Donate!", "Try to check your information...", 5)
             return
+        } else {
+            // sending api sync to the database
+            const requestData = {
+                campaignUuid: campaign.uuid,
+            }
+            const req = await axios.post('/api/contribution', requestData)
+            if (req.status !== 200) {
+                // Failed to sync data to db
+                genericToast("Failed To Sync Contribution To DB", "Sorry, please try again later")
+                return
+            }
         }
     }
 
@@ -132,10 +150,10 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
                             <td className="pr-2">Campaign Category:</td>
                             <td>{categoryFormat?.label}</td>
                         </tr>
-                        {/* <tr>
-                            <td className="pr-2">CAMPAIGN ADDRESS:</td>
-                            <td>{campaign.contractAddress}</td>
-                        </tr> */}
+                        <tr>
+                            <td className="pr-2">CAMPAIGN UUID:</td>
+                            <td>{campaign.uuid}</td>
+                        </tr>
                         <tr>
                             <td className="pr-2">END DATE:</td>
                             <td>{campaign.endAt.toString()}</td>

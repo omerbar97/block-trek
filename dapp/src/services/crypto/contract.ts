@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { Contract, ethers } from 'ethers';
 import { FACTORY_ABI } from './abi';
 import { getProviders } from './wallet';
 import { genericToast } from '@/utils/toast';
@@ -16,9 +16,12 @@ async function generateABI() {
     return abi
 }
 
-
+let CampaignContractFrontend: undefined|Contract = undefined
 export const getCampaignFactoryContract = async () => {
     try {
+        if (CampaignContractFrontend !== undefined && CampaignContractFrontend !== null) {
+            return CampaignContractFrontend
+        }
         const ethereum = window.ethereum
         const accounts = await ethereum.request({
           method: "eth_requestAccounts",
@@ -26,17 +29,33 @@ export const getCampaignFactoryContract = async () => {
         const provider = new ethers.providers.JsonRpcProvider(CONTRACT_URL)
         const signer = provider.getSigner(0)
         const abi = await generateABI();
-        const campaignFactoryContract = await new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
+        const CampaignContract = await new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
 
-        campaignFactoryContract.on("CampaignCreated", async (uuid: string, owner: string) => {
-            genericToast("New Campaign Created!", "By the owner: " + owner)
-        });
-
-        campaignFactoryContract.on("Contribution", async (uuid: string, owner: string, amount: bigint, time:number) => {
-            genericToast("New Contribution by " + owner, "Donated " + amount.toString() + " to " + uuid)
-        });
-
-        return campaignFactoryContract;
+        CampaignContract.on("Contribution", async (uuid: string, contributor: string, amount: bigint, time: number) => {
+            genericToast("New Contribution by " + contributor, "Donated " + amount.toString() + " to " + uuid + " At: " + new Date(time).toString());
+          });
+      
+          CampaignContract.on("Refund", async (uuid: string, contributor: string, amount: bigint, time: number) => {
+            genericToast("Refund Issued to " + contributor, "Amount: " + amount.toString() + " for campaign " + uuid + " At: " + new Date(time).toString());
+          });
+      
+          CampaignContract.on("Withdrawal", async (uuid: string, amount: bigint, time: number) => {
+            genericToast("Withdrawal from Campaign " + uuid, "Amount: " + amount.toString() + " At: " + new Date(time).toString());
+          });
+      
+          CampaignContract.on("CampaignCompleted", async (uuid: string, time: number) => {
+            genericToast("Campaign Completed", "Campaign UUID: " + uuid + " At: " + new Date(time).toString());
+          });
+      
+          CampaignContract.on("FundsRetrievedByCampaignOwner", async (uuid: string, owner: string, amount: bigint) => {
+            genericToast("Funds Retrieved by Campaign Owner", "Owner: " + owner + " Amount: " + amount.toString() + " for campaign " + uuid);
+          });
+      
+          CampaignContract.on("FundsRetrieved", async (uuid: string, owner: string, amount: bigint) => {
+            genericToast("Funds Retrieved", "Owner: " + owner + " Amount: " + amount.toString() + " for campaign " + uuid);
+          });
+          CampaignContractFrontend = CampaignContract
+        return CampaignContract;
     } catch (e) {
         console.log("Failed to get blockchain factory contract ", e);
         return null;

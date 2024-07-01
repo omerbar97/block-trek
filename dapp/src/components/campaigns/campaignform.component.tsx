@@ -163,7 +163,7 @@ const CampaignForm = () => {
         }
         genericToast("Failed to create campaign", "That's a bummer")
         const dataToDelete = { campaginUuid: uuid };
-        const reqq = await axios.delete('/api/campaign', {data: dataToDelete})
+        await axios.delete('/api/campaign', {data: dataToDelete})
     }
 
 

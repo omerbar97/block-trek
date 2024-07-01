@@ -285,7 +285,7 @@ export async function createCampaign(jsonData: any) {
         uuid: uuid as string,
         title: title,
         description: description,
-        category: category,
+        category: category as CampaignCategory,
         image: image ?? "",
         video: video ?? "",
         goal: goal,
@@ -296,24 +296,6 @@ export async function createCampaign(jsonData: any) {
     await saveCampaignToDb(campagin, Number(owner.id))
     return uuid
 }
-
-export async function isCampaignContractAddressExists(campaignUuid: string) {
-    try {
-        const c = await prisma.campaign.findFirst({
-            where: {
-                uuid:campaignUuid,
-            }
-        })
-        console.log("contract: ", c)
-        if (c) {
-            return !(c.contractAddress === '0')
-        }
-        return false
-    } catch (error) {
-        console.log("failed to check campaign wallet address")
-    }
-}
-
 
 
 export async function deleteCampaignFromDb(campaignUuid: string) {

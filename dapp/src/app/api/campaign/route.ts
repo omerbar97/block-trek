@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NextApiRequest } from 'next';
 import { getUserSession } from '../getusersession';
-import { createCampaign, deleteCampaignFromDb, getAllCampaignsFromDb, isCampaignContractAddressExists, updateCampaignInDbByUuid } from '@/services/controller/campaign';
+import { createCampaign, deleteCampaignFromDb, getAllCampaignsFromDb, updateCampaignInDbByUuid } from '@/services/controller/campaign';
 import { CampaignCategory } from '@prisma/client';
 import { scanSyncCampaignsFromDbToBlockchain } from '@/services/controller/scan/sync.scan';
 
