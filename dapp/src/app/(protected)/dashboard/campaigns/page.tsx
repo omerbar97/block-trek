@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react'
 import Drawer from '@/components/campaigns/drawer.component';
 import Card from '@/components/campaigns/card.component';
 import LoadingCard from '@/components/campaigns/loadingcard.component';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { genericToast } from '@/utils/toast';
 import { Campaign } from '@prisma/client';
 import GhostCard from '@/components/campaigns/ghostcard.component';
@@ -39,9 +39,19 @@ const FundCampaignsPage = () => {
   const [didUrlChange, setDidUrlChange] = useState<Boolean>(false)
   const searchParams = useSearchParams()
   const params = new URLSearchParams(searchParams);
+  const router = useRouter();
 
   const { response, error, loading, refetch } = retrieveCampaignsWithFilter(params);
   const SelectedData = retreiveSelectedCampaign("dummy")
+
+  useEffect(() => {
+    // Read the query parameter from the URL
+    const query = new URLSearchParams(window.location.search);
+    const id = query.get('id');
+    if (id) {
+      handleCardClick(id);
+    }
+  }, []);
 
   useEffect(() => {
     if (loading) {
@@ -77,16 +87,28 @@ const FundCampaignsPage = () => {
     }
   }, [didUrlChange])
 
+  // const handleCardClick = (id: string) => {
+  //   // Fetching the campaign data
+  //   if (!drawerOpen) {
+  //     SelectedData.refetch(`/api/campaign/${id}`)
+  //   }
+  //   setDrawerOpen(!drawerOpen);
+  // };
+
   const handleCardClick = (id: string) => {
+    // Update the URL with the new query parameter
+    router.push(`?id=${id}`, undefined);
+
     // Fetching the campaign data
     if (!drawerOpen) {
-      SelectedData.refetch(`/api/campaign/${id}`)
+      SelectedData.refetch(`/api/campaign/${id}`);
     }
     setDrawerOpen(!drawerOpen);
   };
 
   const handleDrawerClose = () => {
-    params.delete("id")
+    params.delete("id");
+    router.push(`?${params.toString()}`, undefined, { shallow: true });
     setDrawerOpen(false);
   };
 

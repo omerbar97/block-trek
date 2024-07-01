@@ -10,6 +10,13 @@ export const getEthVal = async () => {
   return data; 
 };
 
+export function wetToEthBigIntFormat(wei: BigInt): string {
+  const WEI_PER_ETH = BigInt(10 ** 18);
+  const ethAmount = Number(wei) / Number(WEI_PER_ETH);
+  // Return the ETH amount as a string with 'ETH' suffix
+  return `${ethAmount.toFixed(6)}`;
+}
+
 export function weiToEthStringFormat(wei: string): string {
   const WEI_PER_ETH = BigInt(10 ** 18);
   // Convert the input string to a bigint

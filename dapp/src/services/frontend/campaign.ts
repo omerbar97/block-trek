@@ -19,3 +19,13 @@ export const getAllOwnerCampaignByWalletAddressFromServer = (walletAddress: stri
     const {response, loading, error, refetch} = useAxiosGet(`/api/owner/campaign?walletAddress=${walletAddress}`)
     return {response, loading, error, refetch }
 }
+
+export const getAllContributionCampaignsByWalletAddress = (walletAddress: string | null) => {
+    const {response, loading, error, refetch} = useAxiosGet(`/api/contribution?walletAddress=${walletAddress}`)
+    return {response, loading, error, refetch }
+}
+
+export const getDashboardStatisticalInformation = () => {
+    const {response, loading, error, refetch} = useAxiosGet(`/api/dashboard`)
+    return {response, loading, error, refetch }
+}

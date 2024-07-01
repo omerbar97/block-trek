@@ -12,9 +12,23 @@ export const WalletProvider: React.FC<WalletContextChildren> = ({ children }) =>
 
   const contextValue = {
     walletAddress,
-    setWalletAddress,
+    setWalletAddress: (address: string | null) => {
+      setWalletAddress(address);
+      if (address) {
+        sessionStorage.setItem('walletAddress', address);
+      } else {
+        sessionStorage.removeItem('walletAddress');
+      }
+    },
     ethValue,
-    setEthValue,
+    setEthValue: (value: string | null) => {
+      setEthValue(value);
+      if (value) {
+        sessionStorage.setItem('ethValue', value);
+      } else {
+        sessionStorage.removeItem('ethValue');
+      }
+    },
   };
 
   return (

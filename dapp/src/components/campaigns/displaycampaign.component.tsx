@@ -17,10 +17,8 @@ import { donationAmountCannotBeNegativeToast, genericToast } from '@/utils/toast
 import { getEthVal, getPriceInFormat, weiToEthStringFormat } from '@/utils/crypto';
 import { Campaign, Contributer, Owner, Reward } from '@prisma/client';
 import { SearchBarCategories } from '@/constants/combobox.constant';
-// import { WeiPerEther } from 'ethers';
 import { requestBlockchainForDonation, requestBlockchainForRefund } from '@/services/crypto/contract';
 import axios from 'axios';
-
 
 interface CampaignCardProps {
     campaign: Campaign;
@@ -301,7 +299,7 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
                                 <Tooltip>
                                     <TooltipTrigger className='w-1/4 overflow-hidden whitespace-nowrap overflow-ellipsis'>{weiToEthStringFormat(contributer.amount)} ETH</TooltipTrigger>
                                     <TooltipContent>
-                                        <p>{weiToEthStringFormat(contributer.amount)} ETH</p>
+                                        <p>{contributer.amount} WEI</p>
                                     </TooltipContent>
                                 </Tooltip>
                                 <Separator orientation="vertical" />

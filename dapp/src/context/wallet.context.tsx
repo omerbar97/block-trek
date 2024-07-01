@@ -2,9 +2,9 @@ import { createContext } from 'react';
 
 interface WalletContextProps {
   walletAddress: string | null;
-  setWalletAddress: React.Dispatch<React.SetStateAction<string | null>>;
+  setWalletAddress: (address: string | null) => void;
   ethValue: string | null;
-  setEthValue: React.Dispatch<React.SetStateAction<string | null>>;
+  setEthValue: (value: string | null) => void;
 }
 
 const WalletContext = createContext<WalletContextProps | null>(null);

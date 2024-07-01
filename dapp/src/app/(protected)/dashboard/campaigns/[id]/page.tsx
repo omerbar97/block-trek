@@ -8,7 +8,7 @@ export default function Page({ params }: { params: { id: string } }) {
     return (
         <>
             <div className="max-w-fit justify-center align-center m-auto">
-                <DisplayCampaign campaign={testcampaigns[0]} />
+                {/* <DisplayCampaign campaign={testcampaigns[0]} /> */}
             </div>
         </>
     )

@@ -4,6 +4,7 @@ import { getAllCampaignsFromDb, updateCampaignInDbByUuid } from '@/services/cont
 import { CampaignCategory } from '@prisma/client';
 import { scanSyncCampaignsFromDbToBlockchain } from '@/services/controller/scan/sync.scan';
 import { handleCampaignsAndInsertToDb } from '@/services/controller/scan/campaign.scan';
+import { getCampaignContributions } from '@/services/controller/contributers';
 
 async function postHandler(req: NextRequest) {
     const session = await getUserSession();
@@ -28,8 +29,7 @@ async function deleteHandler(req: NextRequest) {
     try {
         // Need to add logic to check if campaign exists in contract
         const data = await req.json()
-        const uuid = data.campaginUuid
-        await scanSyncCampaignsFromDbToBlockchain(uuid)
+        await scanSyncCampaignsFromDbToBlockchain(data.campaginUuid)
         return NextResponse.json({message: "deleted the campaign succssfully"}, {status: 200})   
     } catch (error) {
         console.error("Error deleting contract:", error);
@@ -62,16 +62,13 @@ async function getHandler(req: NextRequest) {
     }
     try {
 
-        const name = req.nextUrl.searchParams.get("name")
-        const category = req.nextUrl.searchParams.get("category")
-        const experation = req.nextUrl.searchParams.get("experation")
-        const n_name = typeof name === 'string' ? name : (Array.isArray(name) ? name[0] : null);
-        const n_category = typeof category === 'string' ? category : (Array.isArray(category) ? category[0] : null);
-        const n_expiration = typeof experation === 'string' ? experation : (Array.isArray(experation) ? experation[0] : null);
-
+        const walletAddress = req.nextUrl.searchParams.get("walletAddress")
         // Your logic using query parameters
-        const allCampaigns = await getAllCampaignsFromDb(n_name, n_category as CampaignCategory, n_expiration);
-        return NextResponse.json(allCampaigns, { status: 200 });
+        if (walletAddress === null) {
+            return NextResponse.json({message: "No wallet address was given"}, { status: 400 });
+        }
+        const data = await getCampaignContributions(walletAddress)
+        return NextResponse.json(data, { status: 200 });
     } catch (error) {
         console.error("Error handling GET request:", error);
         return NextResponse.json({ message: "Error handling GET request: " + error }, { status: 500 });

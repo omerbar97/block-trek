@@ -1,5 +1,5 @@
 'use client';
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useWallet } from '@/hooks/wallet.hook';
 import { Button } from '../ui/button';
 import { connectMetamaskWallet } from '@/services/crypto/wallet';
@@ -18,7 +18,12 @@ const ConnectWalletCM = () => {
     const { setWalletAddress, setEthValue, walletAddress } = useWallet()
     const { data: session, status } = useSession()
 
-
+    useEffect(() => {
+        const wallet = sessionStorage.getItem('walletAddress')
+        const value = sessionStorage.getItem('ethValue')
+        setWalletAddress(wallet)
+        setEthValue(value)
+    }, [])
 
     const handleConnect = async () => {
         // if (walletAddress !== null) {
@@ -33,8 +38,6 @@ const ConnectWalletCM = () => {
                 genericToast("Failure", result.message)
                 return
             }
-            // successToConnectToMetamaskWalletToast()
-            // genericToast("Success", result.message)
             await handleSigner(result.walletAddress, result.walletValue)
         } else if (status === "loading"){
             waitingForSessionToBeResolvedToast()
@@ -55,7 +58,7 @@ const ConnectWalletCM = () => {
                 </div>
                 :
                 <div>
-                    <Button size='sm' variant='destructive' className='rounded-2xl' onClick={handleConnect}>Connect Wallet</Button>
+                    <Button size='sm' variant='destructive' className='rounded-2xl' onClick={handleConnect}>Connect A Wallet</Button>
                 </div>
             }
         </>

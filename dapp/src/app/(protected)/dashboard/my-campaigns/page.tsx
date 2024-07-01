@@ -7,8 +7,6 @@ import GhostCard from '@/components/campaigns/ghostcard.component';
 import { getAllOwnerCampaignByWalletAddressFromServer, getCampaignFullDataFromServerById } from '@/services/frontend/campaign';
 import { useWallet } from '@/hooks/wallet.hook';
 import axios from 'axios';
-import { IDisplayCampaign } from '@/types/campaign.interface';
-import LoadingCard from '@/components/campaigns/loadingcard.component';
 import CardOwnerCampaign from '@/components/campaigns/cardownercampaign.component';
 
 const isWalletOwnerAndSessionOkay = async (walletAddress: string) => {
