@@ -2,7 +2,6 @@
 import DisplayCampaign from '@/components/campaigns/displaycampaign.component';
 import React, { useEffect, useState } from 'react'
 import Drawer from '@/components/campaigns/drawer.component';
-import Card from '@/components/campaigns/card.component';
 import { useSearchParams } from 'next/navigation';
 import { genericToast } from '@/utils/toast';
 import { Campaign } from '@prisma/client';
@@ -12,6 +11,7 @@ import { useWallet } from '@/hooks/wallet.hook';
 import axios from 'axios';
 import { IDisplayCampaign } from '@/types/campaign.interface';
 import LoadingCard from '@/components/campaigns/loadingcard.component';
+import CardOwnerCampaign from '@/components/campaigns/cardownercampaign.component';
 
 const isWalletOwnerAndSessionOkay = async (walletAddress: string) => {
     const result = await axios.get(`/api/owner?walletAddress=${walletAddress}`)
@@ -19,10 +19,7 @@ const isWalletOwnerAndSessionOkay = async (walletAddress: string) => {
   }
 
 const FundCampaignsPage = () => {
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [campaigns, setCampaigns] = useState<Campaign[] | null>(null)
-  const [selectedCampaign, setSelectedCampaign] = useState<IDisplayCampaign | null>(null)
-  const [isSelectedModelLoading, setIsSelectedModelLoading] = useState<Boolean>(false)
   const { walletAddress } = useWallet()
   const searchParams = useSearchParams()
   const params = new URLSearchParams(searchParams);
@@ -53,29 +50,6 @@ const FundCampaignsPage = () => {
   }, [walletAddress, response, error, loading]);
 
 
-  const handleCardClick = (id: string) => {
-    // Fetching the campaign data
-    const {response, loading, error, refetch} = getCampaignFullDataFromServerById(id)
-    useEffect(() => {
-      if (error) {
-        console.error("Failed to fetch ", error);
-        genericToast("Failed to retreive campaign", "Please try again later");
-      } else if (loading) {
-        setIsSelectedModelLoading(loading)
-        console.log('Loading...');
-      } else {
-        console.log('Data:', response);
-        setSelectedCampaign(response as IDisplayCampaign);
-        setIsSelectedModelLoading(false)
-      }
-    }, [response, loading, error])
-    setDrawerOpen(!drawerOpen);
-  };
-
-  const handleDrawerClose = () => {
-    params.delete("id")
-    setDrawerOpen(false);
-  };
 
   return (
     <main className='mx-16'>
@@ -95,40 +69,19 @@ const FundCampaignsPage = () => {
         ) : (
           // Render campaign cards if not loading
           campaigns?.map((campaign) => (
-            <Card
+            <CardOwnerCampaign
               key={campaign.id}
               onClick={() => {
-                const stringId = `${campaign.id}`
-                params.set("id", stringId)
-                handleCardClick(stringId)
               }}
               campaign={campaign}
             />
           ))
         )}
       </div>
-
-      <Drawer isOpen={drawerOpen} onClose={handleDrawerClose}>
-        {(isSelectedModelLoading) ? 
-        <>
-        <LoadingCard>
-          <LoadingCard />
-        </LoadingCard>
-        </>
-         :
-        <>
-        {(selectedCampaign) ?
-         <><DisplayCampaign campaign={selectedCampaign.campaign} owner={selectedCampaign.owner} contributers={selectedCampaign.contributers} rewards={selectedCampaign.rewards} /></>
-          :
-         <></>}
-        </>
-        }
-      </Drawer>
         </div>
         }
       </div>
       }
-      
     </main>
   );
 }

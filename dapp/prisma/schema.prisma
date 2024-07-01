@@ -33,16 +33,17 @@ model Campaign {
   image           String?
   video           String?
   goal            String
-  collected       String        @default("0")
+  collected       String            @default("0")
   type            CampaignType
-  createdAt       DateTime      @default(now())
+  createdAt       DateTime          @default(now())
   endAt           DateTime      
-  updatedAt       DateTime      @updatedAt
-  owner           Owner         @relation(fields: [ownerId], references: [id])
+  updatedAt       DateTime          @updatedAt
+  owner           Owner             @relation(fields: [ownerId], references: [id])
   contributers    Contributer[]
   rewards         Reward[]
-  isFinished      Boolean       @default(false)
-  isFailed        Boolean       @default(false)
+  isFinished      Boolean           @default(false)
+  isFailed        Boolean           @default(false)
+  isOwnerRetrievedDonations Boolean @default(false)
 }
 
 enum CampaignCategory {

@@ -27,7 +27,8 @@ export interface CampaignFromBlockchain {
     totalContributions: bigint;
     campaignType: string;
     contributors: { [address: string]: number };
-    isFinished: boolean
+    isFinished: boolean;
+    isOwnerRetrievedDonations: boolean;
 }
 
 const transformCampaignToJson = (input: any): CampaignFromBlockchain => {
@@ -43,6 +44,7 @@ const transformCampaignToJson = (input: any): CampaignFromBlockchain => {
         campaignType: input['8'],
         contributorsKeys: input['9'],
         isFinished: input['10'],
+        isOwnerRetrievedDonations: input['11'],
         contributors: {},
     };
 };

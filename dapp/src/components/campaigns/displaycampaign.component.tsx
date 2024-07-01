@@ -117,6 +117,16 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
             genericToast("Failed to Donate!", "Try to check your information...", 5)
             return
         }
+        // sending api sync to the database
+        const requestData = {
+            campaignUuid: campaign.uuid,
+        }
+        const req = await axios.post('/api/contribution', requestData)
+        if (req.status !== 200) {
+            // Failed to sync data to db
+            genericToast("Failed To Sync Contribution To DB", "Sorry, please try again later")
+            return
+        }
     }
 
     useEffect(() => {

@@ -3,16 +3,12 @@ import { Campaign, CampaignCategory, CampaignType, Contributer } from "@prisma/c
 import { getOwnerByWalletAddress } from "../owner";
 import { CampaignFromBlockchain, ContributionsFromBlockchain, getCampaignByUuidFromBlockchain, getCampaignContributionByUuid, getDeployedCampaignsUuidFromBlockchain } from "../crypto";
 import { deleteAllContributersForCampaignByCampaignId, getContributetrsFromDbByCampaignUuid, getSumOfContributerByCampaignIdAndWalletAddress, saveContributersToDb, updateAllContributersToBeRefundedByCampaignIdAndWallet } from "../contributers";
-import { updateContributionScanIndex } from "../scanindex";
 import { getUnixTime } from "date-fns";
-import { convertToJSDate } from "@/utils/date";
 import { addAllContributersFromBlockchainToDb, addContributionFromBlockchainToDbWithChecks } from "./contribution.scan";
-
 
 export const bigintToString = (value: bigint): string => {
     return value.toString();
 };
-
 
 async function handleCampaignNotInDb(campaignFromBC: CampaignFromBlockchain) {
     const owner = await getOwnerByWalletAddress(campaignFromBC.owner);
@@ -73,15 +69,16 @@ async function updateCampaignDetailsInDb(campaignFromDb: Campaign, campaignFromB
     try {
         campaignFromDb.updatedAt = new Date()
         campaignFromDb.collected = bigintToString(campaignFromBC.totalContributions)
-        campaignFromDb.isFinished = campaignFromBC.totalContributions > campaignFromBC.goalAmount
+        campaignFromDb.isFinished = campaignFromBC.totalContributions >= campaignFromBC.goalAmount
         campaignFromDb.isFailed = getUnixTime(new Date()) > campaignFromBC.endDate
+        campaignFromDb.isOwnerRetrievedDonations = campaignFromBC.isOwnerRetrievedDonations
         await updateCampaignInDbByUuid(campaignFromDb.uuid, campaignFromDb)
     } catch (error) {
         console.log("failed to update campaign details from blockchain for campaign id: " + campaignFromDb.id + " " + error)
     }
 }
 
-async function handleCampaignsAndInsertToDb(uuid: string) {
+export async function handleCampaignsAndInsertToDb(uuid: string) {
     const campaignFromBC = await getCampaignByUuidFromBlockchain(uuid)
     const campaignFromDb = await getCampaignByUuid(uuid)
     if(campaignFromDb === null) {
