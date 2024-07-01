@@ -10,8 +10,8 @@ describe('Campaign Contract', function () {
   let accounts: Signer[];
   const campaignName = 'Test Campaign';
   const campaignDescription = 'This is a test campaign';
-  const endDate = Math.floor(Date.now() / 1000) + 86400; // End date set to 1 day from now
-  const goalAmount = ethers.utils.parseEther('100'); // Set goal amount to 100 ethers
+  const endDate = Math.floor(Date.now() / 1000) + 86400;
+  const goalAmount = ethers.utils.parseEther('100');
   const campaignType = CampaignType.Donation;
 
   beforeEach(async function () {

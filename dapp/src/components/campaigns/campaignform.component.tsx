@@ -11,10 +11,17 @@ import axios from 'axios';
 import { CampaignTypes, SearchBarCategories } from '@/constants/combobox.constant';
 import { Combobox } from '../searchbar/combobox.component';
 import DatePickerForCreationCampaign from './dateforcreation.component';
-import { getCampaignFactoryContract, requestBlockchainForNewCampaign } from '@/services/crypto/contract';
+import { requestBlockchainForNewCampaign } from '@/services/crypto/contract';
 import { getUnixTime } from 'date-fns';
-import { formatEtherFromString, pasreEtherFromStringEtherToWEI } from '@/services/crypto/utils';
+import { pasreEtherFromStringEtherToWEI } from '@/services/crypto/utils';
 
+function isYouTubeUrl(url: string): boolean {
+    // Regular expression to match YouTube video URLs
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})$/;
+  
+    // Test the URL against the regex
+    return youtubeRegex.test(url);
+  }
 
 const CampaignForm = () => {
     const [ethValue, setEthValue] = useState()
@@ -137,6 +144,11 @@ const CampaignForm = () => {
             return   
         }
 
+        if(data.video && !isYouTubeUrl(data.video)) {
+            genericToast("We accept only videos from https://youtube.com", "...")
+            return
+        }
+
         var goalAsWei: bigint
         goalAsWei = pasreEtherFromStringEtherToWEI(data.goal)
         const bigintAsString = goalAsWei.toString();
@@ -247,9 +259,9 @@ const CampaignForm = () => {
                                     htmlFor="campaign_video"
                                     className="block text-sm font-medium leading-6 text-gray-900"
                                 >
-                                    Campaign Video Link
+                                    Campaign Video Link (Youtube Only)
                                 </label>
-                                <Input ref={campaignVideoLink} placeholder='Campaign video link' id='campaign_video'></Input>
+                                <Input ref={campaignVideoLink} placeholder='https://www.youtube.com/watch?v=dQw4w9WgXcQ' id='campaign_video'></Input>
                             </div>
                             <div className="w-full">
                                 <label

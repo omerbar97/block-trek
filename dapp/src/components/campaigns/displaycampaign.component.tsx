@@ -27,6 +27,30 @@ interface CampaignCardProps {
     rewards: Reward[];
 }
 
+function extractYouTubeVideoId(url: string): string | null {
+    // Regular expression to match YouTube video URL formats
+    const regExp = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+
+    // Match the provided URL against the regular expression
+    const match = url.match(regExp);
+
+    // Extract video ID if match is found
+    if (match && match[1]) {
+        return match[1];
+    } else {
+        return null;
+    }
+}
+
+const embdedYotubeVideoInIframe = (url: string) => {
+    const id = extractYouTubeVideoId(url)
+    if (id === null) {
+        return ""
+    } else {
+        return "https://www.youtube.com/embed/" + id
+    }
+}
+
 function weiToEth(weiString: string): number {
     // Convert the string representation of Wei to a BigInt
     const weiBigInt = BigInt(weiString);
@@ -178,7 +202,17 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
                     {(campaign.video ? 
                     <>
                     <div className='hover:bg-stone-700 rounded-xl p-2'>
-                        <p className="text-gray-100 font-bold">                    Campaign Video: <u><a href={campaign.video} target="_blank" rel="noopener noreferrer">{campaign.video}</a></u></p>
+                        <p className="text-gray-100 font-bold">                  
+                        Campaign Video: <u><a href={campaign.video} target="_blank" rel="noopener noreferrer">{campaign.video}</a></u></p>
+                        <div className="mt-5 relative h-0" style={{ paddingBottom: "56.25%" }}>
+                        <iframe
+                            className="absolute inset-0 w-full h-full"
+                            src={embdedYotubeVideoInIframe(campaign.video)}
+                            title="YouTube video player"
+                            frameborder="0"
+                            allowfullscreen
+                        ></iframe>
+                        </div>
                     </div></>
                      : 
                      <></>)}
@@ -281,7 +315,7 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
                         </div>
                         {contributers.map((contributer, index) => (
                             <div key={index} className={`flex items-center space-x-4 text-sm mb-2 rounded-xl hover:bg-slate-300 ${
-                                contributer.isRefunded ? "text-red-500" : ""
+                                contributer.isRefunded ? "text-red-500 line-through" : ""
                               }`}>
                                 <Tooltip>
                                     <TooltipTrigger className='w-2/4 overflow-hidden whitespace-nowrap overflow-ellipsis md:w-1/4'>{contributer.name ?? "Anonymous"}</TooltipTrigger>

@@ -108,7 +108,7 @@ const FundCampaignsPage = () => {
 
   const handleDrawerClose = () => {
     params.delete("id");
-    router.push(`?${params.toString()}`, undefined, { shallow: true });
+    router.push(`?${params.toString()}`, undefined);
     setDrawerOpen(false);
   };
 
