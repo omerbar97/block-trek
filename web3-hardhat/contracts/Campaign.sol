@@ -1,161 +1,199 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./CampaignType.sol";
+contract CampaignFactory {
+    address owner;
+    string[] public deployedCampaignsUuid;
+    mapping(string => Campaign) campaigns;
 
-contract Campaign {
-    string public uuid; // unique identifier
-    address public owner;
-    string  public campaignName;
-    string  public campaignDescription;
-    address[] contributorsKeys; // the address of all the user that donated
-    uint256 public endDate; // end date in linux time
-    uint256 public goalAmount;
-    uint256 public totalContributions;
-    string public campaignType;
-    mapping(address => uint256) public contributors;
-
-    // Events for tracking contributions, refund, withdrawal, and campaign completion
-    event Contribution(address indexed contributor, uint256 amount, uint256 time);
-    event Refund(address indexed contributor, uint256 amount, uint256 time);
-    event Withdrawal(uint256 amount, uint256 time);
-    event CampaignCompleted(uint256 time);
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only the owner can call this function");
-        _;
+    struct Contributer {
+        address donator;
+        uint256 amount;
+        uint256 date;
+        bool isInKeys;
     }
 
-    modifier notOwner() {
-        require(msg.sender != owner, "Owner cannot invoke this function");
-        _;
+    struct Campaign {
+        string uuid;
+        address owner;
+        string campaignName;
+        string campaignDescription;
+        address[] contributorsKeys; 
+        uint256 startDate;
+        uint256 endDate;
+        uint256 goalAmount;
+        uint256 totalContributions;
+        string campaignType;
+        bool isFinished;
+        bool isOwnerRetrievedDonations;
+        mapping(address => Contributer) contributors;
     }
 
-    modifier campaignNotEnded() {
-        require(block.timestamp < endDate, "Campaign has already ended");
-        _;
+    constructor() {
+        owner = msg.sender;
     }
 
-    modifier campaignEnded() {
-        require(block.timestamp >= endDate, "Campaign has not ended yet");
-        _;
+    event CampaignCreated (
+        string uuid,
+        address indexed owner
+    );
+    
+    event Contribution(string campaignUuid, address indexed contributor, uint256 amount, uint256 time);
+    event Refund(string campaignUuid, address indexed contributor, uint256 amount, uint256 time);
+    event Withdrawal(string campaignUuid, uint256 amount, uint256 time);
+    event CampaignCompleted(string campaignUuid, uint256 time);
+    event FundsRetrievedByCampaignOwner(string uuid, address owner, uint256 amount);
+    event FundsRetrieved(string uuid, address owner, uint256 amount);
+
+    // Function to create a new campaign
+    function createCampaign(
+        string memory uuid,
+        string memory campaignName,
+        string memory campaignDescription,
+        uint256 endDate,
+        uint256 goalAmount,
+        string memory campaignType
+    ) external {
+        require(bytes(uuid).length > 0, "UUID is required");
+        require(bytes(campaigns[uuid].uuid).length == 0, "This campaign UUID already exists");
+        campaigns[uuid].uuid = uuid;
+        campaigns[uuid].owner = msg.sender;
+        campaigns[uuid].campaignName = campaignName;
+        campaigns[uuid].campaignDescription = campaignDescription;
+        campaigns[uuid].endDate = endDate;
+        campaigns[uuid].goalAmount = goalAmount;
+        campaigns[uuid].startDate = block.timestamp;
+        campaigns[uuid].totalContributions = 0;
+        campaigns[uuid].campaignType = campaignType;
+        campaigns[uuid].isFinished = false;
+        campaigns[uuid].isOwnerRetrievedDonations = false;
+        deployedCampaignsUuid.push(uuid);
+        delete campaigns[uuid].contributorsKeys;
+        emit CampaignCreated(uuid, msg.sender);
     }
 
-    modifier contributionNumberMoreThenZero() {
-        require(msg.value > 0, "Contribution amount must be greater than 0");
-        _;
+    function getDeployedCampaignsUuid() external view returns (string[] memory) {
+        return deployedCampaignsUuid;
     }
 
-    modifier goalAmountNotReached() {
-        require(totalContributions < goalAmount, "Goal amount already reached");
-        _;
-    }
 
-    constructor(
-        string memory _campaignName,
-        string memory _campaignDescription,
-        uint256 _endDate,
-        uint256 _goalAmount,
-        string memory _campaignType,
-        address _ownerWalletAddress,
-        string memory _uuid
+    function getCampaign(string memory uuid) public view returns (
+        string memory,
+        address,
+        string memory,
+        string memory,
+        uint256,
+        uint256,
+        uint256,
+        uint256,
+        string memory,
+        address[] memory,
+        bool,
+        bool
     ) {
-        owner = _ownerWalletAddress;
-        campaignName = _campaignName;
-        campaignDescription = _campaignDescription;
-        endDate = _endDate;
-        goalAmount = _goalAmount;
-        campaignType = _campaignType;
-        uuid = _uuid;
-    }
-
-    function contribute() external payable notOwner campaignNotEnded contributionNumberMoreThenZero goalAmountNotReached {
-        contributors[msg.sender] += msg.value;
-        totalContributions += msg.value;
-        bool isInList = false;
-        for (uint256 i = 0; i < contributorsKeys.length; i++) {
-            if (contributorsKeys[i] == msg.sender) {
-                isInList = true;
-                break;
-            }
-        }
-        if (!isInList) {
-            contributorsKeys.push(msg.sender);
-        }
-        if (totalContributions >= goalAmount) {
-            emit CampaignCompleted(block.timestamp);
-        }
-        emit Contribution(msg.sender, msg.value, block.timestamp);
-    }
-
-    function getCampaignDetails()
-        external
-        view
-        returns (
-            address,
-            uint256,
-            uint256,
-            string memory
-        )
-    {
+        require(bytes(campaigns[uuid].uuid).length != 0, "campaign with this uuid doesn't exists");
+        Campaign storage campaign = campaigns[uuid];
         return (
-            owner,
-            endDate,
-            goalAmount,
-            campaignType
+            campaign.uuid,
+            campaign.owner,
+            campaign.campaignName,
+            campaign.campaignDescription,
+            campaign.startDate,
+            campaign.endDate,
+            campaign.goalAmount,
+            campaign.totalContributions,
+            campaign.campaignType,
+            campaign.contributorsKeys,
+            campaign.isFinished,
+            campaign.isOwnerRetrievedDonations
         );
     }
 
-    function getContributorAmount(address contributor)
-        external
-        view
-        returns (uint256)
-    {
-        return contributors[contributor];
+    function getContributions(string memory uuid) public view returns (address[] memory, uint256[] memory, uint256[] memory) {
+        require(bytes(campaigns[uuid].uuid).length != 0, "Campaign with this uuid doesn't exist");
+        Campaign storage campaign = campaigns[uuid];
+        address[] memory keys = campaign.contributorsKeys;
+        uint256[] memory amounts = new uint256[](keys.length);
+        uint256[] memory dates = new uint256[](keys.length);
+
+        for (uint256 i = 0; i < keys.length; i++) {
+            Contributer storage contributer = campaign.contributors[keys[i]];
+            amounts[i] = contributer.amount;
+            dates[i] = contributer.date;
+        }
+
+        return (keys, amounts, dates);
     }
 
-    function refund() external campaignNotEnded {
-        // Can only refund when the end date didn't passed
-        uint256 refundAmount = contributors[msg.sender];
-        require(refundAmount > 0, "No contribution to refund");
-        // Reset contributor balance
-        contributors[msg.sender] = 0;
-        totalContributions -= refundAmount;
-        // Refund the contributor
-        payable(msg.sender).transfer(refundAmount);
-        emit Refund(msg.sender, refundAmount, block.timestamp);
+    function donate(string memory uuid) public payable {
+        require(bytes(campaigns[uuid].uuid).length > 0, "Campaign doesn't exist");
+        require(campaigns[uuid].owner != msg.sender, "Owner cannot conrtibute to it self");
+        require(campaigns[uuid].endDate > block.timestamp, "Campaign end date already reached");
+        require(campaigns[uuid].goalAmount > campaigns[uuid].totalContributions, "Campaign already funded the goal amount");
+
+        Campaign storage campaign = campaigns[uuid];
+
+        if (campaign.contributors[msg.sender].amount == 0 && !campaign.contributors[msg.sender].isInKeys) {
+            // Adding the donator to the contributors list if not already present
+            campaign.contributorsKeys.push(msg.sender);
+            campaign.contributors[msg.sender].isInKeys = true;
+        }
+
+        // Updating the contributor's information
+        campaign.contributors[msg.sender].donator = msg.sender;
+        campaign.contributors[msg.sender].amount += msg.value;
+        campaign.contributors[msg.sender].date = block.timestamp;
+        campaign.totalContributions += msg.value;
+
+        if (campaign.totalContributions >= campaign.goalAmount) {
+            emit CampaignCompleted(campaign.uuid, block.timestamp);
+        }
+
+        // New contribution
+        emit Contribution(campaign.uuid, msg.sender, msg.value, block.timestamp);
     }
 
-    function withdrawFunds() external onlyOwner campaignEnded {
-        require(
-            totalContributions >= goalAmount,
-            "Withdrawal not allowed, goal not met"
-        );
+    function getCampaignDonation(string memory uuid) public {
+        require(bytes(campaigns[uuid].uuid).length > 0, "Campaign doesn't exist");
+        Campaign storage campaign = campaigns[uuid];
+        require(campaign.endDate < block.timestamp || campaign.goalAmount <= campaign.totalContributions, "Campaign needs to be at its end date or fully funded");
+        require(campaign.owner == msg.sender, "Only the campaign owner can retrieve the campaign funding");
+        require(!campaign.isOwnerRetrievedDonations, "The owner of this campaign already got their donation!");
 
-        // Transfer funds to the owner
-        payable(owner).transfer(totalContributions);
-        emit Withdrawal(totalContributions, block.timestamp);
+        uint256 amount = campaign.totalContributions;
+        campaign.totalContributions = 0;
+
+        // Transfer the funds to the campaign owner
+        (bool success, ) = campaign.owner.call{value: amount}("");
+        if (!success) {
+            // restoring the campaign amount
+            campaign.totalContributions = amount;
+            return;
+        }
+        campaign.isOwnerRetrievedDonations = true;
+        emit FundsRetrievedByCampaignOwner(uuid, campaign.owner, amount);
     }
 
-    function campaignEnd() external onlyOwner {
-        require(block.timestamp >= endDate, "Campaign has not ended yet");
-        // If the goal is achieved, the funds are transferred to the owner
-        if (totalContributions >= goalAmount) {
-            payable(owner).transfer(totalContributions);
+    function getMoneyBackFromCampaign(string memory uuid) public {
+        require(bytes(campaigns[uuid].uuid).length > 0, "Campaign doesn't exist");
+        Campaign storage campaign = campaigns[uuid];
+        require(campaign.endDate > block.timestamp, "Campaign already finished cannot retreivied the money");
+        require(campaign.owner != msg.sender, "Owner can withdraw any money because the owner cannot donate it for a campaign that he owns.");
+
+        uint256 amount = campaigns[uuid].contributors[msg.sender].amount;
+        campaigns[uuid].contributors[msg.sender].amount = 0;
+        require(amount > 0, "No amount to refund");
+
+        // Transfer the funds to the campaign owner
+        (bool success, ) = campaign.owner.call{value: amount}("");
+        if (success) {
+            campaign.totalContributions -= amount;
+            // updating the new value of the contributation
+            campaigns[uuid].contributors[msg.sender].date = block.timestamp;
+            emit FundsRetrieved(uuid, msg.sender, amount);
         } else {
-            // Refund all contributors
-            for (uint256 i = 0; i < contributorsKeys.length; i++) {
-                address contributor = contributorsKeys[i];
-                uint256 refundAmount = contributors[contributor];
-
-                if (refundAmount > 0) {
-                    // Reset contributor balance
-                    contributors[contributor] = 0;
-                    // Refund the contributor
-                    payable(contributor).transfer(refundAmount);
-                    emit Refund(contributor, refundAmount, block.timestamp);
-                }
-            }
+            // restoring the value
+            campaigns[uuid].contributors[msg.sender].amount = amount;
         }
     }
 }

@@ -1,7 +1,5 @@
 'use client';
-import DisplayCampaign from '@/components/campaigns/displaycampaign.component';
 import React, { useEffect, useState } from 'react'
-import Drawer from '@/components/campaigns/drawer.component';
 import { useSearchParams } from 'next/navigation';
 import { genericToast } from '@/utils/toast';
 import { Campaign } from '@prisma/client';

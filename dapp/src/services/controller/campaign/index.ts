@@ -254,10 +254,11 @@ export async function getCampaignByIdWithAllData(id: number) : Promise<IDisplayC
         if (!res) {
             return null;
         }
+        const sortedContributers = (res.contributers ?? []).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         const data = {
             campaign: res,
             owner: res?.owner,
-            contributers: res?.contributers ?? [],
+            contributers: sortedContributers,
             rewards: res?.rewards ?? [],
         }
         return data

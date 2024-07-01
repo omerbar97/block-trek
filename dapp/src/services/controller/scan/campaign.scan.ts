@@ -67,12 +67,14 @@ async function updateContributionInDbForCampaign(campaignId: number, contributer
 async function updateCampaignDetailsInDb(campaignFromDb: Campaign, campaignFromBC: CampaignFromBlockchain) {
     console.log("updating campaign details from blockchain for campaign id: " + campaignFromDb.id)
     try {
-        campaignFromDb.updatedAt = new Date()
-        campaignFromDb.collected = bigintToString(campaignFromBC.totalContributions)
-        campaignFromDb.isFinished = campaignFromBC.totalContributions >= campaignFromBC.goalAmount
-        campaignFromDb.isFailed = getUnixTime(new Date()) > campaignFromBC.endDate
-        campaignFromDb.isOwnerRetrievedDonations = campaignFromBC.isOwnerRetrievedDonations
-        await updateCampaignInDbByUuid(campaignFromDb.uuid, campaignFromDb)
+        const data = {
+            updatedAt: new Date(),
+            collected: bigintToString(campaignFromBC.totalContributions),
+            isFinished: campaignFromBC.totalContributions >= campaignFromBC.goalAmount,
+            isFailed: getUnixTime(new Date()) > campaignFromBC.endDate,
+            isOwnerRetrievedDonations: campaignFromBC.isOwnerRetrievedDonations,
+        }
+        await updateCampaignInDbByUuid(campaignFromDb.uuid, data)
     } catch (error) {
         console.log("failed to update campaign details from blockchain for campaign id: " + campaignFromDb.id + " " + error)
     }
