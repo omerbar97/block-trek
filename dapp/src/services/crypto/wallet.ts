@@ -33,9 +33,7 @@ export async function connectMetamaskWallet() : Promise<{
             walletAddress: address
         }
         const result = await axios.post('/api/owner', data)
-        console.log(result)
         if (result.status !== 200) {
-            // failed
             throw new Error(result.data.message)
         }
         var d = {

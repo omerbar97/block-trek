@@ -51,7 +51,6 @@ contract CampaignFactory {
     event FundsRetrievedByCampaignOwner(string uuid, address owner, uint256 amount);
     event FundsRetrieved(string uuid, address owner, uint256 amount);
 
-    // Function to create a new campaign
     function createCampaign(
         string memory uuid,
         string memory campaignName,
@@ -140,12 +139,10 @@ contract CampaignFactory {
         Campaign storage campaign = campaigns[uuid];
 
         if (campaign.contributors[msg.sender].amount == 0 && !campaign.contributors[msg.sender].isInKeys) {
-            // Adding the donator to the contributors list if not already present
             campaign.contributorsKeys.push(msg.sender);
             campaign.contributors[msg.sender].isInKeys = true;
         }
 
-        // Updating the contributor's information
         campaign.contributors[msg.sender].donator = msg.sender;
         campaign.contributors[msg.sender].amount += msg.value;
         campaign.contributors[msg.sender].date = block.timestamp;
@@ -155,7 +152,6 @@ contract CampaignFactory {
             emit CampaignCompleted(campaign.uuid, block.timestamp);
         }
 
-        // New contribution
         emit Contribution(campaign.uuid, msg.sender, msg.value, block.timestamp);
     }
 
@@ -169,10 +165,8 @@ contract CampaignFactory {
         uint256 amount = campaign.totalContributions;
         campaign.totalContributions = 0;
 
-        // Transfer the funds to the campaign owner
         (bool success, ) = campaign.owner.call{value: amount}("");
         if (!success) {
-            // restoring the campaign amount
             campaign.totalContributions = amount;
             return;
         }
@@ -190,15 +184,12 @@ contract CampaignFactory {
         campaigns[uuid].contributors[msg.sender].amount = 0;
         require(amount > 0, "No amount to refund");
 
-        // Transfer the funds to the campaign owner
         (bool success, ) = campaign.owner.call{value: amount}("");
         if (success) {
             campaign.totalContributions -= amount;
-            // updating the new value of the contributation
             campaigns[uuid].contributors[msg.sender].date = block.timestamp;
             emit FundsRetrieved(uuid, msg.sender, amount);
         } else {
-            // restoring the value
             campaigns[uuid].contributors[msg.sender].amount = amount;
         }
     }
@@ -215,7 +206,11 @@ const Transparency = () => {
                     </h2>
                     <p className="text-lg leading-relaxed mb-8 font-mono">
                         This smart contract is deployed on{' '}
-                        <a href={CONTRACT_URL} className="text-indigo-500 hover:text-indigo-400 font-semibold underline">
+                        <a 
+                        href={CONTRACT_URL} 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-indigo-500 hover:text-indigo-400 font-semibold underline">
                             {CONTRACT_URL}
                         </a>{' '}
                         with address:{' '}
