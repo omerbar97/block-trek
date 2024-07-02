@@ -4,6 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "hardhat": "osascript -e 'tell app \"Terminal\"' -e 'do script \"./start.sh\"' -e 'end tell'",
+    "hardhat-deploy": "sleep 3 && cd ../web3-hardhat && npx hardhat run --network localhost scripts/deploy.ts",
+    "all": "npm run hardhat",
     "debug": "NODE_OPTIONS='--inspect' next dev",
     "build": "next build",
     "start": "next start",

@@ -31,6 +31,7 @@ export const getCampaignFactoryContract = async () => {
         const signer = provider.getSigner(0)
         const abi = await generateABI();
         const CampaignContract = await new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
+        console.log(CampaignContract)
 
         CampaignContract.on("Contribution", async (uuid: string, contributor: string, amount: bigint, time: number) => {
             genericToast("New Contribution by " + contributor, "Donated " + amount.toString() + " to " + uuid + " At: " + new Date(time).toString());
