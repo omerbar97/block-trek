@@ -1,9 +1,9 @@
 import { FACTORY_ABI } from "./abi";
 import { CONTRACT_ADDRESS, CONTRACT_URL } from "./contract";
-import { Web3 } from 'web3'
+import { Contract, Web3 } from 'web3'
 
 const web3 = new Web3(new Web3.providers.HttpProvider(CONTRACT_URL));
-let CampaignFactory = undefined
+let CampaignFactory: undefined | Contract<any> = undefined
 
 async function generateABI() {
     // Read the compiled contract JSON file
