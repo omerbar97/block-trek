@@ -34,7 +34,7 @@ const Hero = () => {
                         <h1 className="text-4xl font-bold tracking-tight text-gray-200 sm:text-6xl">
                             A Decentrilized App For Crowd Funding
                         </h1>
-                        <div className="mt-6 text-lg leading-8 text-gray-400">
+                        <div className="mt-6 text-lg leading-8 text-gray-400 font-mono">
                             <TypewriterComponent options={{
                                 strings: ["Explore and fund the future with Block-Trek. Your decentralized crowdfunding hub on the Ethereum blockchain. Empowering innovators, connecting backers, and driving change. Join us in shaping tomorrow's success stories.",
                                     "So, What are you waiting for?",
