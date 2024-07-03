@@ -1,5 +1,5 @@
 // Transparency.tsx
-import { CONTRACT_ADDRESS, CONTRACT_URL } from '@/services/crypto/contract';
+import { CONTRACT_ADDRESS, CONTRACT_URL } from '@/services/crypto/consts';
 import React from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { gml } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Importing the atom-one-dark theme

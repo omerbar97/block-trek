@@ -94,8 +94,6 @@ export async function scanSyncContributionFromBlockchainToDb(campaignUuid: strin
     // now getting all the contributers for that campaign from the Database
     const contributersFromDb = await getContributetrsFromDbByCampaignUuid(campaignUuid)
     const contributersFromBlockchain = await getCampaignContributionByUuid(campaignUuid)
-    console.log(contributersFromDb)
-    console.log(contributersFromBlockchain)
     if (!contributersFromDb) {
         // in the database there is no contributers 
         // syncing the contributers from the blockchain

@@ -16,7 +16,6 @@ async function handleCampaignNotInDb(campaignFromBC: CampaignFromBlockchain) {
         throw new Error("the owner doesn't exsits so not uploading this campaign")
     }
     let goal = bigintToString(campaignFromBC.goalAmount)
-    console.log(campaignFromBC.endDate)
     const data = {
         title: campaignFromBC.campaignName,
         uuid: campaignFromBC.uuid,
