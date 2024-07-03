@@ -133,7 +133,7 @@ contract CampaignFactory {
 
         Campaign storage campaign = campaigns[uuid];
 
-        if (campaign.contributors[msg.sender].amount == 0 && !campaign.contributors[msg.sender].isInKeys) {
+        if (!campaign.contributors[msg.sender].isInKeys) {
             // Adding the donator to the contributors list if not already present
             campaign.contributorsKeys.push(msg.sender);
             campaign.contributors[msg.sender].isInKeys = true;

@@ -4,7 +4,7 @@ async function main() {
   const Contract = await ethers.getContractFactory("CampaignFactory");
   const contract = await Contract.deploy();
   const address = await contract.getAddress()
-  console.log("CampaignFactory deployed to:", address);
+  console.log("CampaignFactory deployed to: ", address);
 }
 
 main().catch((error) => {
