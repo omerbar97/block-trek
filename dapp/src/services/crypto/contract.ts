@@ -2,10 +2,8 @@ import { Contract, ethers } from 'ethers';
 import { FACTORY_ABI } from './abi';
 import { getProviders } from './wallet';
 import { genericToast } from '@/utils/toast';
+import { CONTRACT_ADDRESS, CONTRACT_URL } from './consts';
 
-export const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-export const CONTRACT_URL = "http://localhost:8545"
-export const CONTRACT_NAME = "CampaignFactory"
 
 
 async function generateABI() {
