@@ -70,7 +70,7 @@ async function updateCampaignDetailsInDb(campaignFromDb: Campaign, campaignFromB
             updatedAt: new Date(),
             collected: bigintToString(campaignFromBC.totalContributions),
             isFinished: campaignFromBC.totalContributions >= campaignFromBC.goalAmount,
-            isFailed: getUnixTime(new Date()) > campaignFromBC.endDate,
+            isFailed: getUnixTime(new Date()) > campaignFromBC.endDate && campaignFromBC.totalContributions < campaignFromBC.goalAmount,
             isOwnerRetrievedDonations: campaignFromBC.isOwnerRetrievedDonations,
         }
         await updateCampaignInDbByUuid(campaignFromDb.uuid, data)
@@ -93,8 +93,11 @@ export async function handleCampaignsAndInsertToDb(uuid: string) {
     if (contributionFromDb === null) {
         throw new Error("failed to get campaign from db")
     }
-    await updateContributionInDbForCampaign(campaignFromDb.id, contributionFromDb, contributersFromBlockchain)
-    await updateCampaignDetailsInDb(campaignFromDb, campaignFromBC)
+    // we will update the campaign state only in case the owner didn't retreived their funding
+    if (!campaignFromBC.isOwnerRetrievedDonations) {
+        await updateContributionInDbForCampaign(campaignFromDb.id, contributionFromDb, contributersFromBlockchain)
+        await updateCampaignDetailsInDb(campaignFromDb, campaignFromBC)
+    }
 }
 
 async function syncCampaignsBetweenBlockchainAndDb(campaignsFromDb: Campaign[], campaignsUuidFromBC: string[]) {

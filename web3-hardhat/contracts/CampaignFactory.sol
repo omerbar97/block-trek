@@ -35,15 +35,14 @@ contract CampaignFactory {
 
     event CampaignCreated (
         string uuid,
+        string campaignName,
         address indexed owner
     );
     
-    event Contribution(string campaignUuid, address indexed contributor, uint256 amount, uint256 time);
-    event Refund(string campaignUuid, address indexed contributor, uint256 amount, uint256 time);
-    event Withdrawal(string campaignUuid, uint256 amount, uint256 time);
-    event CampaignCompleted(string campaignUuid, uint256 time);
-    event FundsRetrievedByCampaignOwner(string uuid, address owner, uint256 amount);
-    event FundsRetrieved(string uuid, address owner, uint256 amount);
+    event Contribution(string campaignName, address indexed contributor, uint256 amount, uint256 time);
+    event Refund(string campaignName, address indexed contributor, uint256 amount, uint256 time);
+    event CampaignCompleted(string campaignName, uint256 goalAmount ,uint256 time);
+    event FundsRetrievedByCampaignOwner(string campaignName, address owner, uint256 amount);
 
     // Function to create a new campaign
     function createCampaign(
@@ -69,7 +68,7 @@ contract CampaignFactory {
         campaigns[uuid].isOwnerRetrievedDonations = false;
         deployedCampaignsUuid.push(uuid);
         delete campaigns[uuid].contributorsKeys;
-        emit CampaignCreated(uuid, msg.sender);
+        emit CampaignCreated(uuid, campaignName, msg.sender);
     }
 
     function getDeployedCampaignsUuid() external view returns (string[] memory) {
@@ -146,23 +145,28 @@ contract CampaignFactory {
         campaign.totalContributions += msg.value;
 
         if (campaign.totalContributions >= campaign.goalAmount) {
-            emit CampaignCompleted(campaign.uuid, block.timestamp);
+            emit CampaignCompleted(campaign.campaignName, campaign.totalContributions ,block.timestamp);
         }
 
         // New contribution
-        emit Contribution(campaign.uuid, msg.sender, msg.value, block.timestamp);
+        emit Contribution(campaign.campaignName, msg.sender, msg.value, block.timestamp);
     }
 
     function getCampaignDonation(string memory uuid) public {
         require(bytes(campaigns[uuid].uuid).length > 0, "Campaign doesn't exist");
         Campaign storage campaign = campaigns[uuid];
-        require(campaign.endDate < block.timestamp || campaign.goalAmount <= campaign.totalContributions, "Campaign needs to be at its end date or fully funded");
+        require(campaign.endDate < block.timestamp, "Campaign needs to be at its end date to be able to withdraw all the funds");
         require(campaign.owner == msg.sender, "Only the campaign owner can retrieve the campaign funding");
         require(!campaign.isOwnerRetrievedDonations, "The owner of this campaign already got their donation!");
 
         uint256 amount = campaign.totalContributions;
+        if (amount < campaign.goalAmount) {
+            // Not all the contribution was succssfully made, sending back all the contributer their funding
+            sendMoneyBackToAllContributors(campaign.uuid);
+            return;
+        }
+        
         campaign.totalContributions = 0;
-
         // Transfer the funds to the campaign owner
         (bool success, ) = campaign.owner.call{value: amount}("");
         if (!success) {
@@ -171,14 +175,14 @@ contract CampaignFactory {
             return;
         }
         campaign.isOwnerRetrievedDonations = true;
-        emit FundsRetrievedByCampaignOwner(uuid, campaign.owner, amount);
+        emit FundsRetrievedByCampaignOwner(campaign.campaignName, campaign.owner, amount);
     }
 
     function getMoneyBackFromCampaign(string memory uuid) public {
         require(bytes(campaigns[uuid].uuid).length > 0, "Campaign doesn't exist");
         Campaign storage campaign = campaigns[uuid];
-        require(campaign.endDate > block.timestamp, "Campaign already finished cannot retreivied the money");
-        require(campaign.owner != msg.sender, "Owner can withdraw any money because the owner cannot donate it for a campaign that he owns.");
+        require(campaign.endDate > block.timestamp || campaign.goalAmount > campaign.totalContributions, "Campaign already finished cannot retreivied the money, Or the campaign goal amount was already collected");
+        require(campaign.owner != msg.sender, "The owner of the campaign cannot withdraw money from he's own campaign because he cannot donate to it.");
 
         uint256 amount = campaigns[uuid].contributors[msg.sender].amount;
         campaigns[uuid].contributors[msg.sender].amount = 0;
@@ -190,10 +194,32 @@ contract CampaignFactory {
             campaign.totalContributions -= amount;
             // updating the new value of the contributation
             campaigns[uuid].contributors[msg.sender].date = block.timestamp;
-            emit FundsRetrieved(uuid, msg.sender, amount);
+            emit Refund(campaigns[uuid].campaignName, msg.sender, amount, block.timestamp);
         } else {
             // restoring the value
             campaigns[uuid].contributors[msg.sender].amount = amount;
+        }
+    }
+
+
+    function sendMoneyBackToAllContributors(string memory uuid) internal {
+        require(bytes(campaigns[uuid].uuid).length > 0, "Campaign doesn't exist");
+        Campaign storage campaign = campaigns[uuid];
+        require(campaign.totalContributions > 0, "No contribution found to refund on this campaign");
+        require(campaign.endDate < block.timestamp, "Campaign must be finished to perform this action");
+        require(campaign.goalAmount > campaign.totalContributions, "The campaign goal amount must be greator then the total contribution (a.k.a campaign failed)");
+
+        for (uint256 i = 0; i < campaigns[uuid].contributorsKeys.length; i++) {
+            address contributerOwner = campaigns[uuid].contributorsKeys[i];
+            uint256 amountToRefund = campaigns[uuid].contributors[contributerOwner].amount;
+            campaigns[uuid].contributors[contributerOwner].amount = 0;
+            // Refund the contributor
+            (bool success, ) = contributerOwner.call{value: amountToRefund}("");
+            if (!success) {
+                campaigns[uuid].contributors[contributerOwner].amount = amountToRefund;
+            } else {
+                campaign.totalContributions -= amountToRefund;
+            }
         }
     }
 }
