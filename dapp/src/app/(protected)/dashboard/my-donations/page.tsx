@@ -2,6 +2,7 @@
 import CardContribution from '@/components/campaigns/cardcontribution.component';
 import GhostCard from '@/components/campaigns/ghostcard.component';
 import { useWallet } from '@/hooks/wallet.hook';
+import { requestBlockchainForRefund } from '@/services/crypto/contract';
 import { getAllContributionCampaignsByWalletAddress } from '@/services/frontend/campaign';
 import { genericToast } from '@/utils/toast';
 import { Campaign } from '@prisma/client';
@@ -75,6 +76,7 @@ const MyDonationsPage = () => {
             <CardContribution
               key={campaign.id}
               onClick={() => {
+                requestBlockchainForRefund(campaign.uuid)
               }}
               campaign={campaign}
               amount={amounts ? amounts[index] : BigInt(NaN)}

@@ -41,16 +41,16 @@ contract CampaignFactory {
 
     event CampaignCreated (
         string uuid,
+        string campaignName,
         address indexed owner
     );
     
-    event Contribution(string campaignUuid, address indexed contributor, uint256 amount, uint256 time);
-    event Refund(string campaignUuid, address indexed contributor, uint256 amount, uint256 time);
-    event Withdrawal(string campaignUuid, uint256 amount, uint256 time);
-    event CampaignCompleted(string campaignUuid, uint256 time);
-    event FundsRetrievedByCampaignOwner(string uuid, address owner, uint256 amount);
-    event FundsRetrieved(string uuid, address owner, uint256 amount);
+    event Contribution(string campaignName, address indexed contributor, uint256 amount, uint256 time);
+    event Refund(string campaignName, address indexed contributor, uint256 amount, uint256 time);
+    event CampaignCompleted(string campaignName, uint256 goalAmount ,uint256 time);
+    event FundsRetrievedByCampaignOwner(string campaignName, address owner, uint256 amount);
 
+    // Function to create a new campaign
     function createCampaign(
         string memory uuid,
         string memory campaignName,
@@ -74,7 +74,7 @@ contract CampaignFactory {
         campaigns[uuid].isOwnerRetrievedDonations = false;
         deployedCampaignsUuid.push(uuid);
         delete campaigns[uuid].contributorsKeys;
-        emit CampaignCreated(uuid, msg.sender);
+        emit CampaignCreated(uuid, campaignName, msg.sender);
     }
 
     function getDeployedCampaignsUuid() external view returns (string[] memory) {
@@ -138,21 +138,24 @@ contract CampaignFactory {
 
         Campaign storage campaign = campaigns[uuid];
 
-        if (campaign.contributors[msg.sender].amount == 0 && !campaign.contributors[msg.sender].isInKeys) {
+        if (!campaign.contributors[msg.sender].isInKeys) {
+            // Adding the donator to the contributors list if not already present
             campaign.contributorsKeys.push(msg.sender);
             campaign.contributors[msg.sender].isInKeys = true;
         }
 
+        // Updating the contributor's information
         campaign.contributors[msg.sender].donator = msg.sender;
         campaign.contributors[msg.sender].amount += msg.value;
         campaign.contributors[msg.sender].date = block.timestamp;
         campaign.totalContributions += msg.value;
 
         if (campaign.totalContributions >= campaign.goalAmount) {
-            emit CampaignCompleted(campaign.uuid, block.timestamp);
+            emit CampaignCompleted(campaign.campaignName, campaign.totalContributions ,block.timestamp);
         }
 
-        emit Contribution(campaign.uuid, msg.sender, msg.value, block.timestamp);
+        // New contribution
+        emit Contribution(campaign.campaignName, msg.sender, msg.value, block.timestamp);
     }
 
     function getCampaignDonation(string memory uuid) public {
@@ -165,13 +168,15 @@ contract CampaignFactory {
         uint256 amount = campaign.totalContributions;
         campaign.totalContributions = 0;
 
+        // Transfer the funds to the campaign owner
         (bool success, ) = campaign.owner.call{value: amount}("");
         if (!success) {
+            // restoring the campaign amount
             campaign.totalContributions = amount;
             return;
         }
         campaign.isOwnerRetrievedDonations = true;
-        emit FundsRetrievedByCampaignOwner(uuid, campaign.owner, amount);
+        emit FundsRetrievedByCampaignOwner(campaign.campaignName, campaign.owner, amount);
     }
 
     function getMoneyBackFromCampaign(string memory uuid) public {
@@ -184,12 +189,15 @@ contract CampaignFactory {
         campaigns[uuid].contributors[msg.sender].amount = 0;
         require(amount > 0, "No amount to refund");
 
+        // Transfer the funds to the campaign owner
         (bool success, ) = campaign.owner.call{value: amount}("");
         if (success) {
             campaign.totalContributions -= amount;
+            // updating the new value of the contributation
             campaigns[uuid].contributors[msg.sender].date = block.timestamp;
-            emit FundsRetrieved(uuid, msg.sender, amount);
+            emit Refund(campaigns[uuid].campaignName, msg.sender, amount, block.timestamp);
         } else {
+            // restoring the value
             campaigns[uuid].contributors[msg.sender].amount = amount;
         }
     }

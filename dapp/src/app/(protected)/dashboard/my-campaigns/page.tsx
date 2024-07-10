@@ -8,6 +8,7 @@ import { getAllOwnerCampaignByWalletAddressFromServer, getCampaignFullDataFromSe
 import { useWallet } from '@/hooks/wallet.hook';
 import axios from 'axios';
 import CardOwnerCampaign from '@/components/campaigns/cardownercampaign.component';
+import { requestBlockchainForOwnerFunds } from '@/services/crypto/contract';
 
 const isWalletOwnerAndSessionOkay = async (walletAddress: string) => {
     const result = await axios.get(`/api/owner?walletAddress=${walletAddress}`)
@@ -68,6 +69,7 @@ const FundCampaignsPage = () => {
             <CardOwnerCampaign
               key={campaign.id}
               onClick={() => {
+                requestBlockchainForOwnerFunds(campaign.uuid)
               }}
               campaign={campaign}
             />

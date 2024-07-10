@@ -3,6 +3,7 @@ import { FACTORY_ABI } from './abi';
 import { getProviders } from './wallet';
 import { genericToast } from '@/utils/toast';
 import { CONTRACT_ADDRESS, CONTRACT_URL } from './consts';
+import { wetToEthBigIntFormat } from '@/utils/crypto';
 
 
 async function generateABI() {
@@ -28,31 +29,37 @@ export const getCampaignFactoryContract = async () => {
         const signer = provider.getSigner(0)
         const abi = await generateABI();
         const CampaignContract = await new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
-        console.log(CampaignContract)
 
-        CampaignContract.on("Contribution", async (uuid: string, contributor: string, amount: bigint, time: number) => {
-            genericToast("New Contribution by " + contributor, "Donated " + amount.toString() + " to " + uuid + " At: " + new Date(time).toString());
+        // event Contribution(string campaignName, address indexed contributor, uint256 amount, uint256 time);
+        // event Refund(string campaignName, address indexed contributor, uint256 amount, uint256 time);
+        // event CampaignCompleted(string campaignName, uint256 goalAmount ,uint256 time);
+        // event FundsRetrievedByCampaignOwner(string campaignName, address owner, uint256 amount);
+        // event CampaignCreated (
+        //     string uuid,
+        //     string campaignName,
+        //     address indexed owner
+        // );
+
+        CampaignContract.on("Contribution", async (campaignName: string, contributor: string, amount: bigint, time: number) => {
+            genericToast("New Contribution by " + contributor, "Donated " + wetToEthBigIntFormat(amount) + " to " + campaignName + " At: " + new Date(time).toString());
           });
       
-          CampaignContract.on("Refund", async (uuid: string, contributor: string, amount: bigint, time: number) => {
-            genericToast("Refund Issued to " + contributor, "Amount: " + amount.toString() + " for campaign " + uuid + " At: " + new Date(time).toString());
-          });
+        CampaignContract.on("Refund", async (campaignName: string, contributor: string, amount: bigint, time: number) => {
+        genericToast("Refund Issued to " + contributor, "Amount: " + wetToEthBigIntFormat(amount) + " for campaign " + campaignName + " At: " + new Date(time).toString());
+        });
+    
+        CampaignContract.on("CampaignCompleted", async (campaignName: string, goalAmount: bigint,time: number) => {
+        genericToast("'"+ campaignName +"' Campaign Completed", " At: " + new Date(time).toString() + " With amount of: " + (goalAmount));
+        });
+    
+        CampaignContract.on("FundsRetrievedByCampaignOwner", async (campaignName: string, owner: string, amount: bigint) => {
+        genericToast("Funds Retrieved by Campaign Owner", "The Owner '" + owner + "' Retreived their funding Amount " + amount.toString() + " For " + campaignName + " Campaign");
+        });
+
+        CampaignContract.on("CampaignCreated", async (uuid: string, campaignName: string, address: string) => {
+        genericToast("A New Campaign Was Created!", "The Owner '" + address + "' Created A New Campaign Called '" + campaignName + "'");
+        });
       
-          CampaignContract.on("Withdrawal", async (uuid: string, amount: bigint, time: number) => {
-            genericToast("Withdrawal from Campaign " + uuid, "Amount: " + amount.toString() + " At: " + new Date(time).toString());
-          });
-      
-          CampaignContract.on("CampaignCompleted", async (uuid: string, time: number) => {
-            genericToast("Campaign Completed", "Campaign UUID: " + uuid + " At: " + new Date(time).toString());
-          });
-      
-          CampaignContract.on("FundsRetrievedByCampaignOwner", async (uuid: string, owner: string, amount: bigint) => {
-            genericToast("Funds Retrieved by Campaign Owner", "Owner: " + owner + " Amount: " + amount.toString() + " for campaign " + uuid);
-          });
-      
-          CampaignContract.on("FundsRetrieved", async (uuid: string, owner: string, amount: bigint) => {
-            genericToast("Funds Retrieved", "Owner: " + owner + " Amount: " + amount.toString() + " for campaign " + uuid);
-          });
           CampaignContractFrontend = CampaignContract
         return CampaignContract;
     } catch (e) {
@@ -189,6 +196,40 @@ export const requestBlockchainForRefund = async (
         }
     } catch (error) {
         console.log("Failed to refund from campaign ", uuid, " with error: ", error);
+        return false;
+    }
+}
+
+export const requestBlockchainForOwnerFunds = async (
+    uuid: string,
+) => {
+    try {
+        const service = await getCampaignFactoryContract();
+        const provider = await getProviders()
+        if (service && provider) {
+            const signer = provider.getSigner();
+            const signedService = service.connect(signer);
+            const gasLimit = await signedService.estimateGas.getCampaignDonation(
+                uuid
+            );
+            // Fetch current gas fee data
+            const feeData = await provider.getFeeData();
+            const maxFeePerGas = feeData.maxFeePerGas?.mul(2) || ethers.utils.parseUnits('100', 'gwei');
+            const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas?.mul(2) || ethers.utils.parseUnits('2', 'gwei');
+            const transaction = await signedService.getCampaignDonation(uuid, 
+                {   
+                    gasLimit: gasLimit.add(10000),
+                    maxFeePerGas: maxFeePerGas,
+                    maxPriorityFeePerGas: maxPriorityFeePerGas
+                });
+            await transaction.wait();
+            return true
+        } else {
+            console.log("Failed to obtain campaign factory contract or provider.");
+            return false;
+        }
+    } catch (error) {
+        console.log("Failed to get owner funding from campaign ", uuid, " with error: ", error);
         return false;
     }
 }
