@@ -5,7 +5,6 @@ import { genericToast } from '@/utils/toast';
 import { CONTRACT_ADDRESS, CONTRACT_URL } from './consts';
 
 
-
 async function generateABI() {
     // Read the compiled contract JSON file
     const compiledContract = JSON.parse(FACTORY_ABI);
@@ -76,6 +75,14 @@ export const requestBlockchainForNewCampaign = async (
         if (service && providers) {
             const signer = await providers.getSigner()
             const signedService = service.connect(signer);
+            console.log(
+                uuid, 
+                campaignName,
+                description,
+                endDate,
+                goalAmountInWei,
+                campaignType
+            )
             // Estimate gas
             const gasLimit = await signedService.estimateGas.createCampaign(
                 uuid, 
@@ -85,13 +92,23 @@ export const requestBlockchainForNewCampaign = async (
                 goalAmountInWei,
                 campaignType
             );
+            // Fetch current gas fee data
+            const feeData = await providers.getFeeData();
+            // Set gas fee parameters
+            const maxFeePerGas = feeData.maxFeePerGas?.mul(2) || ethers.utils.parseUnits('100', 'gwei');
+            const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas?.mul(2) || ethers.utils.parseUnits('2', 'gwei');
+            
             const transaction = await signedService.createCampaign(
                 uuid, 
                 campaignName,
                 description,
                 endDate,
                 goalAmountInWei,
-                campaignType, { gasLimit: gasLimit.add(10000) });
+                campaignType, { 
+                    gasLimit: gasLimit.add(10000),
+                    maxFeePerGas: maxFeePerGas,
+                    maxPriorityFeePerGas: maxPriorityFeePerGas
+                });
 
             await transaction.wait();
             console.log(transaction);
@@ -120,7 +137,16 @@ export const requestBlockchainForDonation = async (
             const gasLimit = await signedService.estimateGas.donate(
                 uuid, { value: amount }
             );
-            const transaction = await signedService.donate(uuid, { value: amount, gasLimit: gasLimit.add(25000) });
+            // Fetch current gas fee data
+            const feeData = await provider.getFeeData();
+            const maxFeePerGas = feeData.maxFeePerGas?.mul(2) || ethers.utils.parseUnits('100', 'gwei');
+            const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas?.mul(2) || ethers.utils.parseUnits('2', 'gwei');
+            const transaction = await signedService.donate(uuid, {
+                    value: amount,
+                    gasLimit: gasLimit.add(10000),
+                    maxFeePerGas: maxFeePerGas,
+                    maxPriorityFeePerGas: maxPriorityFeePerGas
+                });
             await transaction.wait();
             return true
         } else {
@@ -145,7 +171,16 @@ export const requestBlockchainForRefund = async (
             const gasLimit = await signedService.estimateGas.getMoneyBackFromCampaign(
                 uuid
             );
-            const transaction = await signedService.getMoneyBackFromCampaign(uuid, { gasLimit: gasLimit.add(20000) });
+            // Fetch current gas fee data
+            const feeData = await provider.getFeeData();
+            const maxFeePerGas = feeData.maxFeePerGas?.mul(2) || ethers.utils.parseUnits('100', 'gwei');
+            const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas?.mul(2) || ethers.utils.parseUnits('2', 'gwei');
+            const transaction = await signedService.getMoneyBackFromCampaign(uuid, 
+                {   
+                    gasLimit: gasLimit.add(10000),
+                    maxFeePerGas: maxFeePerGas,
+                    maxPriorityFeePerGas: maxPriorityFeePerGas
+                });
             await transaction.wait();
             return true
         } else {
