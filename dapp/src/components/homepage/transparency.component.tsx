@@ -161,13 +161,18 @@ contract CampaignFactory {
     function getCampaignDonation(string memory uuid) public {
         require(bytes(campaigns[uuid].uuid).length > 0, "Campaign doesn't exist");
         Campaign storage campaign = campaigns[uuid];
-        require(campaign.endDate < block.timestamp || campaign.goalAmount <= campaign.totalContributions, "Campaign needs to be at its end date or fully funded");
+        require(campaign.endDate < block.timestamp, "Campaign needs to be at its end date to be able to withdraw all the funds");
         require(campaign.owner == msg.sender, "Only the campaign owner can retrieve the campaign funding");
         require(!campaign.isOwnerRetrievedDonations, "The owner of this campaign already got their donation!");
 
         uint256 amount = campaign.totalContributions;
+        if (amount < campaign.goalAmount) {
+            // Not all the contribution was succssfully made, sending back all the contributer their funding
+            sendMoneyBackToAllContributors(campaign.uuid);
+            return;
+        }
+        
         campaign.totalContributions = 0;
-
         // Transfer the funds to the campaign owner
         (bool success, ) = campaign.owner.call{value: amount}("");
         if (!success) {
@@ -182,8 +187,8 @@ contract CampaignFactory {
     function getMoneyBackFromCampaign(string memory uuid) public {
         require(bytes(campaigns[uuid].uuid).length > 0, "Campaign doesn't exist");
         Campaign storage campaign = campaigns[uuid];
-        require(campaign.endDate > block.timestamp, "Campaign already finished cannot retreivied the money");
-        require(campaign.owner != msg.sender, "Owner can withdraw any money because the owner cannot donate it for a campaign that he owns.");
+        require(campaign.endDate > block.timestamp || campaign.goalAmount > campaign.totalContributions, "Campaign already finished cannot retreivied the money, Or the campaign goal amount was already collected");
+        require(campaign.owner != msg.sender, "The owner of the campaign cannot withdraw money from he's own campaign because he cannot donate to it.");
 
         uint256 amount = campaigns[uuid].contributors[msg.sender].amount;
         campaigns[uuid].contributors[msg.sender].amount = 0;
@@ -199,6 +204,28 @@ contract CampaignFactory {
         } else {
             // restoring the value
             campaigns[uuid].contributors[msg.sender].amount = amount;
+        }
+    }
+
+
+    function sendMoneyBackToAllContributors(string memory uuid) internal {
+        require(bytes(campaigns[uuid].uuid).length > 0, "Campaign doesn't exist");
+        Campaign storage campaign = campaigns[uuid];
+        require(campaign.totalContributions > 0, "No contribution found to refund on this campaign");
+        require(campaign.endDate < block.timestamp, "Campaign must be finished to perform this action");
+        require(campaign.goalAmount > campaign.totalContributions, "The campaign goal amount must be greator then the total contribution (a.k.a campaign failed)");
+
+        for (uint256 i = 0; i < campaigns[uuid].contributorsKeys.length; i++) {
+            address contributerOwner = campaigns[uuid].contributorsKeys[i];
+            uint256 amountToRefund = campaigns[uuid].contributors[contributerOwner].amount;
+            campaigns[uuid].contributors[contributerOwner].amount = 0;
+            // Refund the contributor
+            (bool success, ) = contributerOwner.call{value: amountToRefund}("");
+            if (!success) {
+                campaigns[uuid].contributors[contributerOwner].amount = amountToRefund;
+            } else {
+                campaign.totalContributions -= amountToRefund;
+            }
         }
     }
 }

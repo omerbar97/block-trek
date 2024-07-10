@@ -1,0 +1,57 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:latest
+    container_name: blocktrek-database
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: blocktrek
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U blocktrek"]
+      interval: 10s
+      retries: 5
+
+  hardhat:
+    image: node:latest
+    container_name: blocktrek-local-ethereum
+    build:
+      context: ../web3-hardhat
+      dockerfile: Dockerfile
+    working_dir: /app
+    volumes:
+      - ../web3-hardhat:/app
+    ports:
+      - "8545:8545"
+
+  nextjs:
+    image: node:latest
+    build:
+      context: ../dapp
+      dockerfile: Dockerfile
+    container_name: blocktrek-saas
+    working_dir: /app
+    volumes:
+      - ../dapp:/app
+    environment:
+      - DATABASE_URL=postgresql://test:1234@localhost:5432/blocktrek
+      - GOOGLE_CLIENT_ID=663525962400-4d0qmntf0v0fmracu7gko12im96c1tp5.apps.googleusercontent.com
+      - GOOGLE_CLIENT_SECRET=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
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=BLOCKTREKiadjoqiwhdoaiscn38y48nid0aisnc03hkasnjaxcn219t379hr3538hcixasnckasmd31u9y4571y930ejf0i28y50irne
+      - SITE_URL='http://localhost:3000'
+      - BLOCKCHAIN_URL='http://127.0.0.1:8545/'
+      - BLOCKCHAIN_CONTRACT_ADDRESS='0x5FbDB2315678afecb367f032d93F642f64180aa3'
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+    driver: local
