@@ -7,17 +7,18 @@ services:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: blocktrek
+      PGDATA: /data/postgres
     ports:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U blocktrek"]
       interval: 10s
       retries: 5
 
   hardhat:
-    image: node:latest
     container_name: blocktrek-local-ethereum
     build:
       context: ../web3-hardhat
@@ -29,7 +30,6 @@ services:
       - "8545:8545"
 
   nextjs:
-    image: node:latest
     build:
       context: ../dapp
       dockerfile: Dockerfile
@@ -51,6 +51,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    entrypoint: /app/entrypoint.sh
 
 volumes:
   postgres-data:

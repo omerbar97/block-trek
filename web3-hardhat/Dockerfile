@@ -1,5 +1,5 @@
 # Dockerfile for Hardhat (hardhat)
-FROM node:latest
+FROM node:alpine
 
 WORKDIR /app
 
@@ -8,7 +8,6 @@ COPY package*.json ./
 COPY . .
 
 RUN npm install
-
 
 EXPOSE 8545
 

@@ -12,8 +12,7 @@ COPY . .
 
 # Install npm dependencies and run migrations and generate prisma client
 RUN npm install && \
-    npx prisma migrate dev && \
-    npx prisma generate
+    npm run prisma-migrate-dev
 
 # Expose port 3000 (assuming your Next.js app runs on port 3000)
 EXPOSE 3000
