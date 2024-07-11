@@ -34,10 +34,6 @@ const CardOwnerCampaign: React.FC<CardProps> = ({ onClick, campaign }: CardProps
     const progress = String((Number(BigInt(campaign.collected)) / Number(BigInt(campaign.goal))) * 100);
     const numberProgress = Number(progress)
 
-    const retrieveAllFundsClick = () => {
-        
-    }
-
     return (
         <div className="card w-80 bg-gray-900 shadow-xl overflow-hidden">
             <figure className="px-10 pt-10">
@@ -53,21 +49,21 @@ const CardOwnerCampaign: React.FC<CardProps> = ({ onClick, campaign }: CardProps
                 </span>
                 <Progress value={numberProgress} className='m-2' />
                 <div className="card-actions justify-center">
-                    {((hasDatePassed(campaign.endAt) || campaign.isFailed ) ? 
+                {(campaign.isFailed ? 
                     <>
                         <Button variant={"destructive"}>Campaign Ended</Button>
                     </>
                      : 
                     <>
-                        <Button variant={"connected"}>{(campaign.isFinished ? "Finished Succssfully" : "On Going Campaign...")}</Button>
+                        <Button variant={"connected"}>{(campaign.isFinished ? "Camapaign Finished" : "On Going Campaign...")}</Button>
                     </>)}
-                    {(campaign.isFinished ? 
+                    {(!campaign.isOwnerRetrievedDonations && campaign.isFinished && !campaign.isFailed && hasDatePassed(campaign.createdAt)? 
                     <>
-                        <Button variant={"connected"} onClick={onClick}>Retreive Funds!</Button>
+                        <Button variant={"default"} onClick={onClick}>Get Fundings!</Button>
                     </> 
                     :
                     <>
-                        <Button variant="default" disabled={true}>Retreive Funds!</Button>
+                        <Button variant="default" disabled={true}>Get Fundings!</Button>
                     </>)}
                 </div>
             </div>

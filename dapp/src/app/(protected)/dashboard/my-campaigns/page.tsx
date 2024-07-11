@@ -68,8 +68,18 @@ const FundCampaignsPage = () => {
           campaigns?.map((campaign) => (
             <CardOwnerCampaign
               key={campaign.id}
-              onClick={() => {
-                requestBlockchainForOwnerFunds(campaign.uuid)
+              onClick={async () => {
+                const result = await requestBlockchainForOwnerFunds(campaign.uuid)
+                if (!result) {
+                  genericToast("Failed to get campaign donations from blockchain", "That's a bummer, try again later")
+                } else {
+                  genericToast("You Got Donations!", "Donation Amount Is " + campaign.collected + " WEI")
+                  const requestData = {
+                    campaignUuid: campaign.uuid,
+                  }
+                  // syncing database
+                  const req = await axios.post('/api/scan/campaign', requestData)
+                }
               }}
               campaign={campaign}
             />

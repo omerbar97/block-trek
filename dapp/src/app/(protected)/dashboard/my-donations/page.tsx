@@ -2,6 +2,7 @@
 import CardContribution from '@/components/campaigns/cardcontribution.component';
 import GhostCard from '@/components/campaigns/ghostcard.component';
 import { useWallet } from '@/hooks/wallet.hook';
+import { bigintToString } from '@/services/controller/scan/campaign.scan';
 import { requestBlockchainForRefund } from '@/services/crypto/contract';
 import { getAllContributionCampaignsByWalletAddress } from '@/services/frontend/campaign';
 import { genericToast } from '@/utils/toast';
@@ -75,8 +76,18 @@ const MyDonationsPage = () => {
           campaigns?.map((campaign, index) => (
             <CardContribution
               key={campaign.id}
-              onClick={() => {
-                requestBlockchainForRefund(campaign.uuid)
+              onClick={async () => {
+                const result = await requestBlockchainForRefund(campaign.uuid)
+                if (!result) {
+                  genericToast("Failed to get refund from blockchain", "That's a bummer, try again later")
+                } else {
+                  genericToast("You Got A Refund!", "Refund Amount Is " + (amounts ? amounts[index].toString() : "NaN") + " WEI")
+                  const requestData = {
+                    campaignUuid: campaign.uuid,
+                  }
+                  // syncing database
+                  const req = await axios.post('/api/contribution', requestData)
+                }
               }}
               campaign={campaign}
               amount={amounts ? amounts[index] : BigInt(NaN)}

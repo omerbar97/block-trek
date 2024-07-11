@@ -79,6 +79,21 @@ async function updateCampaignDetailsInDb(campaignFromDb: Campaign, campaignFromB
     }
 }
 
+async function updateCampaignDetailsInDbWithOutCollected(campaignFromDb: Campaign, campaignFromBC: CampaignFromBlockchain) {
+    console.log("updating campaign details from blockchain (without collected) for campaign id: " + campaignFromDb.id)
+    try {
+        const data = {
+            updatedAt: new Date(),
+            isFinished: campaignFromBC.totalContributions >= campaignFromBC.goalAmount,
+            isFailed: getUnixTime(new Date()) > campaignFromBC.endDate && campaignFromBC.totalContributions < campaignFromBC.goalAmount,
+            isOwnerRetrievedDonations: campaignFromBC.isOwnerRetrievedDonations,
+        }
+        await updateCampaignInDbByUuid(campaignFromDb.uuid, data)
+    } catch (error) {
+        console.log("failed to update campaign details from blockchain for campaign id: " + campaignFromDb.id + " " + error)
+    }
+}
+
 export async function handleCampaignsAndInsertToDb(uuid: string) {
     const campaignFromBC = await getCampaignByUuidFromBlockchain(uuid)
     const campaignFromDb = await getCampaignByUuid(uuid)
@@ -97,6 +112,9 @@ export async function handleCampaignsAndInsertToDb(uuid: string) {
     if (!campaignFromBC.isOwnerRetrievedDonations) {
         await updateContributionInDbForCampaign(campaignFromDb.id, contributionFromDb, contributersFromBlockchain)
         await updateCampaignDetailsInDb(campaignFromDb, campaignFromBC)
+    } else if (!campaignFromDb.isOwnerRetrievedDonations){
+        // this is the first time the updating the campaign after it finished
+        await updateCampaignDetailsInDbWithOutCollected(campaignFromDb, campaignFromBC)
     }
 }
 
