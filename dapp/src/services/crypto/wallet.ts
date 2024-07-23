@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import axios from "axios";
+import { genericToast } from "@/utils/toast";
 
 export async function getWalletAddressByProvider(provider: ethers.providers.Web3Provider): Promise<string> {
     const signer = await provider.getSigner();
@@ -21,6 +22,16 @@ export async function connectMetamaskWallet() : Promise<{
         walletValue: string | null,
         message: string}>{
     try {
+        var d;
+        if (window.ethereum === null || window.ethereum === undefined) {
+            d = {
+                provider: null,
+                walletAddress: null,
+                walletValue: null,
+                message: "Please make sure that you have Metamask installed!"
+            }
+            return d
+        }
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
 
@@ -36,7 +47,7 @@ export async function connectMetamaskWallet() : Promise<{
         if (result.status !== 200) {
             throw new Error(result.data.message)
         }
-        var d = {
+        d = {
             provider: provider,
             walletAddress: address,
             walletValue: balanceInEth,
