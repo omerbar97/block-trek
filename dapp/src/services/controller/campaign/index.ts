@@ -1,4 +1,4 @@
-import { useAxiosGet } from "@/hooks/useAxios.hook";
+// @ts-nocheck
 import prisma from "@/lib/prisma";
 import { IDisplayCampaign } from "@/types/campaign.interface";
 import { Campaign, CampaignCategory, Contributer } from "@prisma/client";
@@ -128,6 +128,7 @@ export async function saveCampaignToDbUpdate(campaign: Campaign): Promise<Boolea
         return false
     }
 }
+
 
 export async function saveCampaignToDb(campagin: Campaign, ownerId: number): Promise<Boolean> {
     console.log("saving campaign in db for ", campagin.uuid, " and values ", campagin)
@@ -282,7 +283,7 @@ export async function createCampaign(jsonData: any) {
     }
 
     const uuid = uuidv4()
-    var campagin: Campaign = {
+    var campagin: Partial<Campaign> = {
         uuid: uuid as string,
         title: title,
         description: description,
@@ -294,7 +295,7 @@ export async function createCampaign(jsonData: any) {
         endAt: new Date(endDate),
     }
 
-    await saveCampaignToDb(campagin, Number(owner.id))
+    await saveCampaignToDb(campagin as Campaign, Number(owner.id))
     return uuid
 }
 

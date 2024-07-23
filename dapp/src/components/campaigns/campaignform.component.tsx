@@ -1,5 +1,5 @@
 'use client';
-import React, { ChangeEvent, Ref, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, RefObject, useEffect, useRef, useState } from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
@@ -14,6 +14,8 @@ import DatePickerForCreationCampaign from './dateforcreation.component';
 import { requestBlockchainForNewCampaign } from '@/services/crypto/contract';
 import { getUnixTime } from 'date-fns';
 import { pasreEtherFromStringEtherToWEI } from '@/services/crypto/utils';
+import { BigNumber } from 'ethers';
+import { unknown } from 'zod';
 
 function isYouTubeUrl(url: string): boolean {
     // Regular expression to match YouTube video URLs
@@ -36,10 +38,10 @@ const CampaignForm = () => {
     const [date, setDate] = useState<Date | null>(null)
     const [category, setCategory] = useState<string | null>(null)
     const [type, setType] = useState<string | null>(null)
-    const campaignName = useRef<Ref<HTMLInputElement>>()
-    const campaignDescription = useRef<Ref<HTMLTextAreaElement>>()
-    const campaignVideoLink = useRef<Ref<HTMLInputElement>>()
-    const campaignEthAmount = useRef<Ref<HTMLInputElement>>()
+    const campaignName = useRef<HTMLInputElement>(null)
+    const campaignDescription = useRef<HTMLTextAreaElement>(null)
+    const campaignVideoLink = useRef<HTMLInputElement>(null)
+    const campaignEthAmount = useRef<HTMLInputElement>(null)
 
 
     function handleImage(event: ChangeEvent<HTMLInputElement>) {
@@ -129,13 +131,23 @@ const CampaignForm = () => {
             return
         }
 
-        if (data.goal <= 0) {
-            genericToast("Goal amount cannot be 0 or less", "...")
+        if (data.goal === undefined) {
+            genericToast("Please assign goal amount", "...")
+            return
+        }
+
+        if (data.title === undefined) {
+            genericToast("Please assign title for you campaign", "...")
             return
         }
 
         if(data.category === null) {
             genericToast("Campaign must be categorized", "...")
+            return   
+        }
+
+        if(data.description === undefined) {
+            genericToast("Campaign must have description", "...")
             return   
         }
 
@@ -150,7 +162,7 @@ const CampaignForm = () => {
         }
 
         var goalAsWei: bigint
-        goalAsWei = pasreEtherFromStringEtherToWEI(data.goal)
+        goalAsWei = (pasreEtherFromStringEtherToWEI(data.goal) as unknown) as bigint
         const bigintAsString = goalAsWei.toString();
 
         const requestData = {

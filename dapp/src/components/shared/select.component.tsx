@@ -5,7 +5,6 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
@@ -18,21 +17,19 @@ interface SelectScrollableProps {
 }
 
 const SelectScrollable: React.FC<SelectScrollableProps> = (props: SelectScrollableProps) => {
-    
-    const handleChange = (e) => {
-        console.log(e)
-    }    
 
   return (
-    <Select onChange={handleChange}>
+    <Select>
       <SelectTrigger className="w-full">
         <SelectValue placeholder={props.placeholder} />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-            {props.data.map((v) => {
-                <SelectItem value={v.value}>{v.label}</SelectItem>     
-            })}
+        {props.data.map((v) => (
+            <SelectItem key={v.value} value={v.value}>
+                {v.label}
+            </SelectItem>     
+        ))}
         </SelectGroup>
       </SelectContent>
     </Select>

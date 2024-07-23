@@ -209,8 +209,8 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
                             className="absolute inset-0 w-full h-full"
                             src={embdedYotubeVideoInIframe(campaign.video)}
                             title="YouTube video player"
-                            frameborder="0"
-                            allowfullscreen
+                            frameBorder="0"
+                            allowFullScreen
                         ></iframe>
                         </div>
                     </div></>

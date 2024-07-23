@@ -1,8 +1,9 @@
 // Transparency.tsx
 import { CONTRACT_ADDRESS, CONTRACT_URL } from '@/services/crypto/consts';
 import React from 'react';
+import { GiConsoleController } from 'react-icons/gi';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { gml } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Importing the atom-one-dark theme
+import * as PrismStyles from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const solidityCode = `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
@@ -254,7 +255,7 @@ const Transparency = () => {
                         </span>
                     </p>                    
                     <div className="w-full rounded-lg shadow-lg overflow-hidden">
-                        <SyntaxHighlighter language="solidity" style={gml} className="rounded-3xl">
+                        <SyntaxHighlighter language="solidity" style={PrismStyles.atomDark} className="rounded-3xl">
                             {solidityCode}
                         </SyntaxHighlighter>
                     </div>

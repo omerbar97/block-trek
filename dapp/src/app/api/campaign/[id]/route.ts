@@ -1,10 +1,9 @@
-import { getCampaignById, getCampaignByIdWithAllData } from "@/services/controller/campaign";
-import { NextApiRequest } from "next";
-import { NextResponse } from "next/server";
+import { getCampaignByIdWithAllData } from "@/services/controller/campaign";
+import { NextRequest, NextResponse } from "next/server";
 import { getUserSession } from "../../getusersession";
 
 
-async function handler(req: NextApiRequest, params: any) {
+async function handler(req: NextRequest, params: any) {
     // Getting params of campagin by id params.id
     const session = await getUserSession();
     if (!session || !session.user?.email) {

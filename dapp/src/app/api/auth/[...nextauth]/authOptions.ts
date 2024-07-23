@@ -26,35 +26,36 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         async signIn({ account, profile }) {
             if (!profile?.email) {
-                throw new Error('No profile')
+                return false; // No profile email, return false
             }
+
             // checking if user already signed up
             try {
                 const foundUser = await prisma.user.findFirst({
                     where: {
-                        email: profile.email
-                    }
-                })
-    
+                        email: profile.email,
+                    },
+                });
+
                 if (!foundUser) {
-                    // user doesnt exists
+                    // user doesn't exist, create a new one
                     const usr: User = {
                         email: profile.email,
                         name: profile.name,
                         avatar: profile.image,
                         verified: false,
                         filledForm: false,
-                    }
+                    };
                     await prisma.user.create({
                         data: {
-                            ...usr
-                        }
-                    })
-                    return { user: { ...usr } };
-                }
-                else if (!foundUser.filledForm) {
-                    return { user: { ...foundUser } };
+                            ...usr,
+                        },
+                    });
+                } else if (!foundUser.filledForm) {
+                    // user exists but hasn't filled form
+                    return true; // Allow sign-in
                 } else {
+                    // update existing user
                     await prisma.user.update({
                         where: {
                             email: profile.email,
@@ -62,13 +63,14 @@ export const authOptions: NextAuthOptions = {
                         data: {
                             name: profile.name,
                             avatar: profile.image,
-                        }
-                    })
+                        },
+                    });
                 }
-                return { user: { ...foundUser } };
-            }
-            catch (e) {
-                console.log("failed to auth user login ", e)
+
+                return true; // Sign-in successful
+            } catch (e) {
+                console.log("failed to auth user login ", e);
+                return false; // Sign-in failed
             }
         },
     },
