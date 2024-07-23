@@ -17,7 +17,7 @@ const Hero = () => {
     var url = session?.user?.email ? '/dashboard' : '/api/auth/signin'
     const welcomeSection = () => {
         return (
-            <div className="text-white">
+            <div className="text-white z-3">
                 <div className="mx-auto max-w-2xl py-32 sm:py-40 lg:py-56">
                     <div className="hidden sm:mb-8 sm:flex sm:justify-center">
                         <div className="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-50 ring-1 ring-gray-100/10 hover:ring-gray-200">
@@ -67,7 +67,7 @@ const Hero = () => {
     }
 
     return (
-        <section className='left-0 top-0 hero overflow-hidden'>
+        <section className='left-0 top-0 hero overflow-hidden z-10'>
             {welcomeSection()}
         </section>
     )

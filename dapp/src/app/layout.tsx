@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from "@/components/ui/sonner"
 import Providers from '@/components/auth/providers'
+import Geometry from '@/components/homepage/geometry'
 
 
 const inter = Inter({ subsets: ['latin'], display: 'swap', adjustFontFallback: false })
