@@ -1,10 +1,20 @@
-import { Contract, ethers } from 'ethers';
+import { BigNumber, Contract, ethers } from 'ethers';
 import { FACTORY_ABI } from './abi';
 import { getProviders } from './wallet';
 import { genericToast } from '@/utils/toast';
 import { CONTRACT_ADDRESS, CONTRACT_URL } from './consts';
 import { wetToEthBigIntFormat } from '@/utils/crypto';
 
+function bigNumberToDate(bigNumber: BigNumber): Date {
+    // Convert BigNumber to a string to avoid precision loss in JavaScript number
+    const timestampString = bigNumber.toString();
+
+    // Convert the string to a number
+    const timestampNumber = parseInt(timestampString, 10);
+
+    // Create and return the Date object
+    return new Date(timestampNumber);
+}
 
 async function generateABI() {
     // Read the compiled contract JSON file
@@ -30,26 +40,16 @@ export const getCampaignFactoryContract = async () => {
         const abi = await generateABI();
         const CampaignContract = await new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
 
-        // event Contribution(string campaignName, address indexed contributor, uint256 amount, uint256 time);
-        // event Refund(string campaignName, address indexed contributor, uint256 amount, uint256 time);
-        // event CampaignCompleted(string campaignName, uint256 goalAmount ,uint256 time);
-        // event FundsRetrievedByCampaignOwner(string campaignName, address owner, uint256 amount);
-        // event CampaignCreated (
-        //     string uuid,
-        //     string campaignName,
-        //     address indexed owner
-        // );
-
-        CampaignContract.on("Contribution", async (campaignName: string, contributor: string, amount: bigint, time: number) => {
-            genericToast("New Contribution by " + contributor, "Donated " + wetToEthBigIntFormat(amount) + " to " + campaignName + " At: " + new Date(time).toString());
+        CampaignContract.on("Contribution", async (campaignName: string, contributor: string, amount: bigint, time: BigNumber) => {
+            genericToast("New Contribution by " + contributor, "Donated " + wetToEthBigIntFormat(amount) + " to " + campaignName + " At: " + bigNumberToDate(time).toString());
           });
       
-        CampaignContract.on("Refund", async (campaignName: string, contributor: string, amount: bigint, time: number) => {
-        genericToast("Refund Issued to " + contributor, "Amount: " + wetToEthBigIntFormat(amount) + " for campaign " + campaignName + " At: " + new Date(time).toString());
+        CampaignContract.on("Refund", async (campaignName: string, contributor: string, amount: bigint, time: BigNumber) => {
+        genericToast("Refund Issued to " + contributor, "Amount: " + wetToEthBigIntFormat(amount) + " for campaign " + campaignName + " At: " + bigNumberToDate(time).toString());
         });
     
-        CampaignContract.on("CampaignCompleted", async (campaignName: string, goalAmount: bigint,time: number) => {
-        genericToast("'"+ campaignName +"' Campaign Completed", " At: " + new Date(time).toString() + " With amount of: " + (goalAmount));
+        CampaignContract.on("CampaignCompleted", async (campaignName: string, goalAmount: bigint,time: BigNumber) => {
+        genericToast("'"+ campaignName +"' Campaign Completed", " At: " + bigNumberToDate(time).toString() + " With amount of: " + (goalAmount));
         });
     
         CampaignContract.on("FundsRetrievedByCampaignOwner", async (campaignName: string, owner: string, amount: bigint) => {

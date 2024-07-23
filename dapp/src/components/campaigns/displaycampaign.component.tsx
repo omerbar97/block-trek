@@ -114,7 +114,6 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
 
         // Convert the donation amount to WEI as a bigint
         const donationAmountWei = BigInt(Math.round(donationAmount * 1e18));
-
         const isOk = await requestBlockchainForDonation(campaign.uuid, donationAmountWei)
         if (!isOk) {
             genericToast("Failed to Donate!", "Try to check your information...", 5)
@@ -197,7 +196,7 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
                 <div className="m-4 flex-row items-center">
                     <div className='hover:bg-stone-700 rounded-xl p-2'>
                         <h3 className='mt-2 text-gray-200 w-fit font-semibold'><u>CAMPAIGN DESCRIPTION</u></h3>
-                        <p className="mt-2 text-gray-200 w-fit ">{campaign.description}</p>
+                        <p className="mt-2 text-gray-200 w-fit" style={{whiteSpace: "pre-wrap"}}>{campaign.description}</p>
                     </div>
                     {(campaign.video ? 
                     <>
