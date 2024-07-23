@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "postinstall": "prisma generate",
     "prisma-migrate-dev": "docker exec blocktrek-saas npx prisma migrate dev",
     "hardhat": "osascript -e 'tell app \"Terminal\"' -e 'do script \"./start.sh\"' -e 'end tell'",
     "hardhat-deploy": "sleep 3 && cd ../web3-hardhat && npx hardhat run --network localhost scripts/deploy.ts",
