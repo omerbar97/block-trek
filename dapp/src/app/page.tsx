@@ -8,7 +8,7 @@ import Transparency from "@/components/homepage/transparency.component";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between pr-24 pl-24 pt-8 overflow-hidden">
+    <main className="flex min-h-screen flex-col items-center justify-between pl-2 md:pr-24 md:pl-24 pt-8 overflow-hidden">
       <Geometry />
       <Navbar />
       <Hero />

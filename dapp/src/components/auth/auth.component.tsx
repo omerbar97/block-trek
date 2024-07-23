@@ -24,15 +24,15 @@ const AuthUser = () => {
 
         const downMenuHandle = () => {
             return (
-                <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 text-white">
+                <ul tabIndex={0} className="mt-3 z-[10] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 text-white">
                     <li>
-                        <Link href='/dashboard'>
+                        <Link href='/dashboard' className='z-[10]'>
                             <p className="justify-between">
                                 Dashboard
                             </p>
                         </Link>
                     </li>
-                    <li onClick={() => signOut()}><a>Logout</a></li>
+                    <li onClick={() => signOut()} className='z-[10]'><a>Logout</a></li>
                 </ul>
             )
         }
@@ -40,7 +40,6 @@ const AuthUser = () => {
         return (
             <>
                 <div className='text-black font-mono'>
-                    {/* Welcome! <span className=''>{session?.user?.name}</span> */}
                 </div>
                 <div className="dropdown dropdown-end  items-center">
                     <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
@@ -63,7 +62,7 @@ const AuthUser = () => {
     }
 
     return (
-        <div className="flex mr-4">
+        <div className="flex mr-4 z-10">
             {status === 'authenticated' ?
                 <>
                     {authenticated()}
