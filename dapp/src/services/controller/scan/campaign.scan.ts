@@ -121,11 +121,11 @@ export async function handleCampaignsAndInsertToDb(uuid: string) {
 async function syncCampaignsBetweenBlockchainAndDb(campaignsFromDb: Campaign[], campaignsUuidFromBC: string[]) {
     try {
         // Check for campaigns in blockchain but not in the database
-        const campaignsNotInDb = campaignsFromDb.filter(campaign => !campaignsUuidFromBC.some(uuid => uuid === campaign.uuid));
+        const campaignsNotInBC = campaignsFromDb.filter(campaign => !campaignsUuidFromBC.some(uuid => uuid === campaign.uuid));
         // deleting all the campaignsNotInDb
-        for(let i = 0; i < campaignsNotInDb.length; i++) {
-            await deleteAllContributersForCampaignByCampaignId(campaignsNotInDb[i].id)
-            await deleteCampaignFromDb(campaignsNotInDb[i].uuid)
+        for(let i = 0; i < campaignsNotInBC.length; i++) {
+            await deleteAllContributersForCampaignByCampaignId(campaignsNotInBC[i].id)
+            await deleteCampaignFromDb(campaignsNotInBC[i].uuid)
         }
     } catch (error) {
         console.error("Error synchronizing campaigns:", error);

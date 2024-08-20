@@ -14,7 +14,7 @@ import {
 import { useWallet } from '@/hooks/wallet.hook';
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { donationAmountCannotBeNegativeToast, genericToast } from '@/utils/toast';
-import { getEthVal, getPriceInFormat, weiToEthStringFormat } from '@/utils/crypto';
+import { getEthVal, getPriceInFormat, weiToEthStringFormat, weiToStringFormat } from '@/utils/crypto';
 import { Campaign, Contributer, Owner, Reward } from '@prisma/client';
 import { SearchBarCategories } from '@/constants/combobox.constant';
 import { requestBlockchainForDonation, requestBlockchainForRefund } from '@/services/crypto/contract';
@@ -332,7 +332,7 @@ const DisplayCampaign: React.FC<CampaignCardProps> = ({ campaign, contributers, 
                                 <Tooltip>
                                     <TooltipTrigger className='w-1/4 overflow-hidden whitespace-nowrap overflow-ellipsis'>{weiToEthStringFormat(contributer.amount)} ETH</TooltipTrigger>
                                     <TooltipContent>
-                                        <p>{contributer.amount} WEI</p>
+                                        <p>{weiToStringFormat(contributer.amount)} WEI</p>
                                     </TooltipContent>
                                 </Tooltip>
                                 <Separator orientation="vertical" />

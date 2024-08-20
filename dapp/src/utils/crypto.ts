@@ -27,6 +27,12 @@ export function weiToEthStringFormat(wei: string): string {
   return `${ethAmount.toFixed(2)}`;
 }
 
+export function weiToStringFormat(wei: string): string {
+  const weiBigInt = BigInt(wei);
+  // Perform the division to get the ETH amount
+  const formattedEthAmount = weiBigInt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return `${formattedEthAmount}`;
+}
 
 export const getPriceInFormat = (amount:number, value:number | undefined) => {
   if (amount && value) {

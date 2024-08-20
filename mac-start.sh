@@ -7,6 +7,9 @@ tell application "Terminal"
 end tell
 EOF
 
+# Sleep for 5 seconds to allow the Hardhat node to start up
+sleep 5
+
 # Open a new Terminal window and run the hardhat deploy script, allowing it to finish and then close
 osascript <<EOF
 tell application "Terminal"

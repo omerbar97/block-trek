@@ -23,12 +23,11 @@ export async function addAllContributersFromBlockchainToDb(campaignId: number, c
 }
 
 export async function addContributionFromBlockchainToDbWithChecks(campaignId: number, contributersFromBC: ContributionsFromBlockchain, contributersFromDb: Contributer[]) {
-    let i = 0
-    for(; i < contributersFromBC.keys.length; i++ ) {
+    for(let i = 0; i < contributersFromBC.keys.length; i++ ) {
         const arrayFilterd = contributersFromDb.filter(item => item.walletAddress === contributersFromBC.keys[i]);
         let sumInDatabase = await getSumOfContributerByCampaignIdAndWalletAddress(campaignId, contributersFromBC.keys[i])
         if (arrayFilterd.length > 0) {
-            let latestItem = null
+            let latestItem: Contributer
             if (arrayFilterd.length == 1) {
                 latestItem = arrayFilterd[0]
             } else {
@@ -54,15 +53,6 @@ export async function addContributionFromBlockchainToDbWithChecks(campaignId: nu
                 } else if (sumInBlockChain < sumInDatabase) {
                     // adding the differences
                     await updateAllContributersToBeRefundedByCampaignIdAndWallet(campaignId, contributersFromBC.keys[i])
-                    const contributer = {
-                        name: null,
-                        walletAddress: contributersFromBC.keys[i],
-                        amount: bigintToString(sumInBlockChain),
-                        date: convertToJSDate(contributersFromBC.dates[i]),
-                        campaignId: campaignId
-                    }
-                    await saveContributersToDb(contributer as Contributer)
-                } else if (sumInBlockChain === sumInDatabase && latestItem.isRefunded) {
                     const contributer = {
                         name: null,
                         walletAddress: contributersFromBC.keys[i],
