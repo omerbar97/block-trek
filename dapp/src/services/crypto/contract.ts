@@ -45,7 +45,7 @@ export const getCampaignFactoryContract = async () => {
           });
       
         CampaignContract.on("Refund", async (campaignName: string, contributor: string, amount: bigint, time: BigNumber) => {
-        genericToast("Refund Issued to " + contributor, "Amount: " + wetToEthBigIntFormat(amount) + " for campaign " + campaignName + " At: " + bigNumberToDate(time).toString());
+        genericToast("Refund Issued to " + contributor, "Amount: " + wetToEthBigIntFormat(amount) + " from campaign " + campaignName + " At: " + bigNumberToDate(time).toString());
         });
     
         CampaignContract.on("CampaignCompleted", async (campaignName: string, goalAmount: bigint,time: BigNumber) => {
